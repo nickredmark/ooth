@@ -1,0 +1,11 @@
+{
+  "name": "ooth-client",
+  "version": "0.0.0",
+  "description": "Ooth client library, wrapper around the ooth API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC"
+}

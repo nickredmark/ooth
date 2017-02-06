@@ -1,0 +1,16 @@
+{
+  "name": "ooth-local",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^1.0.2",
+    "nodeify": "^1.0.0",
+    "passport-local": "^1.0.0"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "ooth-example",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --harmony-async-await index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.1",
+    "es6-promisify": "^5.0.0",
+    "express": "^4.14.1",
+    "mailcomposer": "^4.0.1",
+    "mailgun-js": "^0.8.1",
+    "morgan": "^1.8.0"
+  }
+}

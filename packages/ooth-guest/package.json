@@ -1,0 +1,15 @@
+{
+  "name": "ooth-guest",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC",
+  "dependencies": {
+    "nodeify": "^1.0.0",
+    "passport-custom": "^1.0.5"
+  }
+}
