@@ -16,7 +16,11 @@ function nodeifyAsync(asyncFunction) {
 }
 
 module.exports = function({
-    onRegister
+    onRegister,
+    onGenerateVerificationToken,
+    onVerify,
+    onForgotPassword,
+    onResetPassword
 }) {
     return function({
         name,
@@ -31,7 +35,7 @@ module.exports = function({
         requireLogged,
         requireNotLogged,
         requireNotRegistered,
-        requireRegistered
+        requireRegisteredWithThis
     }) {
 
         registerUniqueField('email', 'email')
@@ -52,38 +56,30 @@ module.exports = function({
             }
         })))
 
-        registerPassportMethod('register', requireNotRegistered, new LocalStrategy({
-            usernameField: 'email',
-            passwordField: 'password'
-        }, function(email, password, done) {
-            return nodeify((async function() {
+        registerMethod('register', requireNotLogged, function(req, res) {
+            return (async () => {
+                const {email, password} = req.body
+
                 if (typeof email !== 'string') {
-                    throw new Error('Invalid email')
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid email'
+                    })
                 }
                 if (typeof password !== 'string') {
-                    throw new Error(null, false, {
-                        message: 'Invalid password'
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid email'
                     })
                 }
 
                 let user = await getUserByUniqueField('email', email)
 
                 if (user) {
-                    if (user.local) {
-                        if (user.local.email === email) {
-                            throw new Error('This email is already registered')
-                        } else {
-                            throw new Error('This email is already registered')
-                        }
-                    } else {
-                        await updateUser(user._id, {
-                            email,
-                            password: hashSync(password, SALT_ROUNDS)
-                        })
-                        return {
-                            _id: user._id
-                        }
-                    }
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'This email is already registered.'
+                    })
                 }
 
                 const verificationToken = randomToken()
@@ -94,43 +90,163 @@ module.exports = function({
                     verificationToken
                 })
                 
-                onRegister({
-                    _id,
-                    email,
-                    verificationToken
-                })
-                return {
-                    _id
-                }
-            })(), done)
-        }))
-
-        registerMethod('verify', function(req, res) {
-            (async () => {
-                if (!req.body.token) {
-                    return res.send({
-                        message: 'Verification token required'
+                if (onRegister) {
+                    onRegister({
+                        _id,
+                        email,
+                        verificationToken
                     })
                 }
 
-                const user = await getUsersByFields({
-                    verificationToken: req.body.token
-                })
-
-                if (!user) {
-                    return res.send({
-                        message: 'Verification token invalid'
-                    })
-                }
-
-                await updateUser({
-                    verified: true
-                })
-
-                return res.send({
-                    message: 'Email verified'
+                res.send({
+                    message: 'User registered successfully.'
                 })
             })()
         })
+
+        registerMethod('generate-verification-token', requireRegisteredWithThis, function(req, res) {
+            return (async () => {
+                const verificationToken = randomToken()
+
+                updateUser(req.user._id, {
+                    verificationToken
+                })
+
+
+                if (onGenerateVerificationToken) {
+                    const user = await getUserById(req.user._id)
+                    onGenerateVerificationToken({
+                        _id: user._id,
+                        email: user[name].email,
+                        verificationToken
+                    })
+                }
+
+                res.send({
+                    message: 'Message token generated'
+                })
+            })()
+        })
+
+        registerMethod('verify', function(req, res) {
+            return (async () => {
+                try {
+                    if (!req.body.token) {
+                        return res.status(400).send({
+                            status: 'error',
+                            message: 'Verification token required'
+                        })
+                    }
+
+                    const user = await getUserByFields({
+                        verificationToken: req.body.token
+                    })
+
+                    if (!user) {
+                        return res.status(400).send({
+                            status: 'error',
+                            message: 'Verification token invalid'
+                        })
+                    }
+
+                    await updateUser(user._id, {
+                        verified: true,
+                        verificationToken: null
+                    })
+
+                    if (onVerify) {
+                        onVerify({
+                            _id: user._id,
+                            email: user[name].email
+                        })
+                    }
+
+                    return res.send({
+                        message: 'Email verified'
+                    })
+                } catch (e) {
+                    return res.status(500).send({
+                        status: 'error',
+                        message: e.message
+                    })
+                }
+            })()
+        })
+
+        registerMethod('forgot-password', requireNotLogged, function(req, res) {
+            return (async () => {
+                const {email} = req.body
+
+                if (!email || typeof email !== 'string') {
+                    res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid email.'
+                    })
+                }
+
+                const user = await getUserByUniqueField('email', email)
+
+                if (!user) {
+                    res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid email.'
+                    })
+                }
+
+                const passwordResetToken = randomToken()
+
+                updateUser(user._id, {
+                    passwordResetToken
+                })
+
+                if (onForgotPassword) {
+                    onForgotPassword({
+                        _id: user._id,
+                        email: user[name].email,
+                        passwordResetToken
+                    })
+
+                }
+
+                return res.send({
+                    message: 'Password reset token generated'
+                })
+           })()
+        })
+
+        registerMethod('reset-password', requireNotLogged, function(req, res) {
+            return (async () => {
+                const {token, newPassword} = req.body
+                if (!newPassword || !typeof newPassword === 'string') {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid password'
+                    })
+                }
+                const user = await getUserByFields({
+                    passwordResetToken: token
+                })
+                if (!user) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid password reset token'
+                    })
+                }
+                await updateUser(user._id, {
+                    passwordResetToken: null,
+                    password: hashSync(newPassword, SALT_ROUNDS)
+                })
+                if (onResetPassword) {
+                    onResetPassword({
+                        _id: user._id,
+                        email: user[name].email
+                    })
+                }
+                return res.send({
+                    message: 'Password has been reset.'
+                })
+            })()
+        })
+
     }
 }

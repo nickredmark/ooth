@@ -124,8 +124,12 @@ class Ooth {
                     }
                     return req.body.token
                 }
-            }, nodeifyAsync(async ({user}) => {
-                return user
+            }, nodeifyAsync(async (payload) => {
+                if (!payload.user || !payload.user._id || typeof payload.user._id !== 'string') {
+                    console.error(payload)
+                    throw new Error('Malformed token payload.')
+                }
+                return payload.user
             })))
 
 
@@ -145,13 +149,16 @@ class Ooth {
             },
             registerMethod: (method, ...handlers) => {
                 this.strategies[name].methods.push(method)
-                this.app.post(`/${strategy}/${method}`, ...handlers)
+                this.app.post(`/${name}/${method}`, ...handlers)
             },
             registerUniqueField: (id, fieldName) => {
                 if (!this.uniqueFields[id]) {
                     this.uniqueFields[id] = []
                 }
                 this.uniqueFields[id].push(`${name}.${fieldName}`)
+            },
+            getUserById: async (id) => {
+                return await this.Users.findOne(ObjectId(id))
             },
             getUserByUniqueField: async (fieldName, value) => {
                 return await this.Users.findOne({
@@ -160,7 +167,7 @@ class Ooth {
                     }))
                 })
             },
-            getUserByField: async (fields) => {
+            getUserByFields: async (fields) => {
                 const actualFields = {}
                 Object.keys(fields).forEach(field => {
                     actualFields[`${name}.${field}`] = fields[field]
@@ -178,20 +185,49 @@ class Ooth {
                     $set: actualFields
                 })
             },
-            insertUser: async (_id, fields) => {
+            insertUser: async (fields) => {
                 const query = {}
                 if (fields) {
-                    Object.keys(fields).forEach(field => {
-                        query[`${name}.${field}`] = fields[field]
-                    })
+                    query[name] = fields
                 }
                 const {insertedId} = await this.Users.insertOne(query)
                 return insertedId
             },
             requireLogged,
             requireNotLogged,
-            requireNotRegistered
+            requireNotRegistered,
+            requireRegisteredWithThis: this.requireRegisteredWith(name)
         })
+    }
+    requireRegisteredWith(strategy) {
+        return (req, res, next) => {
+            return requireLogged(req, res, () => {
+                this.Users.findOne({
+                    _id: req.user._id
+                }, (err, user) => {
+                    if (err) {
+                        return res.status(500).send({
+                            status: 'error',
+                            message: err
+                        })
+                    }
+                    if (!user) {
+                        return res.status(500).send({
+                            status: 'error',
+                            message: 'Couldn\'t find user.'
+                        })
+                    }
+                    if (!user[strategy]) {
+                        return res.status(400).send({
+                            status: 'error',
+                            message: `This user didn\'t register with strategy ${strategy}.`
+                        })
+                    }
+                    req.user[strategy] = user[strategy]
+                    next()
+                })
+            })
+        }
     }
     registerPassportMethod(strategy, method, ...handlers) {
         this.strategies[strategy].methods.push(method)
