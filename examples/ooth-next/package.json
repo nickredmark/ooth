@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "next": "^1.2.3"
+  },
+  "name": "ooth-next-example",
+  "description": "Ooth universally rendered client.",
+  "version": "0.0.1",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "start": "next",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC"
+}
