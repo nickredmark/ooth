@@ -80,11 +80,9 @@ class Ooth {
             app.use(passport.initialize())
             app.use(passport.session())
             passport.serializeUser((user, done) => {
-                console.log("serialize", user)
                 done(null, user._id)
             })
             passport.deserializeUser((id, done) => {
-                console.log("deserializing", id)
                 if (typeof id === 'string') {
                     this.Users.findOne(ObjectId(id), done)
                 } else {
@@ -92,8 +90,33 @@ class Ooth {
                 }
             })
             
-            app.all('/', requireLogged, this.returnToken.bind(this))
-            this.registerPassportMethod(null, 'login', requireNotLogged, new JwtStrategy({
+            app.all('/', (req, res) => {
+                const response = {}
+                if (req.user) {
+                    response.token = this.getToken(req.user)
+                } else {
+                    response.message = "You aren't logged in."
+                    const methods = {}
+                    Object.keys(this.strategies).forEach(name => {
+                        methods[name] = this.strategies[name].methods
+                    })
+                    
+                    response.methods = methods 
+                }
+
+
+                res.send(response)
+            })
+            this.strategies.root = {
+                methods: ['logout']
+            }
+            app.post('/logout', requireLogged, (req, res) => {
+                req.logout()
+                res.send({
+                    message: 'Logged out'
+                })
+            })
+            this.registerPassportMethod('root', 'login', requireNotLogged, new JwtStrategy({
                 secretOrKey: this.sharedSecret,
                 jwtFromRequest: (req) => {
                     if (!req.body || !req.body.token) {
@@ -101,34 +124,27 @@ class Ooth {
                     }
                     return req.body.token
                 }
-            }, nodeifyAsync(async (...args) => {
-                console.log("this is not working")
-                console.log("tokencontent", args)
+            }, nodeifyAsync(async ({user}) => {
+                return user
             })))
-            app.post('/logout', requireLogged, (req, res) => {
-                req.logout()
-                res.send({
-                    message: 'Logged out'
-                })
-            })
 
 
         })()
     }
-    returnToken(req, res) {
-        const user = req.user
-        console.log("request", user)
-        res.send({
-            token: sign({ user }, this.sharedSecret)
-        })
+    getToken(user) {
+        return sign({ user }, this.sharedSecret)
     }
     use(name, strategy) {
+        this.strategies[name] = {
+            methods: []
+        }
         strategy({
             name,
             registerPassportMethod: (...args) => {
                 this.registerPassportMethod(name, ...args)
             },
             registerMethod: (method, ...handlers) => {
+                this.strategies[name].methods.push(method)
                 this.app.post(`/${strategy}/${method}`, ...handlers)
             },
             registerUniqueField: (id, fieldName) => {
@@ -178,10 +194,11 @@ class Ooth {
         })
     }
     registerPassportMethod(strategy, method, ...handlers) {
+        this.strategies[strategy].methods.push(method)
         const middleware = handlers.slice(0, -1)
         const handler = handlers[handlers.length-1]
-        const methodName = strategy ? `${strategy}-${method}` : method
-        const routeName = strategy ? `/${strategy}/${method}` : `/${method}`
+        const methodName = strategy !== 'root' ? `${strategy}-${method}` : method
+        const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
         passport.use(methodName, handler)
         this.app.post(routeName, ...middleware, (req, res, next) => {
             passport.authenticate(methodName, (err, user, info) => {
@@ -195,7 +212,11 @@ class Ooth {
                     if (loginErr) {
                         return next(loginErr)
                     }
-                    this.returnToken(req, res)
+
+                    const user = req.user
+                    res.send({
+                        token: this.getToken(user)
+                    })
                 })
             })(req, res, next)
         })

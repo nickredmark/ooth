@@ -19,5 +19,8 @@
     "ooth": "^0.0.1",
     "ooth-guest": "^0.0.1",
     "ooth-local": "^0.0.1"
+  },
+  "engines": {
+    "node": ">=7.5"
   }
 }

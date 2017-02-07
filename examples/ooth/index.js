@@ -73,11 +73,11 @@ async function start() {
         //ooth.use('google', oothGoogle(settings.google))
 
         app.listen(settings.port, function() {
-            console.log(`Ooth started on port ${settings.port}`)
+            console.info(`Ooth started on port ${settings.port}`)
         })
 
     } catch (e) {
-        console.log(e)
+        console.error(e)
     }
 }
 
