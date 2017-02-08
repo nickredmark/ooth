@@ -11,7 +11,7 @@ const ooth = new Ooth(app, {
     mongoUrl: MONGO_URL
 })
 
-ooth.use(oothFacebook({
+ooth.use('facebook', oothFacebook({
     clientID: FACEBOOK_APP_ID,
     clientSecret: FACEBOOK_APP_SECRET,
     callbackURL: FACEBOOK_CALLBACK_URL
@@ -19,27 +19,6 @@ ooth.use(oothFacebook({
 
 app.listen(PORT)
 ```
-
-## Existing strategies
-
-* guest: login as a guest, no credentials needed (built-in)
-* [ooth-local](../ooth-local): login with email/password
-* [ooth-faceboook](../ooth-facebook)
-* [ooth-google](../ooth-google)
-
-## API
-
-`
-ANY / - get JWT token of current user id
-POST /login - log in as guest
-POST /logout - clear session
-POST /strategy/method - use a method of a specific strategy, examples
-POST /facebook/register
-POST /local/login
-POST /local/register
-POST /local/forgot-password
-POST /local/reset-password
-`
 
 ## Writing strategies
 
@@ -55,12 +34,15 @@ strategy({
     registerPassportMethod,
     registerMethod,
     registerUniqueField,
+    getUserById,
     getUserByUniqueField,
+    getUserByFields,
     updateUser,
     insertUser,
     requireLogged,
     requireNotLogged,
-    requireNotRegistered
+    requireNotRegistered,
+    requireRegisteredWithThis
 })
 ```
 
@@ -76,9 +58,13 @@ which return an error if their conditions are not met. `methodHandler` will be r
 
 `registerUniqueField(fieldId, fieldName)` registers a field that will be searchable across services.
 
-`getUserByUniqueField(fieldId, value)` searches a user by a field as registered across services.
+`getUserById` searches a user by id
+
+`getUserByUniqueField(fieldId, value)` searches a user by a field as registered with `registerUniqueField` across services.
+
+`getUserByFields(fields)` searches a user by the given fields, as scoped within the strategy name.
 
 `updateUser(_id, fields)` updates the given fields of a user, as scoped within the strategy name, i.e.
 `updateUser(_id, {email: 'newemail@example.com'})` from strategy `local` actually updates field `local.email`.
 
-`requireLogges`, `requireNotLogged`, `requireNotRegistered` are middleware that can be used with the `register[Passport]Method` functions.
+`requireLogged`, `requireNotLogged`, `requireNotRegistered`, `requireRegisteredWithThis` are middleware that can be used with the `register[Passport]Method` functions.
