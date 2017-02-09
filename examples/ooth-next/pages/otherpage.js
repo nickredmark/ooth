@@ -3,7 +3,7 @@ import ooth from '../ooth'
 
 export default class App extends React.Component {
     static async getInitialProps({req}) {
-        let userId = ooth.getUserId({req})
+        let userId = ooth.getUserId()
         if (!userId) {
             userId = await ooth.authMethod('guest', 'register')
         }
