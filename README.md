@@ -2,11 +2,13 @@
 
 Introducing medium article: [Ooth - user accounts for node.js](https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a#.97kyfg4xg).
 
-NOTE: Until version 1.0.0 is reached, the API will be unstable.
+NOTE: Until version 1.0.0 is reached, the API will be unstable and can't be considered safe for production.
 
 ## Examples
 
 * [ooth](examples/ooth) - an ooth microservice instantiation
+* [graphql-api-with-auth](examples/graphql-api-with-auth) - an example graphql api with JWT auth
+* [ooth-create-react-app](examples/create-react-app) - an ooth client integration with create-react-app
 * [ooth-next](examples/ooth-next) - an ooth client integration with next.js
 
 ## Packages
@@ -20,7 +22,7 @@ Find more documentation in the readmes of the individual packages.
 
 ### Strategies
 
-* [guest-guest](packages/ooth-guest): login as a guest, no credentials needed (built-in)
+* [ooth-guest](packages/ooth-guest): login as a guest, no credentials needed (built-in)
 * [ooth-local](packages/ooth-local): login with email/password
 * [ooth-faceboook](packages/ooth-facebook)
 * [ooth-google](packages/ooth-google)
