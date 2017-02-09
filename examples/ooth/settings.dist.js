@@ -8,6 +8,5 @@ module.exports = {
     mail: {
         from: "info@example.com"
     },
-    sharedSecret: 'XXX',
-    sessionSecret: 'XXX'
+    sharedSecret: 'XXX', // Has to be the same in api server
 }
