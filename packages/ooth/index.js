@@ -69,16 +69,7 @@ class Ooth {
 
             app.use(cookieParser())
             app.use(bodyParser.json())
-            app.use(bodyParser.urlencoded({
-                extended: true
-            }))
-            app.use(session({
-                secret: 'some secret',
-                resave: false,
-                saveUninitialized: true,
-            }))
             app.use(passport.initialize())
-            app.use(passport.session())
             passport.serializeUser((user, done) => {
                 done(null, user._id)
             })
@@ -91,31 +82,13 @@ class Ooth {
             })
             
             app.all('/', (req, res) => {
-                const response = {}
-                if (req.user) {
-                    response.token = this.getToken(req.user)
-                } else {
-                    response.message = "You aren't logged in."
-                    const methods = {}
-                    Object.keys(this.strategies).forEach(name => {
-                        methods[name] = this.strategies[name].methods
-                    })
-                    
-                    response.methods = methods 
-                }
-
-
-                res.send(response)
+                res.send({
+                    methods
+                })
             })
             this.strategies.root = {
                 methods: ['logout']
             }
-            app.post('/logout', requireLogged, (req, res) => {
-                req.logout()
-                res.send({
-                    message: 'Logged out'
-                })
-            })
             this.registerPassportMethod('root', 'login', requireNotLogged, new JwtStrategy({
                 secretOrKey: this.sharedSecret,
                 jwtFromRequest: (req) => {
@@ -251,6 +224,7 @@ class Ooth {
 
                     const user = req.user
                     res.send({
+                        user,
                         token: this.getToken(user)
                     })
                 })
