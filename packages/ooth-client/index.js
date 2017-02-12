@@ -3,40 +3,34 @@ const fetch = require('isomorphic-fetch')
 class OothClient {
     constructor({
         oothUrl,
-        apiUrl
+        apiLoginUrl,
+        apiLogoutUrl
     }) {
         this.oothUrl = oothUrl
-        this.apiUrl = apiUrl
-    }
-    use(name, strategy) {
-        strategy({
-        })
+        this.apiLoginUrl = apiLoginUrl
+        this.apiLogoutUrl = apiLogoutUrl
     }
     authenticate(strategy, method, body) {
-        console.log("trying to auth?")
-        return fetch(`${this.url}/${strategy}/${method}`, {
+        return fetch(`${this.oothUrl}/${strategy}/${method}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(body)
+            body: body && JSON.stringify(body)
         }).then(response => {
             return response.json()
         }).then(({token}) => {
-            return fetch(`${this.apiUrl}`, {
+            return fetch(this.apiLoginUrl, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authentication: `JWT${token}`
+                    'Authorization': `JWT ${token}`
                 },
-                body: JSON.stringify({
-                    token
-                })
+                credentials: 'include'
             })
         })
     }
     method(strategy, method, body) {
-        return fetch(`${this.url}/${strategy}/${method}`, {
+        return fetch(`${this.oothUrl}/${strategy}/${method}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -44,6 +38,12 @@ class OothClient {
             body: JSON.stringify(body)
         }).then(response => {
             return response.json()
+        })
+    }
+    logout() {
+        return fetch(this.apiLogoutUrl, {
+            method: 'POST',
+            credentials: 'include'
         })
     }
 }
