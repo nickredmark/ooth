@@ -172,7 +172,7 @@ const start = async () => {
         app.use(morgan('dev'))
 
         const corsMiddleware = cors({
-            origin: 'http://localhost:3002',
+            origin: settings.originUrl,
             credentials: true,
             preflightContinue: false
         })
@@ -191,7 +191,7 @@ const start = async () => {
         }))
 
         app.listen(settings.port, () => {
-            console.log(`Visit ${settings.url}:${settings.port}`)
+            console.log(`Online at ${settings.url}:${settings.port}`)
         })
 
     } catch (e) {

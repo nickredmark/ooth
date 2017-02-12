@@ -17,7 +17,7 @@ Run
 npm start
 ```
 
-Visit `http://localhost:3001/graphiql` to play with the data.
+The GraphQL endpoint is `/graphql`. Visit `/graphiql` to play with the data.
 
 Notice how you can query posts and comments, but not insert any without having logged in.
 
@@ -32,7 +32,7 @@ To be able to login you need to start the companion example [ooth](../ooth) serv
 Once started register as a guest:
 
 ```
-curl -XPOST http://localhost:3000/guest/register
+curl -XPOST {oothserver}/guest/register
 ```
 
 will get you a JWT token
@@ -40,7 +40,7 @@ will get you a JWT token
 then
 
 ```
-curl -XPOST http://localhost:3001/login --header "Authorization: JWT {enterjwttokenhere}" -c -
+curl -XPOST {apiserver}/login --header "Authorization: JWT {enterjwttokenhere}" -c -
 ```
 
 this will print the session cookie created by the server
