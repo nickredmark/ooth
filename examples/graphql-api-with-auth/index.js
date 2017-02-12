@@ -27,6 +27,7 @@ function nodeifyAsync(asyncFunction) {
 function setupAuthEndpoints(app) {
     app.use(cookieParser())
     app.use(session({
+        name: 'api-session-id',
         secret: settings.sessionSecret,
         resave: false,
         saveUninitialized: true,
@@ -75,22 +76,30 @@ const start = async () => {
 
         const typeDefs = [`
             type Query {
+                me: User
                 post(_id: ID!): Post
                 posts: [Post]
                 comment(_id: ID!): Comment
+            }
+            type User {
+                _id: ID!
             }
             type Post {
                 _id: ID!
                 authorId: ID!
                 title: String
                 content: String
-                comments: [Comment]
+
+                author: User
+                comments: [Comment]!
             }
             type Comment {
                 _id: ID!
                 postId: ID!
                 authorId: ID
                 content: String
+
+                author: User
                 post: Post
             }
             type Mutation {
@@ -106,6 +115,14 @@ const start = async () => {
 
         const resolvers = {
             Query: {
+                me: async (root, args, {userId}) => {
+                    if (!userId) {
+                        return null
+                    }
+                    return {
+                        _id: userId
+                    }
+                },
                 post: async (root, {_id}) => {
                     return prepare(await Posts.findOne(ObjectId(_id)))
                 },
@@ -131,6 +148,7 @@ const start = async () => {
                     if (!userId) {
                         throw new Error('User not logged in.')
                     }
+                    args.authorId = userId
                     const res = await Posts.insert(args)
                     return prepare(await Posts.findOne({_id: res.insertedIds[1]}))
                 },
@@ -138,6 +156,7 @@ const start = async () => {
                     if (!userId) {
                         throw new Error('User not logged in.')
                     }
+                    args.authorId = userId
                     const res = await Comments.insert(args)
                     return prepare(await Comments.findOne({_id: res.insertedIds[1]}))
                 },
@@ -151,7 +170,14 @@ const start = async () => {
 
         const app = express()
         app.use(morgan('dev'))
-        app.use(cors())
+
+        const corsMiddleware = cors({
+            origin: 'http://localhost:3002',
+            credentials: true,
+            preflightContinue: false
+        })
+        app.use(corsMiddleware)
+        app.options(corsMiddleware)
 
         setupAuthEndpoints(app)
 
