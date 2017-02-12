@@ -8,6 +8,7 @@
   "dependencies": {
     "apollo-client": "^0.8.4",
     "graphql-tag": "^1.2.4",
+    "ooth-client": "^0.3.0",
     "react": "^15.4.2",
     "react-apollo": "^0.10.1",
     "react-dom": "^15.4.2",
