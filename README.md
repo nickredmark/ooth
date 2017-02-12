@@ -4,6 +4,10 @@ Introducing medium article: [Ooth - user accounts for node.js](https://medium.co
 
 NOTE: Until version 1.0.0 is reached, the API will be unstable and can't be considered safe for production.
 
+## Roadmap
+
+A roadmap can be found in the [ooth github projects](https://github.com/nmaro/ooth/projects/1).
+
 ## Examples
 
 * [ooth](examples/ooth) - an ooth microservice instantiation
