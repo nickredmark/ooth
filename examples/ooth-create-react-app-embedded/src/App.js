@@ -25,7 +25,7 @@ class App extends Component {
   }
 }
 
-export default App
+export default App;
 
 const ID = ({children}) => React.Children.only(children)
 
@@ -78,6 +78,9 @@ class LoginStatusComponent extends Component {
           oothClient.authenticate('guest', 'register')
             .then(res => {
               console.log(res)
+              oothClient.status().then(res => {
+                console.log(res)
+              })
               refetchUser()
             })
             .catch(err => {
