@@ -1,5 +1,6 @@
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
+const express = require('express')
 const session = require('express-session')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
@@ -53,9 +54,13 @@ class Ooth {
     constructor({
         mongoUrl,
         sharedSecret,
+        standalone,
+        path,
     }) {
         this.mongoUrl = mongoUrl
         this.sharedSecret = sharedSecret
+        this.standalone = standalone
+        this.path = path || '/'
 
         this.uniqueFields = {}
         this.strategies = {}
@@ -67,9 +72,15 @@ class Ooth {
             this.db = await MongoClient.connect(this.mongoUrl)
             this.Users = this.db.collection('users')
 
+            // App-wide configuration
             app.use(cookieParser())
             app.use(bodyParser.json())
             app.use(passport.initialize())
+            app.use(passport.session())
+
+            this.route = express.Router()
+            app.use(this.path, this.route)
+
             passport.serializeUser((user, done) => {
                 done(null, user._id)
             })
@@ -81,31 +92,61 @@ class Ooth {
                 }
             })
             
-            app.all('/', (req, res) => {
+            this.route.all('/', (req, res) => {
+                const methods = {}
+                Object.keys(this.strategies).forEach(name => {
+                    methods[name] = this.strategies[name].methods
+                })
                 res.send({
                     methods
                 })
             })
             this.strategies.root = {
-                methods: ['logout']
-            }
-            this.registerPassportMethod('root', 'login', requireNotLogged, new JwtStrategy({
-                secretOrKey: this.sharedSecret,
-                jwtFromRequest: (req) => {
-                    if (!req.body || !req.body.token) {
-                        throw new Error('Malformed body')
+                methods: ['status', 'logout']
+            }      
+            this.route.get('/status', (req, res) => {
+                if (req.user) {
+                    if (this.standalone) {
+                        res.send({
+                            user: req.user,
+                            token: this.getToken(req.user)
+                        })
+                    } else {
+                        res.send({
+                            user: req.user
+                        })
                     }
-                    return req.body.token
+                } else {
+                    res.send({
+                        user: null
+                    })
                 }
-            }, nodeifyAsync(async (payload) => {
-                if (!payload.user || !payload.user._id || typeof payload.user._id !== 'string') {
-                    console.error(payload)
-                    throw new Error('Malformed token payload.')
-                }
-                return payload.user
-            })))
+            })
+            this.route.post('/logout', requireLogged, (req, res) => {
+                req.logout()
+                res.send({
+                    message: 'Logged out'
+                })
+            })
 
+            if (this.standalone) {
+                this.registerPassportMethod('root', 'login', requireNotLogged, new JwtStrategy({
+                    secretOrKey: this.sharedSecret,
+                    jwtFromRequest: (req) => {
+                        if (!req.body || !req.body.token) {
+                            throw new Error('Malformed body')
+                        }
+                        return req.body.token
+                    }
+                }, nodeifyAsync(async (payload) => {
+                    if (!payload.user || !payload.user._id || typeof payload.user._id !== 'string') {
+                        console.error(payload)
+                        throw new Error('Malformed token payload.')
+                    }
+                    return payload.user
+                })))
 
+            }
         })()
     }
     getToken(user) {
@@ -122,7 +163,7 @@ class Ooth {
             },
             registerMethod: (method, ...handlers) => {
                 this.strategies[name].methods.push(method)
-                this.app.post(`/${name}/${method}`, ...handlers)
+                this.route.post(`/${name}/${method}`, ...handlers)
             },
             registerUniqueField: (id, fieldName) => {
                 if (!this.uniqueFields[id]) {
@@ -209,7 +250,7 @@ class Ooth {
         const methodName = strategy !== 'root' ? `${strategy}-${method}` : method
         const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
         passport.use(methodName, handler)
-        this.app.post(routeName, ...middleware, (req, res, next) => {
+        this.route.post(routeName, ...middleware, (req, res, next) => {
             passport.authenticate(methodName, (err, user, info) => {
                 if (err) {
                     return next(err)
@@ -223,10 +264,16 @@ class Ooth {
                     }
 
                     const user = req.user
-                    res.send({
-                        user,
-                        token: this.getToken(user)
-                    })
+                    if (this.standalone) {
+                        res.send({
+                            user,
+                            token: this.getToken(user)
+                        })
+                    } else {
+                        res.send({
+                            user
+                        })
+                    }
                 })
             })(req, res, next)
         })
