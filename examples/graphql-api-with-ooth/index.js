@@ -149,7 +149,7 @@ const start = async () => {
         app.use('/graphql', bodyParser.json(), graphqlExpress((req, res) => {
             return {
                 schema,
-                context: { userId: req.user._id }
+                context: { userId: req.user && req.user._id }
             }
         }))
 
