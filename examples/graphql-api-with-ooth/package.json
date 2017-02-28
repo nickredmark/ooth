@@ -1,0 +1,36 @@
+{
+  "name": "graphql-with-ooth",
+  "version": "0.0.0",
+  "description": "This is an example of a protected graphql API, to which the user will need to authenticate using a JWT. This example API needs to be running for these example projects to work:",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --harmony-async-await index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.16.0",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.1",
+    "es6-promisify": "^5.0.0",
+    "express": "^4.14.1",
+    "express-session": "^1.15.0",
+    "graphql": "^0.9.1",
+    "graphql-server-express": "^0.6.0",
+    "graphql-tools": "^0.10.0",
+    "mailcomposer": "^4.0.1",
+    "mailgun-js": "^0.8.2",
+    "mongodb": "^2.2.22",
+    "morgan": "^1.8.0",
+    "nodeify": "^1.0.0",
+    "ooth": "^0.2.0",
+    "ooth-guest": "^0.0.1",
+    "ooth-local": "^0.1.0",
+    "passport": "^0.3.2",
+    "passport-jwt": "^2.2.1"
+  },
+  "engines": {
+    "node": ">=7.5"
+  }
+}
