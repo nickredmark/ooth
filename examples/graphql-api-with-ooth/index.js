@@ -22,16 +22,6 @@ function nodeifyAsync(asyncFunction) {
     }
 }
 
-async function setupAuthEndpoints(app) {
-    app.use(session({
-        name: 'api-session-id',
-        secret: settings.sessionSecret,
-        resave: false,
-        saveUninitialized: true,
-    }))
-    await ooth(app, settings)          
-}
-
 const start = async () => {
     try {
         const db = await MongoClient.connect(settings.mongoUrl)
@@ -144,7 +134,13 @@ const start = async () => {
         app.use(corsMiddleware)
         app.options(corsMiddleware)
 
-        await setupAuthEndpoints(app)
+        app.use(session({
+            name: 'api-session-id',
+            secret: settings.sessionSecret,
+            resave: false,
+            saveUninitialized: true,
+        }))
+        await ooth(app, settings)
 
         app.use('/graphql', bodyParser.json(), graphqlExpress((req, res) => {
             return {
