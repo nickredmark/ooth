@@ -9,6 +9,7 @@ const {MongoClient, ObjectId} = require('mongodb')
 const {sign} = require('jsonwebtoken')
 const nodeify = require('nodeify')
 const {randomBytes} = require('crypto')
+const expressWs = require('express-ws')
 
 function randomToken() {
     return randomBytes(43).toString('hex')
@@ -56,14 +57,19 @@ class Ooth {
         sharedSecret,
         standalone,
         path,
+        onLogin,
+        onLogout
     }) {
         this.mongoUrl = mongoUrl
         this.sharedSecret = sharedSecret
         this.standalone = standalone
         this.path = path || '/'
+        this.onLogin = onLogin
+        this.onLogout = onLogout
 
         this.uniqueFields = {}
         this.strategies = {}
+        this.connections = {}
 
     }
     start(app) {
@@ -77,6 +83,7 @@ class Ooth {
             app.use(bodyParser.json())
             app.use(passport.initialize())
             app.use(passport.session())
+            expressWs(app)
 
             this.route = express.Router()
             app.use(this.path, this.route)
@@ -123,7 +130,12 @@ class Ooth {
                 }
             })
             this.route.post('/logout', requireLogged, (req, res) => {
+                const user = req.user
+                this.sendStatus(req, {})
                 req.logout()
+                if (this.onLogout) {
+                    this.onLogout(user)
+                }
                 res.send({
                     message: 'Logged out'
                 })
@@ -147,6 +159,22 @@ class Ooth {
                 })))
 
             }
+
+            this.route.ws('/status', (ws, req) => {
+                if (!this.connections[req.session.id]) {
+                    this.connections[req.session.id] = []
+                }
+                this.connections[req.session.id].push(ws)
+                ws.send(JSON.stringify({
+                    user: req.user
+                }))
+
+                ws.on('close', () => {
+                    this.connections[req.session.id] = this.connections[req.session.id].filter(wss => ws !== wss)
+                })
+
+            })
+            
         })()
     }
     getToken(user) {
@@ -243,6 +271,13 @@ class Ooth {
             })
         }
     }
+    sendStatus(req, status) {
+        if (req.session && this.connections[req.session.id]) {
+            this.connections[req.session.id].forEach(ws => {
+                ws.send(JSON.stringify(status))
+            })
+        }
+    }
     registerPassportMethod(strategy, method, ...handlers) {
         this.strategies[strategy].methods.push(method)
         const middleware = handlers.slice(0, -1)
@@ -264,6 +299,15 @@ class Ooth {
                     }
 
                     const user = req.user
+
+                    this.sendStatus(req, {
+                        user
+                    })
+
+                    if (this.onLogin) {
+                        this.onLogin(user)
+                    }
+
                     if (this.standalone) {
                         res.send({
                             user,
