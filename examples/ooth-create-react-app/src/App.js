@@ -121,13 +121,13 @@ class CreatePostComponent extends Component {
         })
       }}>
         <div>
-          <label for="title">Title</label>
+          <label htmlFor="title">Title</label>
           <input ref={ref => {
             this.title = ref
           }}/>
         </div>
         <div>
-          <label for="content">Content</label>
+          <label htmlFor="content">Content</label>
           <textarea ref={ref => {
             this.content = ref
           }}/>
