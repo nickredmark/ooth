@@ -1,24 +1,22 @@
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
 import {ApolloProvider, graphql} from 'react-apollo'
 import './App.css'
 import ooth from './ooth'
 import client from './apollo'
 import gql from 'graphql-tag'
-import {withOoth, OothProvider} from 'ooth-client-react'
-import {withContext, getContext, compose} from 'recompose'
+import {withOoth, withUser, OothProvider} from 'ooth-client-react'
+import {compose} from 'recompose'
 
 class App extends Component {
   render() {
     return (
       <OothProvider client={ooth}>
         <ApolloProvider client={client}>
-          <UserProvider>
-            <div>
-              <h1>Welcome to Ooth's Create-react-app example</h1>
-              <LoginStatus/>
-              <Posts/>
-            </div>
-          </UserProvider>
+          <div>
+            <h1>Welcome to Ooth's Create-react-app example</h1>
+            <LoginStatus/>
+            <Posts/>
+          </div>
         </ApolloProvider>
       </OothProvider>
     );
@@ -27,48 +25,14 @@ class App extends Component {
 
 export default App;
 
-const ID = ({children}) => React.Children.only(children)
-
-const UserQuery = gql`
-  query {
-    me {
-      _id
-    }
-  }
-`
-const UserProvider = compose(
-  graphql(UserQuery),
-  withContext({
-    user: PropTypes.object,
-    refetchUser: PropTypes.func
-  }, ({data: {loading, me: user, refetch: refetchUser}}) => {
-      if (loading) {
-        return {}
-      } else {
-        return {
-          user,
-          refetchUser
-        }
-      }
-  })
-)(ID)
-
-const withUser = getContext({
-  user: PropTypes.object,
-  refetchUser: PropTypes.func
-})
-
 class LoginStatusComponent extends Component {
   render() {
-    const {oothClient, user, refetchUser} = this.props
+    const {oothClient, user} = this.props
     if (user) {
       return <div>
         Your user id is ${user._id}
         <button onClick={() => {
           oothClient.logout()
-            .then(res => {
-              refetchUser()
-            })
         }}>Log out</button>
       </div>
     } else {
@@ -76,15 +40,8 @@ class LoginStatusComponent extends Component {
         Click on the button to create a guest session.<br/>
         <button onClick={() => {
           oothClient.authenticate('guest', 'register')
-            .then(res => {
-              console.log(res)
-              oothClient.status().then(res => {
-                console.log(res)
-              })
-              refetchUser()
-            })
             .catch(err => {
-              console.log(err)
+              console.error(err)
             })
         }}>Log in</button>
       </div>
@@ -115,22 +72,21 @@ class CreatePostComponent extends Component {
             content: this.content.value
           }
         }).then(({data}) => {
-          console.log(data)
           if (onCreatePost) {
             onCreatePost()
           }
         }).catch(e => {
-          console.log(e)
+          console.error(e)
         })
       }}>
         <div>
-          <label for="title">Title</label>
+          <label htmlFor="title">Title</label>
           <input ref={ref => {
             this.title = ref
           }}/>
         </div>
         <div>
-          <label for="content">Content</label>
+          <label htmlFor="content">Content</label>
           <textarea ref={ref => {
             this.content = ref
           }}/>
@@ -217,12 +173,11 @@ class CreateCommentComponent extends Component {
             content: this.content.value
           }
         }).then(({data}) => {
-          console.log(data)
           if (onCreateComment) {
             onCreateComment()
           }
         }).catch(e => {
-          console.log(e)
+          console.error(e)
         })
       }}>
         <div>
