@@ -17,7 +17,7 @@ A roadmap can be found in the [ooth github projects](https://github.com/nmaro/oo
 * [graphql-api-with-ooth](examples/graphql-api-with-ooth) - same example graphql api but with ooth embedded as library
 * [ooth-create-react-app](examples/ooth-create-react-app) - an ooth client integration with create-react-app, connecting to [ooth](examples/ooth) and [graphql-api-with-auth](examples/graphql-api-with-auth)
 * [ooth-create-react-app-embedded](examples/ooth-create-react-app-embedded) - same example but connecting to [graphql-api-with-ooth](examples/graphql-api-with-ooth)
-* [ooth-next](examples/ooth-next) - an ooth client integration with next.js
+* [ooth-next-with-api](examples/ooth-next-with-api) - an integration with next.js, where ooth server and api are all part of the same service
 
 ## Packages
 
