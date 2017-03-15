@@ -1,1 +1,0 @@
-Ooth universally rendered client.
