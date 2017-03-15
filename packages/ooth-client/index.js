@@ -11,16 +11,34 @@ class OothClient {
     }) {
         this.oothUrl = oothUrl
         this.standalone = standalone
-        this.userSubject = new Rx.Subject()
         if (standalone) {
             this.apiLoginUrl = apiLoginUrl
             this.apiLogoutUrl = apiLogoutUrl
         }
-        this.status()
-        this.subscribeStatus()
+    }
+    start() {
+        return new Promise((resolve, reject) => {
+            if (!this.started) {
+                this.started = true
+                this.user()
+                this.subscribeStatus()
+                return this.status().then(resolve)
+            } else {
+                return resolve(this.user().getValue())
+            }
+        })
     }
     user() {
+        if (!this.userSubject) {
+            this.userSubject = new Rx.BehaviorSubject(null)
+        }
         return this.userSubject
+    }
+    next(user) {
+        if (this.userSubject) {
+            this.userSubject.onNext(user)
+        }
+        return user
     }
     authenticate(strategy, method, body) {
         return fetch(`${this.oothUrl}/${strategy}/${method}`, {
@@ -49,7 +67,7 @@ class OothClient {
                 return user
             }
         }).then((user) => {
-            this.userSubject.onNext(user)
+            return this.next(user)
         })
     }
     method(strategy, method, body) {
@@ -76,7 +94,7 @@ class OothClient {
                 })
             }
         }).then(() => {
-            this.userSubject.onNext(null)
+            return this.next(null)
         })
     }
     status() {
@@ -86,24 +104,25 @@ class OothClient {
         }).then(response => {
             return response.json()
         }).then(({user}) => {
-            this.userSubject.onNext(user)
-            return user
+            return this.next(user)
         })
     }
     subscribeStatus() {
-        const urlParts = url.parse(this.oothUrl)
-        const wsUrl = `ws://${urlParts.host}${urlParts.path}/status`
-        const socket = new WebSocket(wsUrl)
-        socket.onerror = (err) => {
-            console.error(err)
-        }
-        socket.onopen = () => {
-        }
-        socket.onclose = () => {
-        }
-        socket.onmessage = ({data}) => {
-            const {user} = JSON.parse(data)
-            this.userSubject.onNext(user)
+        if (typeof WebSocket !== 'undefined') {
+            const urlParts = url.parse(this.oothUrl)
+            const wsUrl = `ws://${urlParts.host}${urlParts.path}/status`
+            const socket = new WebSocket(wsUrl)
+            socket.onerror = (err) => {
+                console.error(err)
+            }
+            socket.onopen = () => {
+            }
+            socket.onclose = () => {
+            }
+            socket.onmessage = ({data}) => {
+                const {user} = JSON.parse(data)
+                return this.next(user)
+            }
         }
     }
 }
