@@ -51,6 +51,13 @@ function nodeifyAsync(asyncFunction) {
     }
 }
 
+const prepare = (o) => {
+    if (o && o._id) {
+        o._id = o._id.toString()
+    }
+    return o
+}
+
 class Ooth {
     constructor({
         mongoUrl,
@@ -93,7 +100,12 @@ class Ooth {
             })
             passport.deserializeUser((id, done) => {
                 if (typeof id === 'string') {
-                    this.Users.findOne(ObjectId(id), done)
+                    this.Users.findOne(ObjectId(id), (e, user) => {
+                        if (e) {
+                            done(e, user)
+                        }
+                        done(e, prepare(user))
+                    })
                 } else {
                     done(null, false)
                 }
