@@ -1,0 +1,17 @@
+{
+  "name": "ooth-client-react-next",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC",
+  "dependencies": {
+    "compose-next": "^0.0.0",
+    "ooth-client-react": "^0.5.0",
+    "react": "^15.4.2",
+    "recompose": "^0.22.0"
+  }
+}
