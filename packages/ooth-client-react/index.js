@@ -5,13 +5,25 @@ class OothProvider extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            user: null
+            user: props.initialUser
         }
-        props.client.user().subscribe(user => {
+    }
+    componentDidMount() {
+        this.props.client.start().then(user => {
             this.setState({
                 user
             })
+            this.subscription = this.props.client.user().subscribe(user => {
+                this.setState({
+                    user
+                })
+            })
         })
+    }
+    componentWillUnmount() {
+        if (this.subscription) {
+            this.subscription.dispose()
+        }
     }
     render() {
         return React.Children.only(this.props.children)
