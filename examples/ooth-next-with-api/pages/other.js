@@ -116,7 +116,6 @@ const PostsQuery = gql`
 class PostsComponent extends Component {
   render() {
     const {data: {loading, posts, refetch: refetchPosts}} = this.props
-    console.log("is it loading?!", loading)
     return <div>
       <CreatePost onCreatePost={refetchPosts}/>
       {loading

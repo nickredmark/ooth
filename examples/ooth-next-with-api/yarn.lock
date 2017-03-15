@@ -1173,6 +1173,24 @@ commoner@~0.10.3:
     q "^1.1.2"
     recast "^0.11.17"
 
+compose-next@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/compose-next/-/compose-next-0.6.0.tgz#cfdcab7f9a1117bb27306dbf6b871191e176805b"
+  dependencies:
+    bcrypt "^1.0.2"
+    body-parser "^1.16.0"
+    cookie-parser "^1.4.3"
+    express "^4.14.1"
+    express-session "^1.15.0"
+    express-ws "^3.0.0"
+    jsonwebtoken "^7.2.1"
+    mongodb "^2.2.22"
+    morgan "^1.7.0"
+    nodeify "^1.0.0"
+    passport "^0.3.2"
+    passport-jwt "^2.2.1"
+    react "^15.4.2"
+
 concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
@@ -2332,7 +2350,7 @@ isobject@^2.0.0:
   dependencies:
     isarray "1.0.0"
 
-isomorphic-fetch@^2.1.1:
+isomorphic-fetch@^2.1.1, isomorphic-fetch@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/isomorphic-fetch/-/isomorphic-fetch-2.2.1.tgz#611ae1acf14f5e81f729507472819fe9733558a9"
   dependencies:
@@ -2953,16 +2971,28 @@ once@^1.3.0, once@~1.3.3:
   dependencies:
     wrappy "1"
 
-ooth-client-react@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/ooth-client-react/-/ooth-client-react-0.5.0.tgz#f580ae89a8d80d5e438e381178a489e022ea2ddb"
+ooth-client-react-next@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/ooth-client-react-next/-/ooth-client-react-next-0.6.0.tgz#5c658393e4f60a01bd27b2a573896a83184f2f86"
+  dependencies:
+    compose-next "^0.6.0"
+    ooth-client-react "^0.6.0"
+    react "^15.4.2"
+    recompose "^0.22.0"
+
+ooth-client-react@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/ooth-client-react/-/ooth-client-react-0.6.0.tgz#ba46e31a524a7fe76c387118c28732a3ea76fda5"
   dependencies:
     react "^15.4.2"
     recompose "^0.22.0"
 
-ooth-client@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/ooth-client/-/ooth-client-0.1.1.tgz#5b9d7c2e234e58dcfefd1278942034046396416c"
+ooth-client@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/ooth-client/-/ooth-client-0.6.0.tgz#a051baa7fc2939b5c99c3a3917d272b8a68763c1"
+  dependencies:
+    isomorphic-fetch "^2.2.1"
+    rx "^4.1.0"
 
 ooth-guest-client@^0.1.1:
   version "0.1.1"
