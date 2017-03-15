@@ -1,6 +1,5 @@
 const mailcomposer = require('mailcomposer')
 const Mg = require('mailgun-js')
-const promisify = require('es6-promisify')
 
 module.exports = function(options) {
     const Mailgun = Mg(options)
