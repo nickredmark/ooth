@@ -21,7 +21,7 @@ Notice how you can query posts and comments, but not insert any without having l
 
 ## Logging in with a client
 
-[ooth-client](../../packages/ooth-client) of course is supposed to do all of this for you - see its usage in [ooth-create-react-app](../ooth-create-react-app) or  [ooth-next](../ooth-next).
+[ooth-client](../../packages/ooth-client) of course is supposed to do all of this for you - see its usage in [ooth-create-react-app](../ooth-create-react-app).
 
 ## Logging in (low level)
 
