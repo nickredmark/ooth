@@ -1,6 +1,6 @@
 {
   "name": "ooth-client-react-next",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
   "dependencies": {
-    "compose-next": "^0.6.0",
+    "compose-next": "^0.7.0",
     "ooth-client-react": "^0.6.0",
     "react": "^15.4.2",
     "recompose": "^0.22.0"
