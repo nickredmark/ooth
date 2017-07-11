@@ -18,15 +18,18 @@ function nodeifyAsync(asyncFunction) {
 module.exports = function({
     onRegister,
     onGenerateVerificationToken,
+    onSendVerificationEmail,
     onVerify,
     onForgotPassword,
-    onResetPassword
+    onResetPassword,
+    onChangePassword
 }) {
     return function({
         name,
         registerPassportMethod,
         registerMethod,
         registerUniqueField,
+        registerProfileField,
         getUserByUniqueField,
         getUserById,
         getUserByFields,
@@ -38,23 +41,68 @@ module.exports = function({
         requireRegisteredWithThis
     }) {
 
+        registerUniqueField('username', 'username')
         registerUniqueField('email', 'email')
+        registerProfileField('username')
+        registerProfileField('email')
+        registerProfileField('verified')
 
         registerPassportMethod('login', requireNotLogged, new LocalStrategy({
-            usernameField: 'email',
+            usernameField: 'username',
             passwordField: 'password'
-        }, nodeifyAsync(async (email, password) => {
-            const user = await getUserByUniqueField('email', email)
+        }, nodeifyAsync(async (username, password) => {
+            let user = await getUserByUniqueField('username', username)
+
             if (!user) {
-                throw new Error('Incorrect email')
+                user = await getUserByUniqueField('email', username)
             }
+
+            if (!user) {
+                throw new Error('Incorrect email or username.')
+            }
+
             if (!compareSync(password, user[name].password)) {
                 throw new Error('Incorrect password.')
             }
-            return {
-                _id: user._id
-            }
+            return user
         })))
+
+        registerMethod('set-username', requireLogged, function(req, res) {
+            return (async () => {
+                const {username} = req.body
+
+                if (typeof username !== 'string') {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid username'
+                    })
+                }
+
+                if (!/^[a-z][0-9a-z]{3,19}$/.test(username)) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Username must be all lowercase, contain only letters and numbers (starting with a letter), and be between 4 and 20 digits long.'
+                    })
+                }
+
+                let user = await getUserByUniqueField('username', username)
+
+                if (user) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'This username is already registered.'
+                    })
+                }
+
+                await updateUser(req.user._id, {
+                    username
+                })
+
+                return res.send({
+                    message: 'Username updated.'
+                })
+            })()
+        })
 
         registerMethod('register', requireNotLogged, function(req, res) {
             return (async () => {
@@ -134,7 +182,7 @@ module.exports = function({
                     if (!req.body.token) {
                         return res.status(400).send({
                             status: 'error',
-                            message: 'Verification token required'
+                            message: 'Verification token required.'
                         })
                     }
 
@@ -145,7 +193,7 @@ module.exports = function({
                     if (!user) {
                         return res.status(400).send({
                             status: 'error',
-                            message: 'Verification token invalid'
+                            message: 'Verification token invalid, expired or already used.'
                         })
                     }
 
@@ -175,27 +223,31 @@ module.exports = function({
 
         registerMethod('forgot-password', requireNotLogged, function(req, res) {
             return (async () => {
-                const {email} = req.body
+                const {username} = req.body
 
-                if (!email || typeof email !== 'string') {
+                if (!username || typeof username !== 'string') {
                     res.status(400).send({
                         status: 'error',
                         message: 'Invalid email.'
                     })
                 }
 
-                const user = await getUserByUniqueField('email', email)
+                let user = await getUserByUniqueField('username', username)
+
+                if (!user) {
+                    user = await getUserByUniqueField('email', username)
+                }
 
                 if (!user) {
                     res.status(400).send({
                         status: 'error',
-                        message: 'Invalid email.'
+                        message: 'Invalid username or email.'
                     })
                 }
 
                 const passwordResetToken = randomToken()
 
-                updateUser(user._id, {
+                await updateUser(user._id, {
                     passwordResetToken
                 })
 
@@ -220,7 +272,7 @@ module.exports = function({
                 if (!newPassword || !typeof newPassword === 'string') {
                     return res.status(400).send({
                         status: 'error',
-                        message: 'Invalid password'
+                        message: 'Invalid password.'
                     })
                 }
                 const user = await getUserByFields({
@@ -229,7 +281,7 @@ module.exports = function({
                 if (!user) {
                     return res.status(400).send({
                         status: 'error',
-                        message: 'Invalid password reset token'
+                        message: 'Invalid password reset token.'
                     })
                 }
                 await updateUser(user._id, {
@@ -244,6 +296,43 @@ module.exports = function({
                 }
                 return res.send({
                     message: 'Password has been reset.'
+                })
+            })()
+        })
+
+        registerMethod('change-password', requireLogged, function(req, res) {
+            return (async () => {
+                const {password, newPassword} = req.body
+
+                if (!password || !typeof password === 'string') {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Invalid password.'
+                    })
+                }
+
+                const user = await getUserById(req.user._id)
+
+                if (!compareSync(password, user[name].password)) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: 'Incorrect password'
+                    })
+                }
+
+                await updateUser(user._id, {
+                    passwordResetToken: null,
+                    password: hashSync(newPassword, SALT_ROUNDS)
+                })
+
+                if (onChangePassword) {
+                    onChangePassword({
+                        _id: user._id,
+                        email: user[name].email
+                    })
+                }
+                return res.send({
+                    message: 'Password has been changed.'
                 })
             })()
         })

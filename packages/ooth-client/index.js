@@ -52,7 +52,11 @@ class OothClient {
         .then((response) => {
             return response.json()
         })
-        .then(({user, token}) => {
+        .then((response) => {
+            if (response.status === 'error') {
+                throw new Error(response.message)
+            }
+            const {user, token} = response
             if (this.standalone) {
                 return fetch(this.apiLoginUrl, {
                     method: 'POST',
@@ -80,6 +84,12 @@ class OothClient {
             credentials: 'include'
         }).then(response => {
             return response.json()
+        }).then(response => {
+            if (response.status === 'error') {
+                throw new Error(response.message)
+            } else {
+                return response
+            }
         })
     }
     logout() {

@@ -73,12 +73,11 @@ class Ooth {
         this.path = path || '/'
         this.onLogin = onLogin
         this.onLogout = onLogout
-
         this.uniqueFields = {}
         this.strategies = {}
         this.connections = {}
-
     }
+
     start(app) {
         return (async () => {
             this.app = app
@@ -103,7 +102,7 @@ class Ooth {
                     this.Users.findOne(ObjectId(id), (e, user) => {
                         if (e) {
                             done(e, user)
-                        }
+                        }                        
                         done(e, prepare(user))
                     })
                 } else {
@@ -121,18 +120,22 @@ class Ooth {
                 })
             })
             this.strategies.root = {
-                methods: ['status', 'logout']
+                methods: ['status', 'logout'],
+                profileFields: {
+                    _id: true
+                }
             }      
             this.route.get('/status', (req, res) => {
                 if (req.user) {
+                    const user = this.getProfile(req.user)
                     if (this.standalone) {
                         res.send({
-                            user: req.user,
-                            token: this.getToken(req.user)
+                            user,
+                            token: this.getToken(user)
                         })
                     } else {
                         res.send({
-                            user: req.user
+                            user: this.getProfile(user)
                         })
                     }
                 } else {
@@ -169,7 +172,6 @@ class Ooth {
                     }
                     return payload.user
                 })))
-
             }
 
             this.route.ws('/status', (ws, req) => {
@@ -177,24 +179,45 @@ class Ooth {
                     this.connections[req.session.id] = []
                 }
                 this.connections[req.session.id].push(ws)
+
                 ws.send(JSON.stringify({
-                    user: req.user
+                    user: this.getProfile(req.user)
                 }))
 
                 ws.on('close', () => {
                     this.connections[req.session.id] = this.connections[req.session.id].filter(wss => ws !== wss)
                 })
-
             })
-            
         })()
     }
+
+    getProfile(user) {
+        const profile = {}
+        if (user && Object.keys(user).length) {
+            for (let strategyName of Object.keys(this.strategies)) {
+                for (let fieldName of Object.keys(this.strategies[strategyName].profileFields)) {
+                    if (strategyName === 'root') {
+                        profile[fieldName] = user[fieldName]
+                    } else {
+                        if (!profile[strategyName]) {
+                            profile[strategyName] = {}
+                        }
+                        profile[strategyName][fieldName] = user[strategyName][fieldName]
+                    }
+                }
+            }
+        }
+        return profile
+    }
+
     getToken(user) {
         return sign({ user }, this.sharedSecret)
     }
+
     use(name, strategy) {
         this.strategies[name] = {
-            methods: []
+            methods: [],
+            profileFields: {}
         }
         strategy({
             name,
@@ -205,11 +228,18 @@ class Ooth {
                 this.strategies[name].methods.push(method)
                 this.route.post(`/${name}/${method}`, ...handlers)
             },
+            registerGetMethod: (method, ...handlers) => {
+                this.strategies[name].methods.push(method)
+                this.route.get(`/${name}/${method}`, ...handlers)
+            },
             registerUniqueField: (id, fieldName) => {
                 if (!this.uniqueFields[id]) {
                     this.uniqueFields[id] = []
                 }
                 this.uniqueFields[id].push(`${name}.${fieldName}`)
+            },
+            registerProfileField: (fieldName) => {
+                this.strategies[name].profileFields[fieldName] = true;
             },
             getUserById: async (id) => {
                 return await this.Users.findOne(ObjectId(id))
@@ -228,13 +258,13 @@ class Ooth {
                 })
                 return await this.Users.findOne(actualFields)
             },
-            updateUser: async (_id, fields) => {
+            updateUser: async (id, fields) => {
                 const actualFields = {}
                 Object.keys(fields).forEach(field => {
                     actualFields[`${name}.${field}`] = fields[field]
                 })
                 return await this.Users.update({
-                    _id
+                    _id: ObjectId(id)
                 }, {
                     $set: actualFields
                 })
@@ -253,36 +283,23 @@ class Ooth {
             requireRegisteredWithThis: this.requireRegisteredWith(name)
         })
     }
+
     requireRegisteredWith(strategy) {
         return (req, res, next) => {
             return requireLogged(req, res, () => {
-                this.Users.findOne({
-                    _id: req.user._id
-                }, (err, user) => {
-                    if (err) {
-                        return res.status(500).send({
-                            status: 'error',
-                            message: err
-                        })
-                    }
-                    if (!user) {
-                        return res.status(500).send({
-                            status: 'error',
-                            message: 'Couldn\'t find user.'
-                        })
-                    }
-                    if (!user[strategy]) {
-                        return res.status(400).send({
-                            status: 'error',
-                            message: `This user didn\'t register with strategy ${strategy}.`
-                        })
-                    }
-                    req.user[strategy] = user[strategy]
-                    next()
-                })
+                const user = req.user
+                if (!user[strategy]) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: `This user didn\'t register with strategy ${strategy}.`
+                    })
+                }
+                req.user[strategy] = user[strategy]
+                next()
             })
         }
     }
+
     sendStatus(req, status) {
         if (req.session && this.connections[req.session.id]) {
             this.connections[req.session.id].forEach(ws => {
@@ -290,27 +307,40 @@ class Ooth {
             })
         }
     }
+
     registerPassportMethod(strategy, method, ...handlers) {
         this.strategies[strategy].methods.push(method)
-        const middleware = handlers.slice(0, -1)
-        const handler = handlers[handlers.length-1]
-        const methodName = strategy !== 'root' ? `${strategy}-${method}` : method
-        const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
+
+        // Split handlers into [...middleware, handler]
+        const middleware = handlers.slice(0, -1),
+            handler = handlers[handlers.length-1],
+            methodName = strategy !== 'root' ? `${strategy}-${method}` : method,
+            routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
+
         passport.use(methodName, handler)
         this.route.post(routeName, ...middleware, (req, res, next) => {
-            passport.authenticate(methodName, (err, user, info) => {
+            passport.authenticate(methodName, (err, u, info) => {
                 if (err) {
-                    return next(err)
+                    return res.status(400).send({
+                        status: 'error',
+                        message: err.message
+                    })
                 }
-                if (!user) {
-                    return res.send(info)
+                if (!u) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: info && info.message || 'Unknown error.'
+                    })
                 }
-                req.login(user, loginErr => {
+                req.login(u, loginErr => {
                     if (loginErr) {
-                        return next(loginErr)
+                        return res.status(400).send({
+                            status: 'error',
+                            message: loginErr.message || loginErr
+                        })
                     }
 
-                    const user = req.user
+                    const user = this.getProfile(u)
 
                     this.sendStatus(req, {
                         user

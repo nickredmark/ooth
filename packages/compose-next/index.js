@@ -17,27 +17,43 @@ const composeInitialProps = (Parent) => (
     (Child) => (
         class extends React.Component {
             static getInitialProps(ctx) {
-                return Parent.getInitialProps(ctx).then(parentProps => {
-                    if (Child.getInitialProps) {
-                        return Child.getInitialProps(ctx).then(childProps => {
+                if (Parent.getInitialProps) {
+                    return Parent.getInitialProps(ctx).then(parentProps => {
+                        if (Child.getInitialProps) {
+                            return Child.getInitialProps(ctx).then(childProps => {
+                                return {
+                                    parentProps,
+                                    childProps
+                                }
+                            })
+                        } else {
                             return {
                                 parentProps,
-                                childProps
+                                childProps: {}
                             }
-                        })
-                    } else {
-                        return {
-                            parentProps,
-                            childProps: {}
                         }
-                    }
-                })
+                    })
+                } else if (Child.getInitialProps) {
+                    return Child.getInitialProps(ctx).then(childProps => {
+                        return {
+                            parentProps: {},
+                            childProps
+                        }
+                    })
+                } else {
+                    return new Promise(resolve => {
+                        return resolve({
+                            parentProps: {},
+                            childProps: {}
+                        })
+                    });
+                }
             }
             render() {
                 return React.createElement(
                     Parent,
-                    this.props.parentProps,
-                    React.createElement(Child, this.props.childProps)
+                    Object.assign({}, this.props, this.props.parentProps),
+                    React.createElement(Child, Object.assign({}, this.props, this.props.childProps))
                 )
             }
         }
@@ -46,5 +62,5 @@ const composeInitialProps = (Parent) => (
 
 module.exports = {
     addInitialProps,
-    composeInitialProps
+    composeInitialProps,
 }
