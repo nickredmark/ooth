@@ -1,25 +1,25 @@
 {
-    "name": "ooth-client-react-next",
-    "version": "0.7.0",
-    "description": "",
-    "main": "lib/index.js",
-    "scripts": {
-        "link": "npm run prepublish && yarn link",
-        "prepublish": "npm run build",
-        "build": "babel src --out-dir lib",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-    "license": "ISC",
-    "dependencies": {
-        "compose-next": "^0.7.0",
-        "ooth-client-react": "^0.6.0",
-        "react": "^15.4.2",
-        "recompose": "^0.22.0"
-    },
-    "devDependencies": {
-        "babel-cli": "^6.24.1",
-        "babel-preset-env": "^1.6.0",
-        "babel-preset-react": "^6.24.1"
-    }
+  "name": "ooth-client-react-next",
+  "version": "0.8.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "link": "npm run prepublish && yarn link",
+    "prepublish": "npm run build",
+    "build": "babel src --out-dir lib",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC",
+  "dependencies": {
+    "compose-next": "^0.8.0",
+    "ooth-client-react": "^0.8.0",
+    "react": "^15.4.2",
+    "recompose": "^0.22.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1"
+  }
 }

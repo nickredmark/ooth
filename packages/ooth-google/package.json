@@ -1,14 +1,14 @@
 {
-    "name": "ooth-google",
-    "version": "0.0.1",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "link": "",
-        "prepublish": "",
-        "build": "",
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-    "license": "ISC"
+  "name": "ooth-google",
+  "version": "0.8.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "link": "",
+    "prepublish": "",
+    "build": "",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "ISC"
 }
