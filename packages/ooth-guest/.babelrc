@@ -1,9 +1,5 @@
 {
     "presets": [
-        ["env", {
-			"targets": {
-				"uglify": true
-			}
-		}]
+        "env"
     ]
 }
