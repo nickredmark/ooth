@@ -1,11 +1,14 @@
 {
-  "name": "ooth-google-client",
-  "version": "0.1.1",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC"
+    "name": "ooth-google-client",
+    "version": "0.1.1",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "link": "",
+        "prepublish": "",
+        "build": "",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+    "license": "ISC"
 }

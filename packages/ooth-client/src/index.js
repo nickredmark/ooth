@@ -42,37 +42,38 @@ class OothClient {
     }
     authenticate(strategy, method, body) {
         return fetch(`${this.oothUrl}/${strategy}/${method}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: body && JSON.stringify(body),
-            credentials: 'include'
-        })
-        .then((response) => {
-            return response.json()
-        })
-        .then((response) => {
-            if (response.status === 'error') {
-                throw new Error(response.message)
-            }
-            const {user, token} = response
-            if (this.standalone) {
-                return fetch(this.apiLoginUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `JWT ${token}`
-                    },
-                    credentials: 'include'
-                }).then(() => {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: body && JSON.stringify(body),
+                credentials: 'include'
+            })
+            .then((response) => {
+                return response.json()
+            })
+            .then((response) => {
+                if (response.status === 'error') {
+                    throw new Error(response.message)
+                }
+                const { user, token } = response
+                if (this.standalone) {
+                    return fetch(this.apiLoginUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `JWT ${token}`
+                        },
+                        credentials: 'include'
+                    }).then(() => {
+                        return user
+                    })
+                } else {
                     return user
-                })
-            } else {
-                return user
-            }
-        }).then((user) => {
-            return this.next(user)
-        })
+                }
+            })
+            .then((user) => {
+                return this.next(user)
+            })
     }
     method(strategy, method, body) {
         return fetch(`${this.oothUrl}/${strategy}/${method}`, {
@@ -113,7 +114,7 @@ class OothClient {
             credentials: 'include'
         }).then(response => {
             return response.json()
-        }).then(({user}) => {
+        }).then(({ user }) => {
             return this.next(user)
         })
     }
@@ -125,12 +126,10 @@ class OothClient {
             socket.onerror = (err) => {
                 console.error(err)
             }
-            socket.onopen = () => {
-            }
-            socket.onclose = () => {
-            }
-            socket.onmessage = ({data}) => {
-                const {user} = JSON.parse(data)
+            socket.onopen = () => {}
+            socket.onclose = () => {}
+            socket.onmessage = ({ data }) => {
+                const { user } = JSON.parse(data)
                 return this.next(user)
             }
         }

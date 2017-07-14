@@ -1,7 +1,7 @@
 const React = require('react')
-const {addInitialProps, composeInitialProps} = require('compose-next')
-const {OothProvider} = require('ooth-client-react')
-const {defaultProps} = require('recompose')
+const { addInitialProps, composeInitialProps } = require('compose-next')
+const { OothProvider } = require('ooth-client-react')
+const { defaultProps } = require('recompose')
 
 module.exports = (oothClient) => {
 

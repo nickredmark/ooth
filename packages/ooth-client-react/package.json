@@ -1,15 +1,23 @@
 {
-  "name": "ooth-client-react",
-  "version": "0.6.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC",
-  "dependencies": {
-    "react": "^15.4.2",
-    "recompose": "^0.22.0"
-  }
+    "name": "ooth-client-react",
+    "version": "0.6.0",
+    "description": "",
+    "main": "lib/index.js",
+    "scripts": {
+        "link": "npm run prepublish && yarn link",
+        "prepublish": "npm run build",
+        "build": "babel src --out-dir lib",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+    "license": "ISC",
+    "dependencies": {
+        "react": "^15.4.2",
+        "recompose": "^0.22.0"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.24.1",
+        "babel-preset-env": "^1.6.0",
+        "babel-preset-react": "^6.24.1"
+    }
 }

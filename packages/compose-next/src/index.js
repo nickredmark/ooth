@@ -1,6 +1,6 @@
-const React = require('react')
+import React from 'react'
 
-const addInitialProps = (getInitialProps) => {
+export const addInitialProps = (getInitialProps) => {
     return Component => (
         class extends React.Component {
             static getInitialProps(ctx) {
@@ -13,7 +13,7 @@ const addInitialProps = (getInitialProps) => {
     )
 }
 
-const composeInitialProps = (Parent) => (
+export const composeInitialProps = (Parent) => (
     (Child) => (
         class extends React.Component {
             static getInitialProps(ctx) {
@@ -59,8 +59,3 @@ const composeInitialProps = (Parent) => (
         }
     )
 )
-
-module.exports = {
-    addInitialProps,
-    composeInitialProps,
-}

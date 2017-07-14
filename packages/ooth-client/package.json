@@ -1,15 +1,20 @@
 {
-  "name": "ooth-client",
-  "version": "0.7.0",
-  "description": "Ooth client library, wrapper around the ooth API.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC",
-  "dependencies": {
-    "isomorphic-fetch": "^2.2.1",
-    "rx": "^4.1.0"
-  }
+    "name": "ooth-client",
+    "version": "0.7.0",
+    "description": "Ooth client library, wrapper around the ooth API.",
+    "main": "lib/index.js",
+    "scripts": {
+        "link": "npm run prepublish && yarn link",
+        "prepublish": "npm run build",
+        "build": "babel src --out-dir lib",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+    "license": "ISC",
+    "dependencies": {
+        "babel-cli": "^6.24.1",
+        "babel-preset-env": "^1.6.0",
+        "isomorphic-fetch": "^2.2.1",
+        "rx": "^4.1.0"
+    }
 }
