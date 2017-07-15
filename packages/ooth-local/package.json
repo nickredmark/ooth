@@ -12,7 +12,7 @@
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.2",
+    "bcrypt-nodejs": "0.0.3",
     "nodeify": "^1.0.0",
     "passport-local": "^1.0.0"
   },

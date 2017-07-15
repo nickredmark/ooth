@@ -1,4 +1,4 @@
-const { hashSync, compareSync } = require('bcrypt')
+const { hashSync, compareSync, genSaltSync } = require('bcrypt-nodejs')
 const { randomBytes } = require('crypto')
 const LocalStrategy = require('passport-local').Strategy
 const nodeify = require('nodeify')
@@ -13,6 +13,10 @@ function nodeifyAsync(asyncFunction) {
     return function(...args) {
         return nodeify(asyncFunction(...args.slice(0, -1)), args[args.length - 1])
     }
+}
+
+function hash(pass) {
+    return hashSync(pass, genSaltSync(SALT_ROUNDS))
 }
 
 module.exports = function({
@@ -144,7 +148,7 @@ module.exports = function({
 
                     insertUser({
                         email,
-                        password: hashSync(password, SALT_ROUNDS),
+                        password: hash(password),
                         verificationToken
                     }).then(_id => {
                         if (onRegister) {
@@ -298,7 +302,7 @@ module.exports = function({
                 }
                 updateUser(user._id, {
                     passwordResetToken: null,
-                    password: hashSync(newPassword, SALT_ROUNDS)
+                    password: hash(newPassword)
                 }).then(() => {
                     if (onResetPassword) {
                         onResetPassword({
@@ -341,7 +345,7 @@ module.exports = function({
 
                     updateUser(user._id, {
                         passwordResetToken: null,
-                        password: hashSync(newPassword, SALT_ROUNDS)
+                        password: hash(newPassword)
                     }).then(() => {
                         if (onChangePassword) {
                             onChangePassword({
