@@ -12,18 +12,6 @@
   "author": "Nick Redmark <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.2",
-    "body-parser": "^1.16.0",
-    "cookie-parser": "^1.4.3",
-    "express": "^4.14.1",
-    "express-session": "^1.15.0",
-    "express-ws": "^3.0.0",
-    "jsonwebtoken": "^7.2.1",
-    "mongodb": "^2.2.22",
-    "morgan": "^1.7.0",
-    "nodeify": "^1.0.0",
-    "passport": "^0.3.2",
-    "passport-jwt": "^2.2.1",
     "react": "^15.4.2"
   }
 }

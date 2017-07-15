@@ -12,7 +12,6 @@
   "author": "Nick Redmark <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^1.0.2",
     "body-parser": "^1.16.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.14.1",
