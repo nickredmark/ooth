@@ -2,6 +2,8 @@
 
 Get news about ooth on [ooth's twitter account](https://twitter.com/oothjs).
 
+Read the newest article [Staart - a starter library for node.js projects with user accounts](https://medium.com/@nmaro/staart-a-starter-library-for-node-js-projects-with-user-accounts-d1328b46a59).
+
 Introducing medium article: [Ooth - user accounts for node.js](https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a#.97kyfg4xg).
 
 NOTE: Until version 1.0.0 is reached, the API will be unstable and can't be considered safe for production.
