@@ -10,7 +10,13 @@ NOTE: Until version 1.0.0 is reached, the API will be unstable and can't be cons
 
 A roadmap can be found in the [ooth github projects](https://github.com/nmaro/ooth/projects/1).
 
+## Staart
+
+If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](github.com/nmaro/staart).
+
 ## Examples
+
+The most up-to-date example, complete with a starting UI with all the main user account flow can now be found in the [staart project](github.com/nmaro/staart)!
 
 * [ooth](examples/ooth) - an ooth microservice instantiation
 * [graphql-api-with-auth](examples/graphql-api-with-auth) - an example graphql api with JWT auth
@@ -40,6 +46,10 @@ Find more documentation in the readmes of the individual packages.
 * [ooth-client](packages/ooth-client): ooth client
 * [ooth-client-react](packages/ooth-client-react): react utilities for ooth
 
-### Feature requests, Bugs, Contributions
+## Feature requests, Bugs, Contributions
 
 Start an issue here https://github.com/nmaro/ooth/issues.
+
+## Support
+
+Support the development of this project on [Patreon](https://www.patreon.com/nmaro).
