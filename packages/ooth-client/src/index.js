@@ -89,6 +89,9 @@ class OothClient {
             if (response.status === 'error') {
                 throw new Error(response.message)
             } else {
+                if (response.user) {
+                    this.next(response.user)
+                }
                 return response
             }
         })
