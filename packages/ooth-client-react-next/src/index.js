@@ -12,8 +12,10 @@ module.exports = (oothClient) => {
     const OothProviderWithInitialProps = addInitialProps(ctx => {
         return new Promise((resolve, reject) => {
             if (ctx.req) {
-                return resolve({
-                    initialUser: ctx.req.user
+                oothClient.status(ctx.req.cookies).then(user => {
+                    return resolve({
+                        initialUser: user
+                    })
                 })
             } else {
                 oothClient.start().then(user => {
