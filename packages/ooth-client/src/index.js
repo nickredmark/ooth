@@ -124,7 +124,7 @@ class OothClient {
     subscribeStatus() {
         if (typeof WebSocket !== 'undefined') {
             const urlParts = url.parse(this.oothUrl)
-            const protocol = urlParts.protocol === 'https' ? 'wss' : 'ws'
+            const protocol = urlParts.protocol === 'https:' ? 'wss' : 'ws'
             const wsUrl = `${protocol}://${urlParts.host}${urlParts.path}/status`
             const socket = new WebSocket(wsUrl)
             socket.onerror = (err) => {
