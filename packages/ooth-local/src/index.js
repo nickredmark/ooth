@@ -34,6 +34,7 @@ module.exports = function({
         registerMethod,
         registerUniqueField,
         registerProfileField,
+        getProfile,
         getUserByUniqueField,
         getUserById,
         getUserByFields,
@@ -104,9 +105,11 @@ module.exports = function({
                     updateUser(req.user._id, {
                         username
                     }).then(() => {
-
+                        return getUserById(req.user._id)
+                    }).then(user => {
                         return res.send({
-                            message: 'Username updated.'
+                            message: 'Username updated.',
+                            user: getProfile(user)
                         })
                     })
                 })
@@ -210,7 +213,8 @@ module.exports = function({
                     verified: true,
                     verificationToken: null
                 }).then(() => {
-
+                    return getUserById(user._id)
+                }).then(user => {
                     if (onVerify) {
                         onVerify({
                             _id: user._id,
@@ -219,7 +223,8 @@ module.exports = function({
                     }
 
                     return res.send({
-                        message: 'Email verified'
+                        message: 'Email verified',
+                        user: getProfile(user)
                     })
                 })
             }).catch(e => {
