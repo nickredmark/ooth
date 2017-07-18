@@ -180,9 +180,15 @@ class Ooth {
                 }
                 this.connections[req.session.id].push(ws)
 
-                ws.send(JSON.stringify({
-                    user: this.getProfile(req.user)
-                }))
+                if (req.user) {
+                    ws.send(JSON.stringify({
+                        user: this.getProfile(req.user)
+                    }))
+                } else {
+                    ws.send(JSON.stringify({
+                        user: null
+                    }))
+                }
 
                 ws.on('close', () => {
                     this.connections[req.session.id] = this.connections[req.session.id].filter(wss => ws !== wss)
@@ -196,18 +202,19 @@ class Ooth {
     }
 
     getProfile(user) {
+        if (!user) {
+            return null
+        }
         const profile = {}
-        if (user && Object.keys(user).length) {
-            for (let strategyName of Object.keys(this.strategies)) {
-                for (let fieldName of Object.keys(this.strategies[strategyName].profileFields)) {
-                    if (strategyName === 'root') {
-                        profile[fieldName] = user[fieldName]
-                    } else {
-                        if (!profile[strategyName]) {
-                            profile[strategyName] = {}
-                        }
-                        profile[strategyName][fieldName] = user[strategyName][fieldName]
+        for (let strategyName of Object.keys(this.strategies)) {
+            for (let fieldName of Object.keys(this.strategies[strategyName].profileFields)) {
+                if (strategyName === 'root') {
+                    profile[fieldName] = user[fieldName]
+                } else {
+                    if (!profile[strategyName]) {
+                        profile[strategyName] = {}
                     }
+                    profile[strategyName][fieldName] = user[strategyName][fieldName]
                 }
             }
         }
