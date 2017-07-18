@@ -13,5 +13,11 @@
   "license": "ISC",
   "dependencies": {
     "react": "^15.4.2"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1"
   }
 }
