@@ -191,6 +191,10 @@ class Ooth {
         })()
     }
 
+    getUserById(id) {
+        return this.Users.findOne(ObjectId(id))
+    }
+
     getProfile(user) {
         const profile = {}
         if (user && Object.keys(user).length) {
@@ -241,9 +245,8 @@ class Ooth {
             registerProfileField: (fieldName) => {
                 this.strategies[name].profileFields[fieldName] = true;
             },
-            getUserById: async (id) => {
-                return await this.Users.findOne(ObjectId(id))
-            },
+            getProfile: user => this.getProfile(user),
+            getUserById: (id) => this.getUserById(id),
             getUserByUniqueField: async (fieldName, value) => {
                 return await this.Users.findOne({
                     $or: this.uniqueFields[fieldName].map(field => ({
