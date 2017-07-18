@@ -111,11 +111,18 @@ class OothClient {
             return this.next(null)
         })
     }
-    status() {
-        return fetch(`${this.oothUrl}/status`, {
+    status(cookies) {
+        const opts = {
             method: 'GET',
-            credentials: 'include'
-        }).then(response => {
+        }
+        if (cookies) {
+            opts.headers = {
+                'Cookie': Object.keys(cookies).map(key => `${key}=${cookies[key]}`).join('; ')
+            }
+        } else {
+            opts.credentials = 'include'
+        }
+        return fetch(`${this.oothUrl}/status`, opts).then(response => {
             return response.json()
         }).then(({ user }) => {
             return this.next(user)
