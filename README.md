@@ -14,11 +14,11 @@ A roadmap can be found in the [ooth github projects](https://github.com/nmaro/oo
 
 ## Staart
 
-If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](github.com/nmaro/staart).
+If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](https://github.com/nmaro/staart).
 
 ## Examples
 
-The most up-to-date example, complete with a starting UI with all the main user account flow can now be found in the [staart project](github.com/nmaro/staart)!
+The most up-to-date example, complete with a starting UI with all the main user account flow can now be found in the [staart project](https://github.com/nmaro/staart)!
 
 * [ooth](examples/ooth) - an ooth microservice instantiation
 * [graphql-api-with-auth](examples/graphql-api-with-auth) - an example graphql api with JWT auth
