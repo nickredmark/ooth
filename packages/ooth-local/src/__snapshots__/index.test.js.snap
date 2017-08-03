@@ -1,0 +1,80 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-local after registration after login can check status 1`] = `
+Object {
+  "user": Object {
+    "local": Object {
+      "email": "test@example.com",
+    },
+  },
+}
+`;
+
+exports[`ooth-local after registration after login can set username 1`] = `
+Object {
+  "message": "Username updated.",
+  "user": Object {
+    "local": Object {
+      "email": "test@example.com",
+      "username": "heythere12_",
+    },
+  },
+}
+`;
+
+exports[`ooth-local after registration after login can't set invalid username 1`] = `
+Object {
+  "error": "Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.",
+  "status": "error",
+}
+`;
+
+exports[`ooth-local after registration can login 1`] = `
+Object {
+  "user": Object {
+    "local": Object {
+      "email": "test@example.com",
+    },
+  },
+}
+`;
+
+exports[`ooth-local after registration login fails with wrong password 1`] = `
+Object {
+  "message": "Incorrect password.",
+  "status": "error",
+}
+`;
+
+exports[`ooth-local can check status 1`] = `
+Object {
+  "user": null,
+}
+`;
+
+exports[`ooth-local can register 1`] = `
+Object {
+  "message": "User registered successfully.",
+}
+`;
+
+exports[`ooth-local fails without email 1`] = `
+Object {
+  "error": "Invalid email",
+  "status": "error",
+}
+`;
+
+exports[`ooth-local fails without password 1`] = `
+Object {
+  "error": "Invalid password",
+  "status": "error",
+}
+`;
+
+exports[`ooth-local fails without valid password 1`] = `
+Object {
+  "error": "Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.",
+  "status": "error",
+}
+`;
