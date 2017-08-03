@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth main route has additional passport route for passport method 1`] = `
+Object {
+  "methods": Object {
+    "root": Array [
+      "status",
+      "logout",
+    ],
+    "test": Array [
+      "login",
+    ],
+  },
+}
+`;
+
+exports[`ooth main route has additional route for method 1`] = `
+Object {
+  "methods": Object {
+    "root": Array [
+      "status",
+      "logout",
+    ],
+    "test": Array [
+      "login",
+    ],
+  },
+}
+`;
+
+exports[`ooth main route has status 1`] = `
+Object {
+  "methods": Object {
+    "root": Array [
+      "status",
+      "logout",
+    ],
+  },
+}
+`;
+
+exports[`ooth methods handle async errors 1`] = `
+Object {
+  "error": "Error message.",
+  "status": "error",
+}
+`;
+
+exports[`ooth methods handle errors 1`] = `
+Object {
+  "error": "Error message.",
+  "status": "error",
+}
+`;
+
+exports[`ooth methods handle method 1`] = `
+Object {
+  "message": "hi",
+}
+`;
