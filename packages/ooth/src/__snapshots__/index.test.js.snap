@@ -41,14 +41,14 @@ Object {
 
 exports[`ooth methods handle async errors 1`] = `
 Object {
-  "error": "Error message.",
+  "message": "Error message.",
   "status": "error",
 }
 `;
 
 exports[`ooth methods handle errors 1`] = `
 Object {
-  "error": "Error message.",
+  "message": "Error message.",
   "status": "error",
 }
 `;

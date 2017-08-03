@@ -249,14 +249,14 @@ class Ooth {
                             result.catch((e) => {
                                 return res.status(400).send({
                                     status: 'error',
-                                    error: e.message,
+                                    message: e.message,
                                 })
                             })
                         }
                     } catch (e) {
                         return res.status(400).send({
                             status: 'error',
-                            error: e.message,
+                            message: e.message,
                         })
                     }
                 }
