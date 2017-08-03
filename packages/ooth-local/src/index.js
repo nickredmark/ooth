@@ -5,6 +5,30 @@ const nodeify = require('nodeify')
 
 const SALT_ROUNDS = 10
 
+const tests = {
+    username: {
+        regex: /^[a-z][0-9a-z_]{3,19}$/,
+        error: 'Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.',
+    },
+    password: {
+        test: (password) => /\d/.test(password) && /[a-z]/.test(password) && /[A-Z]/.test(password) && /.{6,}/.test(password),
+        error: 'Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.',
+    },
+}
+
+function testValue(key, value) {
+    const test = tests[key]
+    if (test.regex) {
+        if (!test.regex.test(value)) {
+            throw new Error(test.error)
+        }
+    } else {
+        if (!test.test(value)) {
+            throw new Error(test.error)
+        }
+    }
+}
+
 function randomToken() {
     return randomBytes(43).toString('hex')
 }
@@ -80,26 +104,15 @@ module.exports = function({
             const { username } = req.body
 
             if (typeof username !== 'string') {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Invalid username'
-                })
+                throw new Error('Invalid username')
             }
 
-            if (!/^[a-z][0-9a-z]{3,19}$/.test(username)) {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Username must be all lowercase, contain only letters and numbers (starting with a letter), and be between 4 and 20 digits long.'
-                })
-            }
+            testValue('username', username)
 
-            getUserByUniqueField('username', username)
+            return getUserByUniqueField('username', username)
                 .then(user => {
                     if (user) {
-                        return res.status(400).send({
-                            status: 'error',
-                            message: 'This username is already registered.'
-                        })
+                        throw new Error('This username is already registered.')
                     }
 
                     updateUser(req.user._id, {
@@ -119,32 +132,18 @@ module.exports = function({
             const { email, password } = req.body
 
             if (typeof email !== 'string') {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Invalid email'
-                })
+                throw new Error('Invalid email')
             }
             if (typeof password !== 'string') {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Invalid email'
-                })
+                throw new Error('Invalid password')
             }
 
-            if (!/\d/.test(password) || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/.{6,}/.test(password)) {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.'
-                })
-            }
+            testValue('password', password)
 
-            getUserByUniqueField('email', email)
+            return getUserByUniqueField('email', email)
                 .then(user => {
                     if (user) {
-                        return res.status(400).send({
-                            status: 'error',
-                            message: 'This email is already registered.'
-                        })
+                        throw new Error('This email is already registered.')
                     }
 
                     const verificationToken = randomToken()
@@ -193,20 +192,14 @@ module.exports = function({
 
         registerMethod('verify', function(req, res) {
             if (!req.body.token) {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Verification token required.'
-                })
+                throw new Error('Verification token required.')
             }
 
-            getUserByFields({
+            return getUserByFields({
                 verificationToken: req.body.token
             }).then(user => {
                 if (!user) {
-                    return res.status(400).send({
-                        status: 'error',
-                        message: 'Verification token invalid, expired or already used.'
-                    })
+                    throw new Error('Verification token invalid, expired or already used.')
                 }
 
                 return updateUser(user._id, {
@@ -227,11 +220,6 @@ module.exports = function({
                         user: getProfile(user)
                     })
                 })
-            }).catch(e => {
-                return res.status(500).send({
-                    status: 'error',
-                    message: e.message
-                })
             })
         })
 
@@ -239,23 +227,17 @@ module.exports = function({
             const { username } = req.body
 
             if (!username || typeof username !== 'string') {
-                res.status(400).send({
-                    status: 'error',
-                    message: 'Invalid email.'
-                })
+                throw new Error('Invalid username or email.')
             }
 
-            getUserByUniqueField('username', username)
+            return getUserByUniqueField('username', username)
                 .then(user => {
                     if (!user) {
                         return getUserByUniqueField('email', username)
                     }
                 }).then(user => {
                     if (!user) {
-                        res.status(400).send({
-                            status: 'error',
-                            message: 'Invalid username or email.'
-                        })
+                        throw new Error('Invalid username or email.')
                     }
 
                     const passwordResetToken = randomToken()
@@ -283,27 +265,16 @@ module.exports = function({
         registerMethod('reset-password', requireNotLogged, function(req, res) {
             const { token, newPassword } = req.body
             if (!newPassword || !typeof newPassword === 'string') {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Invalid password.'
-                })
+                throw new Error('Invalid password.')
             }
 
-            if (!/\d/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/.{6,}/.test(newPassword)) {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.'
-                })
-            }
+            testValue('password', password)
 
-            getUserByFields({
+            return getUserByFields({
                 passwordResetToken: token
             }).then(user => {
                 if (!user) {
-                    return res.status(400).send({
-                        status: 'error',
-                        message: 'Invalid password reset token.'
-                    })
+                    throw new Error('Invalid password reset token.')
                 }
                 updateUser(user._id, {
                     passwordResetToken: null,
@@ -326,26 +297,15 @@ module.exports = function({
             const { password, newPassword } = req.body
 
             if (!typeof password === 'string') {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Invalid password.'
-                })
+                throw new Error('Invalid password.')
             }
 
-            if (!/\d/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/.{6,}/.test(newPassword)) {
-                return res.status(400).send({
-                    status: 'error',
-                    message: 'Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.'
-                })
-            }
+            testValue('password', password)
 
-            getUserById(req.user._id)
+            return getUserById(req.user._id)
                 .then(user => {
                     if (!compareSync(password, user[name].password)) {
-                        return res.status(400).send({
-                            status: 'error',
-                            message: 'Incorrect password'
-                        })
+                        throw new Error('Incorrect password.')
                     }
 
                     updateUser(user._id, {
