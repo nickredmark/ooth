@@ -24,7 +24,7 @@ Object {
 
 exports[`ooth-local after registration after login can't set invalid username 1`] = `
 Object {
-  "error": "Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.",
+  "message": "Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.",
   "status": "error",
 }
 `;
@@ -60,21 +60,21 @@ Object {
 
 exports[`ooth-local fails without email 1`] = `
 Object {
-  "error": "Invalid email",
+  "message": "Invalid email",
   "status": "error",
 }
 `;
 
 exports[`ooth-local fails without password 1`] = `
 Object {
-  "error": "Invalid password",
+  "message": "Invalid password",
   "status": "error",
 }
 `;
 
 exports[`ooth-local fails without valid password 1`] = `
 Object {
-  "error": "Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.",
+  "message": "Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.",
   "status": "error",
 }
 `;
