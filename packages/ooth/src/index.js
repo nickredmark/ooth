@@ -237,7 +237,31 @@ class Ooth {
             },
             registerMethod: (method, ...handlers) => {
                 this.strategies[name].methods.push(method)
-                this.route.post(`/${name}/${method}`, ...handlers)
+                
+                // Split handlers into [...middleware, handler]
+                const middleware = handlers.slice(0, -1)
+                const handler = handlers[handlers.length-1]
+
+                const finalHandler = (req, res) => {
+                    try {
+                        const result = handler(req, res)
+                        if (result.catch) {
+                            result.catch((e) => {
+                                return res.status(400).send({
+                                    status: 'error',
+                                    error: e.message,
+                                })
+                            })
+                        }
+                    } catch (e) {
+                        return res.status(400).send({
+                            status: 'error',
+                            error: e.message,
+                        })
+                    }
+                }
+
+                this.route.post(`/${name}/${method}`, ...middleware, finalHandler)
             },
             registerGetMethod: (method, ...handlers) => {
                 this.strategies[name].methods.push(method)
