@@ -7,19 +7,19 @@ import { createStore as createReduxStore, combineReducers, applyMiddleware } fro
 let client = null
 let store = null
 
-const createClient = (uri) => {
+const createClient = (uri, opts) => {
     const networkInterface = createNetworkInterface({
         uri,
         opts: {
             credentials: 'include'
         }
     })
-    return new ApolloClient({
+    return new ApolloClient(Object.assign({}, opts, {
         networkInterface
-    })
+    }))
 }
 
-const createSSRClient = (uri, cookies) => {
+const createSSRClient = (uri, cookies, opts) => {
     const networkInterface = createNetworkInterface({
         uri
     })
@@ -32,20 +32,20 @@ const createSSRClient = (uri, cookies) => {
             next()
         }
     }])
-    return new ApolloClient({
-        ssrMode: !process.browser,
+    return new ApolloClient(Object.assign({}, opts, {
+        ssrMode: true,
         networkInterface
-    })    
+    }))
 }
 
-const initClient = (uri, cookies) => {
+const initClient = (uri, cookies, opts) => {
     if (!process.browser) {
         // on server, create a new client for each request
-        return createSSRClient(uri, cookies)
+        return createSSRClient(uri, cookies, opts)
     } else {
         // on client, create singleton
         if (!client) {
-            client = createClient(uri)
+            client = createClient(uri, opts)
         }
         return client
     }
@@ -74,12 +74,12 @@ const initStore = (client, initialState) => {
     }
 }
 
-module.exports = ({url}) => {
+module.exports = ({url, opts}) => {
     return (Component) => (
         class extends React.Component {
             static getInitialProps (ctx) {
                 const cookies = ctx.req && ctx.req.cookies
-                const client = initClient(url, cookies)
+                const client = initClient(url, cookies, opts)
                 const store = initStore(client, client.initialState)
 
                 return Promise.resolve(Component.getInitialProps ? Component.getInitialProps(ctx) : {})
@@ -121,7 +121,7 @@ module.exports = ({url}) => {
             constructor (props) {
                 super(props)
                 // On server, this client won't be doing any work, because all work has been done in getInitialProps
-                this.client = initClient(url)
+                this.client = initClient(url, {}, opts)
                 this.store = initStore(this.client, props.initialState)
             }
 
@@ -135,3 +135,5 @@ module.exports = ({url}) => {
         }
     )
 }
+
+module.exports.clear = () => client = null
