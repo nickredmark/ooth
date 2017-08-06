@@ -39,7 +39,7 @@ Find more documentation in the readmes of the individual packages.
 ### Strategies
 
 * [ooth-guest](packages/ooth-guest): login as a guest, no credentials needed (built-in)
-* [ooth-local](packages/ooth-local): login with email/password
+* [ooth-local](packages/ooth-local): login with username/email/password
 * [ooth-faceboook](packages/ooth-facebook)
 * [ooth-google](packages/ooth-google)
 
@@ -47,6 +47,12 @@ Find more documentation in the readmes of the individual packages.
 
 * [ooth-client](packages/ooth-client): ooth client
 * [ooth-client-react](packages/ooth-client-react): react utilities for ooth
+* [ooth-client-react-next](packages/ooth-client-react-next): next utilities for ooth
+* [ooth-client-react-next-apollo](packages/ooth-client-react-next-apollo): apollo utilities for ooth in next
+
+### Utilities
+
+* [compose-next](packages/compose-next): utility to create providers that handle getInitialProps of children
 
 ## Feature requests, Bugs, Contributions
 
