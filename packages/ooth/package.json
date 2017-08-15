@@ -1,6 +1,6 @@
 {
   "name": "ooth",
-  "version": "0.10.2",
+  "version": "0.12.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
