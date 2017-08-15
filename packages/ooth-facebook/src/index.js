@@ -44,7 +44,7 @@ module.exports = function({
                                     return updateUser(user._id, {
                                         id,
                                         email,
-                                    })
+                                    }).then(() => user)
                                 }
 
                                 return user

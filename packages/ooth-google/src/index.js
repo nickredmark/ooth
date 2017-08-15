@@ -35,7 +35,7 @@ module.exports = function({
                         if (!user[name]) {
                             return updateUser(user._id, {
                                 email,
-                            })
+                            }).then(() => user)
                         }
 
                         return user
