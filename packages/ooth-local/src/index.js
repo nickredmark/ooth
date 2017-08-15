@@ -92,6 +92,10 @@ module.exports = function({
                         throw new Error('Incorrect email or username.')
                     }
 
+                    if (!user[name]) {
+                        throw new Error('No password associated with this account.')
+                    }
+
                     if (!compareSync(password, user[name].password)) {
                         throw new Error('Incorrect password.')
                     }
@@ -173,6 +177,10 @@ module.exports = function({
 
             const user = req.user
 
+            if (!user[name] || !user[name].email) {
+                throw new Error('No email to verify')
+            }
+
             updateUser(req.user._id, {
                 verificationToken
             }).then(() => {
@@ -202,12 +210,17 @@ module.exports = function({
                     throw new Error('Verification token invalid, expired or already used.')
                 }
 
+                if (!user[name] || !user[name].email) {
+                    throw new Error('No email to verify.')
+                }
+
                 return updateUser(user._id, {
                     verified: true,
                     verificationToken: null
                 }).then(() => {
                     return getUserById(user._id)
                 }).then(user => {
+
                     if (onVerify) {
                         onVerify({
                             _id: user._id,
@@ -235,24 +248,28 @@ module.exports = function({
                     if (!user) {
                         return getUserByUniqueField('email', username)
                     }
+
+                    return user;
                 }).then(user => {
                     if (!user) {
                         throw new Error('Invalid username or email.')
                     }
 
+                    const email = getUniqueField(user, 'email')
+
                     const passwordResetToken = randomToken()
 
                     updateUser(user._id, {
-                        passwordResetToken
+                        passwordResetToken,
+                        email,
                     }).then(() => {
 
                         if (onForgotPassword) {
                             onForgotPassword({
                                 _id: user._id,
-                                email: user[name].email,
+                                email,
                                 passwordResetToken
                             })
-
                         }
 
                         return res.send({
@@ -276,7 +293,8 @@ module.exports = function({
                 if (!user) {
                     throw new Error('Invalid password reset token.')
                 }
-                updateUser(user._id, {
+
+                return updateUser(user._id, {
                     passwordResetToken: null,
                     password: hash(newPassword)
                 }).then(() => {
@@ -300,11 +318,11 @@ module.exports = function({
                 throw new Error('Invalid password.')
             }
 
-            testValue('password', password)
+            testValue('password', newPassword)
 
             return getUserById(req.user._id)
                 .then(user => {
-                    if (!compareSync(password, user[name].password)) {
+                    if ((password || user[name].password) && !compareSync(password, user[name].password)) {
                         throw new Error('Incorrect password.')
                     }
 
