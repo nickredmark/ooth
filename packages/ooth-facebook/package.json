@@ -2,13 +2,22 @@
   "name": "ooth-facebook",
   "version": "0.8.3",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "link": "",
-    "prepublish": "",
-    "build": "",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "link": "npm run prepublish && yarn link",
+    "prepublish": "npm run build",
+    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
+    "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "nodeify": "^1.0.1",
+    "passport-facebook-token": "^3.3.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-env": "^1.6.0",
+    "jest": "^20.0.4"
+  }
 }
