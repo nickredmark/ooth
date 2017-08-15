@@ -207,6 +207,10 @@ class Ooth {
         }
         const profile = {}
         for (let strategyName of Object.keys(this.strategies)) {
+            if (!user[strategyName]) {
+                continue
+            }
+
             for (let fieldName of Object.keys(this.strategies[strategyName].profileFields)) {
                 if (strategyName === 'root') {
                     profile[fieldName] = user[fieldName]
