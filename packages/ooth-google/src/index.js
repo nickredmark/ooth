@@ -17,6 +17,7 @@ module.exports = function({
         registerProfileField,
         registerPassportMethod,
         requireNotLogged,
+        getUserById,
         getUserByUniqueField,
         insertUser,
         updateUser,
@@ -42,6 +43,8 @@ module.exports = function({
 
                     return insertUser({
                         email,
+                    }).then(_id => {
+                        return getUserById(_id)
                     })
                 })
         })))
