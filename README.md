@@ -10,10 +10,6 @@ Introducing medium article: [Ooth - user accounts for node.js](https://medium.co
 
 NOTE: Until version 1.0.0 is reached, the API will be unstable and can't be considered safe for production.
 
-## Roadmap
-
-A roadmap can be found in the [ooth github projects](https://github.com/nmaro/ooth/projects/1).
-
 ## Staart
 
 If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](https://github.com/nmaro/staart).
@@ -40,10 +36,10 @@ Find more documentation in the readmes of the individual packages.
 
 ### Strategies
 
-* [ooth-guest](packages/ooth-guest): login as a guest, no credentials needed (built-in)
+* [ooth-guest](packages/ooth-guest): login as a guest, no credentials needed
 * [ooth-local](packages/ooth-local): login with username/email/password
-* [ooth-faceboook](packages/ooth-facebook)
-* [ooth-google](packages/ooth-google)
+* [ooth-faceboook](packages/ooth-facebook): login with Facebook
+* [ooth-google](packages/ooth-google): login with Google
 
 ### Client Packages
 
