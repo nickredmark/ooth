@@ -1,5 +1,7 @@
 # OOTH - a user identity management system
 
+Join the [Slack Channel](https://ooth.slack.com/)!
+
 Get news about ooth on [ooth's twitter account](https://twitter.com/oothjs).
 
 Read the newest article [Staart - a starter library for node.js projects with user accounts](https://medium.com/@nmaro/staart-a-starter-library-for-node-js-projects-with-user-accounts-d1328b46a59).
