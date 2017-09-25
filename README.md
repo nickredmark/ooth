@@ -1,6 +1,6 @@
 # OOTH - a user identity management system
 
-Join the [Slack Channel](https://ooth.slack.com/)!
+Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE2ODA2NjE0LTE1NGNmN2YzZTdiMWNjODExZmNjYzg3ZGJjZmVmZmI2YjVhOWYzZDQ1NWI4Y2JiNzNlMmI2Y2U5ZWFhODIzMWQ)!
 
 Get news about ooth on [ooth's twitter account](https://twitter.com/oothjs).
 
