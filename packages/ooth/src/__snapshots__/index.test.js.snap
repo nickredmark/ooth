@@ -1,5 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`ooth can register plugin 1`] = `
+Array [
+  Object {
+    "getProfile": [Function],
+    "getUniqueField": [Function],
+    "getUserByFields": [Function],
+    "getUserById": [Function],
+    "getUserByUniqueField": [Function],
+    "insertUser": [Function],
+    "name": "test",
+    "registerGetMethod": [Function],
+    "registerMethod": [Function],
+    "registerPassportMethod": [Function],
+    "registerProfileField": [Function],
+    "registerUniqueField": [Function],
+    "requireLogged": [Function],
+    "requireNotLogged": [Function],
+    "requireNotRegistered": [Function],
+    "requireRegisteredWithThis": [Function],
+    "updateUser": [Function],
+  },
+]
+`;
+
 exports[`ooth main route has additional passport route for passport method 1`] = `
 Object {
   "methods": Object {

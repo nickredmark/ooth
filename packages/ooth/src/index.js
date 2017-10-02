@@ -273,9 +273,9 @@ class Ooth {
             },
             registerUniqueField: (id, fieldName) => {
                 if (!this.uniqueFields[id]) {
-                    this.uniqueFields[id] = []
+                    this.uniqueFields[id] = {}
                 }
-                this.uniqueFields[id].push(`${name}.${fieldName}`)
+                this.uniqueFields[id][name] = fieldName
             },
             registerProfileField: (fieldName) => {
                 this.strategies[name].profileFields[fieldName] = true;
@@ -284,10 +284,21 @@ class Ooth {
             getUserById: (id) => this.getUserById(id),
             getUserByUniqueField: async (fieldName, value) => {
                 return await this.Users.findOne({
-                    $or: this.uniqueFields[fieldName].map(field => ({
-                        [field]: value
+                    $or: Object.keys(this.uniqueFields[fieldName]).map(strategyName => ({
+                        [`${strategyName}.${this.uniqueFields[fieldName][strategyName]}`]: value
                     }))
                 })
+            },
+            getUniqueField: (user, fieldName) => {
+                if (this.uniqueFields[fieldName]) {
+                    for (const strategyName of Object.keys(this.uniqueFields[fieldName])) {
+                        const actualFieldName = this.uniqueFields[fieldName][strategyName]
+                        if (user[strategyName] && user[strategyName][actualFieldName]) {
+                            return user[strategyName][actualFieldName]
+                        }
+                    }
+                }
+                return null
             },
             getUserByFields: async (fields) => {
                 const actualFields = {}

@@ -16,7 +16,7 @@ const startServer = () => {
 
 describe('ooth', () => {
 
-    beforeEach((done) => {
+    beforeEach(async () => {
         config = {
             mongoUrl: 'mongodb://localhost:27017/oothtest',
             sharedSecret: '',
@@ -33,11 +33,11 @@ describe('ooth', () => {
             saveUninitialized: true,
         }))
         ooth = new Ooth(config)
-        ooth.start(app).then(done)
+        await ooth.start(app)
     })
 
-    afterEach(() => {
-        server.close()
+    afterEach(async () => {
+        await server.close()
     })
 
     test('main route has status', async () => {
@@ -47,6 +47,12 @@ describe('ooth', () => {
             json: true,
         })
         expect(res).toMatchSnapshot()
+    })
+
+    test('can register plugin', async () => {
+        ooth.use('test', (...args) => {
+            expect(args).toMatchSnapshot()
+        })
     })
 
     test('main route has additional passport route for passport method', async () => {
