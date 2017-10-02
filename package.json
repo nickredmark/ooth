@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "lerna": "2.0.0-beta.36"
+  },
+  "scripts": {
+    "bootstrap": "lerna exec yarn --concurrency=1"
   }
 }
