@@ -1,5 +1,7 @@
 # OOTH - a user identity management system
 
+Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE2ODA2NjE0LTE1NGNmN2YzZTdiMWNjODExZmNjYzg3ZGJjZmVmZmI2YjVhOWYzZDQ1NWI4Y2JiNzNlMmI2Y2U5ZWFhODIzMWQ)!
+
 Get news about ooth on [ooth's twitter account](https://twitter.com/oothjs).
 
 Read the newest article [Staart - a starter library for node.js projects with user accounts](https://medium.com/@nmaro/staart-a-starter-library-for-node-js-projects-with-user-accounts-d1328b46a59).
@@ -7,10 +9,6 @@ Read the newest article [Staart - a starter library for node.js projects with us
 Introducing medium article: [Ooth - user accounts for node.js](https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a#.97kyfg4xg).
 
 NOTE: Until version 1.0.0 is reached, the API will be unstable and can't be considered safe for production.
-
-## Roadmap
-
-A roadmap can be found in the [ooth github projects](https://github.com/nmaro/ooth/projects/1).
 
 ## Staart
 
@@ -38,10 +36,10 @@ Find more documentation in the readmes of the individual packages.
 
 ### Strategies
 
-* [ooth-guest](packages/ooth-guest): login as a guest, no credentials needed (built-in)
+* [ooth-guest](packages/ooth-guest): login as a guest, no credentials needed
 * [ooth-local](packages/ooth-local): login with username/email/password
-* [ooth-faceboook](packages/ooth-facebook)
-* [ooth-google](packages/ooth-google)
+* [ooth-faceboook](packages/ooth-facebook): login with Facebook
+* [ooth-google](packages/ooth-google): login with Google
 
 ### Client Packages
 
