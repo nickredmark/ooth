@@ -20,13 +20,30 @@ const startServer = () => {
     })
 }
 
+const obfuscate = (obj, ...keys) => {
+    const res = {}
+    for (const key of Object.keys(obj)) {
+        if (keys.indexOf(key) > -1) {
+            res[key] = '<obfuscated>'
+        } else {
+            res[key] = obj[key]            
+        }
+    }
+
+    return res
+}
+
 
 describe('ooth-local', () => {
+
+    let onForgotPasswordListener;
+
     beforeAll(async () => {
         db = await MongoClient.connect(mongoUrl)
+        await db.dropDatabase()
     })
 
-    beforeEach((done) => {
+    beforeEach(async () => {
         config = {
             mongoUrl,
             sharedSecret: '',
@@ -36,6 +53,11 @@ describe('ooth-local', () => {
             onLogout: () => null,
         }
         oothLocalConfig = {
+            onForgotPassword(data) {
+                if (onForgotPasswordListener) {
+                    onForgotPasswordListener(data)
+                }
+            }
         }
         app = express()
         app.use(session({
@@ -45,16 +67,14 @@ describe('ooth-local', () => {
             saveUninitialized: true,
         }))
         ooth = new Ooth(config)
-        ooth.start(app)
-            .then(() => {
-                ooth.use('local', oothLocal(oothLocalConfig))
-                return startServer(app)
-            }).then(done)
+        await ooth.start(app)
+        ooth.use('local', oothLocal(oothLocalConfig))
+        await startServer(app)
     })
 
-    afterEach(() => {
-        server.close()
-        db.dropDatabase()
+    afterEach(async () => {
+        await server.close()
+        await db.dropDatabase()
         cookies = ''
     })
 
@@ -153,6 +173,19 @@ describe('ooth-local', () => {
             } catch (e) {
                 expect(e.response.body).toMatchSnapshot()
             }
+        })
+
+        test('can forget password', async () => {
+            onForgotPasswordListener = jest.fn()
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/local/forgot-password',
+                body: {
+                    username: 'test@example.com',
+                },
+                json: true,
+            })
+            expect(obfuscate(onForgotPasswordListener.mock.calls[0][0], '_id', 'passwordResetToken')).toMatchSnapshot()
         })
 
         test('can login', async () => {

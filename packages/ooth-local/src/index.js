@@ -62,6 +62,7 @@ module.exports = function({
         getUserByUniqueField,
         getUserById,
         getUserByFields,
+        getUniqueField,
         updateUser,
         insertUser,
         requireLogged,

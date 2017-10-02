@@ -29,6 +29,14 @@ Object {
 }
 `;
 
+exports[`ooth-local after registration can forget password 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "email": "test@example.com",
+  "passwordResetToken": "<obfuscated>",
+}
+`;
+
 exports[`ooth-local after registration can login 1`] = `
 Object {
   "user": Object {
