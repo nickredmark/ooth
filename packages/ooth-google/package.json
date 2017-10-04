@@ -1,6 +1,6 @@
 {
   "name": "ooth-google",
-  "version": "0.12.2",
+  "version": "0.13.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
