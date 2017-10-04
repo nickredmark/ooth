@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-guest can register 1`] = `
+Object {
+  "_id": "<obfuscated>",
+}
+`;
+
+exports[`ooth-guest registers routes 1`] = `
+Object {
+  "methods": Object {
+    "guest": Array [
+      "register",
+    ],
+    "root": Array [
+      "status",
+      "logout",
+    ],
+  },
+}
+`;

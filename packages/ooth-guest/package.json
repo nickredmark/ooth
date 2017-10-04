@@ -6,8 +6,8 @@
   "scripts": {
     "link": "npm run prepublish && yarn link",
     "prepublish": "npm run build",
-    "build": "babel src --out-dir lib",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
+    "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
@@ -17,6 +17,10 @@
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.6.0"
+    "babel-preset-env": "^1.6.0",
+    "jest": "^21.2.1",
+    "mongodb": "^2.2.31",
+    "ooth": "^0.12.3",
+    "request-promise": "^4.2.2"
   }
 }
