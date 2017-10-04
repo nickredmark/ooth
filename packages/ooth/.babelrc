@@ -5,5 +5,8 @@
 				"node": "7.5"
 			}
 		}]
-    ]
+	],
+	"plugins": [
+		"transform-class-properties"
+	]
 }

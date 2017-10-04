@@ -51,6 +51,60 @@ function nodeifyAsync(asyncFunction) {
     }
 }
 
+function post(route, routeName, ...handlers) {
+    const middleware = handlers.slice(0, -1)
+    const handler = handlers[handlers.length-1]
+    route.post(routeName, ...middleware, (req, res) => {
+        try {
+            return handler(req, res)
+                .then(data => {
+                    return res.send(data)
+                })
+                .catch(e => {
+                    console.log(e)
+                    return res.status(400).send({
+                        status: 'error',
+                        message: e.message || e,
+                    })
+                })
+        } catch (e) {
+            return res.status(400).send({
+                status: 'error',
+                message: e.message || e,
+            })
+        }
+    })
+}
+
+function authenticate(passport, methodName, req, res) {
+    return new Promise((resolve, reject) => {
+        const auth = passport.authenticate(methodName, (err, user, info) => {
+            if (err) {
+                reject(err)
+            }
+            
+            if (!user) {
+                reject(new Error(info && info.message || 'Unknown error.'))
+            }
+            
+            resolve(user)
+        })
+        auth(req, res)
+    })
+}
+
+function login(req, user) {
+    return new Promise((resolve, reject) => {
+        return req.login(user, err => {
+            if (err) {
+                reject(err)
+            }
+
+            resolve()
+        })
+    })
+}
+
 const prepare = (o) => {
     if (o && o._id) {
         o._id = o._id.toString()
@@ -65,6 +119,7 @@ class Ooth {
         standalone,
         path,
         onLogin,
+        onRegister,
         onLogout
     }) {
         this.mongoUrl = mongoUrl
@@ -72,6 +127,7 @@ class Ooth {
         this.standalone = standalone
         this.path = path || '/'
         this.onLogin = onLogin
+        this.onRegister = onRegister
         this.onLogout = onLogout
         this.uniqueFields = {}
         this.strategies = {}
@@ -124,7 +180,7 @@ class Ooth {
                 profileFields: {
                     _id: true
                 }
-            }      
+            }
             this.route.get('/status', (req, res) => {
                 if (req.user) {
                     const user = this.getProfile(req.user)
@@ -144,16 +200,16 @@ class Ooth {
                     })
                 }
             })
-            this.route.post('/logout', requireLogged, (req, res) => {
+            post(this.route, '/logout', requireLogged, async (req, res) => {
                 const user = req.user
                 this.sendStatus(req, {})
                 req.logout()
                 if (this.onLogout) {
                     this.onLogout(user)
                 }
-                res.send({
+                return {
                     message: 'Logged out'
-                })
+                }
             })
 
             if (this.standalone) {
@@ -197,8 +253,37 @@ class Ooth {
         })()
     }
 
-    getUserById(id) {
-        return this.Users.findOne(ObjectId(id))
+    getUserById = async (id) => {
+        return prepare(await this.Users.findOne(ObjectId(id)))
+    }
+    
+    getUserByUniqueField = async (fieldName, value) => {
+        return prepare(await this.Users.findOne({
+            $or: Object.keys(this.uniqueFields[fieldName]).map(strategyName => ({
+                [`${strategyName}.${this.uniqueFields[fieldName][strategyName]}`]: value
+            }))
+        }))
+    }
+
+    updateUserStrategy = async (strategyName, id, fields) => {
+        const actualFields = {}
+        Object.keys(fields).forEach(field => {
+            actualFields[`${strategyName}.${field}`] = fields[field]
+        })
+        return await this.Users.update({
+            _id: ObjectId(id)
+        }, {
+            $set: actualFields
+        })
+    }
+
+    insertUser = async (strategyName, fields) => {
+        const query = {}
+        if (fields) {
+            query[strategyName] = fields
+        }
+        const {insertedId} = await this.Users.insertOne(query)
+        return insertedId
     }
 
     getProfile(user) {
@@ -207,7 +292,7 @@ class Ooth {
         }
         const profile = {}
         for (let strategyName of Object.keys(this.strategies)) {
-            if (!user[strategyName]) {
+            if (strategyName !== 'root' && !user[strategyName]) {
                 continue
             }
 
@@ -232,12 +317,16 @@ class Ooth {
     use(name, strategy) {
         this.strategies[name] = {
             methods: [],
-            profileFields: {}
+            profileFields: {},
+            uniqueFields: {},
         }
         strategy({
             name,
             registerPassportMethod: (...args) => {
                 this.registerPassportMethod(name, ...args)
+            },
+            registerPassportConnectMethod: (...args) => {
+                this.registerPassportConnectMethod(name, ...args)
             },
             registerMethod: (method, ...handlers) => {
                 this.strategies[name].methods.push(method)
@@ -277,18 +366,15 @@ class Ooth {
                 }
                 this.uniqueFields[id][name] = fieldName
             },
+            registerStrategyUniqueField: (fieldName) => {
+                this.strategies[name].uniqueFields[fieldName] = true;
+            },
             registerProfileField: (fieldName) => {
                 this.strategies[name].profileFields[fieldName] = true;
             },
             getProfile: user => this.getProfile(user),
             getUserById: (id) => this.getUserById(id),
-            getUserByUniqueField: async (fieldName, value) => {
-                return await this.Users.findOne({
-                    $or: Object.keys(this.uniqueFields[fieldName]).map(strategyName => ({
-                        [`${strategyName}.${this.uniqueFields[fieldName][strategyName]}`]: value
-                    }))
-                })
-            },
+            getUserByUniqueField: this.getUserByUniqueField,
             getUniqueField: (user, fieldName) => {
                 if (this.uniqueFields[fieldName]) {
                     for (const strategyName of Object.keys(this.uniqueFields[fieldName])) {
@@ -308,23 +394,10 @@ class Ooth {
                 return await this.Users.findOne(actualFields)
             },
             updateUser: async (id, fields) => {
-                const actualFields = {}
-                Object.keys(fields).forEach(field => {
-                    actualFields[`${name}.${field}`] = fields[field]
-                })
-                return await this.Users.update({
-                    _id: ObjectId(id)
-                }, {
-                    $set: actualFields
-                })
+                return await this.updateUserStrategy(name, id, fields)
             },
             insertUser: async (fields) => {
-                const query = {}
-                if (fields) {
-                    query[name] = fields
-                }
-                const {insertedId} = await this.Users.insertOne(query)
-                return insertedId
+                return await this.insertUser(name, fields)
             },
             requireLogged,
             requireNotLogged,
@@ -361,56 +434,143 @@ class Ooth {
         this.strategies[strategy].methods.push(method)
 
         // Split handlers into [...middleware, handler]
-        const middleware = handlers.slice(0, -1),
-            handler = handlers[handlers.length-1],
-            methodName = strategy !== 'root' ? `${strategy}-${method}` : method,
-            routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
+        const middleware = handlers.slice(0, -1)
+        const handler = handlers[handlers.length-1]
+
+        const methodName = strategy !== 'root' ? `${strategy}-${method}` : method
+        const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
 
         passport.use(methodName, handler)
-        this.route.post(routeName, ...middleware, (req, res, next) => {
-            passport.authenticate(methodName, (err, u, info) => {
-                if (err) {
-                    return res.status(400).send({
-                        status: 'error',
-                        message: err.message
-                    })
+        post(this.route, routeName, ...middleware, async (req, res) => {
+            const user = await authenticate(passport, methodName, req, res)
+
+            await login(req, user)
+
+            const profile = this.getProfile(user)
+
+            this.sendStatus(req, {
+                user: profile
+            })
+
+            if (this.onLogin) {
+                this.onLogin(profile)
+            }
+
+            if (this.standalone) {
+                return {
+                    user: profile,
+                    token: this.getToken(profile)
                 }
-                if (!u) {
-                    return res.status(400).send({
-                        status: 'error',
-                        message: info && info.message || 'Unknown error.'
-                    })
-                }
-                req.login(u, loginErr => {
-                    if (loginErr) {
-                        return res.status(400).send({
-                            status: 'error',
-                            message: loginErr.message || loginErr
-                        })
-                    }
+            }
 
-                    const user = this.getProfile(u)
+            return {
+                user: profile
+            }
+        })
+    }
 
-                    this.sendStatus(req, {
-                        user
-                    })
 
-                    if (this.onLogin) {
-                        this.onLogin(user)
-                    }
+    registerPassportConnectMethod(strategy, method, ...handlers) {
+        this.strategies[strategy].methods.push(method)
 
-                    if (this.standalone) {
-                        res.send({
-                            user,
-                            token: this.getToken(user)
-                        })
+        // Split handlers into [...middleware, handler]
+        const middleware = handlers.slice(0, -1)
+        const handler = handlers[handlers.length-1]
+
+        const methodName = strategy !== 'root' ? `${strategy}-${method}` : method
+        const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
+
+        passport.use(methodName, handler)
+        post(this.route, routeName, ...middleware, async (req, res) => {
+            const userPart = await authenticate(passport, methodName, req, res)
+
+            if (!userPart) {
+                throw new Error('Strategy should return an object.')
+            }
+
+            let user
+            for (const field of Object.keys(this.strategies[strategy].uniqueFields)) {
+                const value = userPart[field]
+                if (value) {
+                    const userCandidate = prepare(await this.Users.findOne({
+                        [`${strategy}.${field}`]: userPart
+                    }))
+                    if (!user || user._id === userCandidate._id) {
+                        user = userCandidate
                     } else {
-                        res.send({
-                            user
-                        })
+                        throw new Error('Multiple users conform to this authentication.')
                     }
-                })
-            })(req, res, next)
+                }
+            }
+            for (const field of Object.keys(this.uniqueFields)) {
+                if (this.uniqueFields[field][strategy]) {
+                    const value = userPart[this.uniqueFields[field][strategy]]
+                    if (value) {
+                        const userCandidate = await this.getUserByUniqueField(field, value)
+                        if (!user || user._id === userCandidate._id) {
+                            user = userCandidate
+                        } else {
+                            throw new Error('Multiple users conform to this authentication.')
+                        }
+                    }
+                }
+            }
+
+            let registered = false
+            if (req.user) {
+                // User is already logged in
+
+                if (user && user._id !== req.user._id) {
+                    throw new Error('This authentication strategy belongs to another account.')
+                }
+
+                // Update user
+                await this.updateUserStrategy(strategy, req.user._id, userPart)
+                user = await this.getUserById(req.user._id)
+            } else {
+                // User hasn't logged in
+
+                if (user) {
+                    // User exists already, update
+                    await this.updateUserStrategy(strategy, user._id, userPart)
+                    user = await this.getUserById(user._id)
+                } else {
+                    // Need to create a new user
+                    const _id = await this.insertUser(strategy, userPart)
+                    user = await this.getUserById(_id)
+                    registered = true
+                }
+            }
+            
+            let loggedIn = false
+            if (!req.user) {
+                await login(req, user)
+                loggedIn = true
+            }
+            
+            const profile = this.getProfile(user)
+            
+            this.sendStatus(req, {
+                user: profile
+            })
+            
+            if (loggedIn && this.onLogin) {
+                this.onLogin(profile)
+            }
+            if (registered && this.onRegister) {
+                this.onRegister(profile)
+            }
+
+            if (this.standalone) {
+                return {
+                    user: profile,
+                    token: this.getToken(profile)
+                }
+            }
+
+            return {
+                user: profile
+            }
         })
     }
 }

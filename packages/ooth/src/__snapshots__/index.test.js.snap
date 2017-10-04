@@ -12,8 +12,10 @@ Array [
     "name": "test",
     "registerGetMethod": [Function],
     "registerMethod": [Function],
+    "registerPassportConnectMethod": [Function],
     "registerPassportMethod": [Function],
     "registerProfileField": [Function],
+    "registerStrategyUniqueField": [Function],
     "registerUniqueField": [Function],
     "requireLogged": [Function],
     "requireNotLogged": [Function],
@@ -22,6 +24,60 @@ Array [
     "updateUser": [Function],
   },
 ]
+`;
+
+exports[`ooth connect method after register can connect another strategy 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "test": Object {
+    "foo": 1,
+  },
+  "test2": Object {},
+}
+`;
+
+exports[`ooth connect method after register can log in again 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "test": Object {
+    "foo": 2,
+  },
+}
+`;
+
+exports[`ooth connect method after register can log in with other strategy 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "test": Object {
+    "foo": 1,
+  },
+  "test2": Object {},
+}
+`;
+
+exports[`ooth connect method after register can log in with other strategy 2`] = `
+Object {
+  "_id": "<obfuscated>",
+  "test": Object {
+    "foo": 1,
+  },
+  "test2": Object {},
+}
+`;
+
+exports[`ooth connect method after register can log out 1`] = `
+Object {
+  "message": "Logged out",
+}
+`;
+
+exports[`ooth connect method can register 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "test": Object {
+    "foo": 1,
+  },
+}
 `;
 
 exports[`ooth main route has additional passport route for passport method 1`] = `

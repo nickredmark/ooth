@@ -2,7 +2,13 @@ import Ooth from '.'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
+import util from 'util'
+import Strategy from 'passport-strategy'
+import {MongoClient} from 'mongodb'
+const CustomStrategy = require('passport-custom').Strategy
 
+let mongoUrl = 'mongodb://localhost:27017/oothtest'
+let db
 let config
 let app 
 let server
@@ -14,7 +20,29 @@ const startServer = () => {
     })
 }
 
+const obfuscate = (obj, ...keys) => {
+    const res = {}
+    for (const key of Object.keys(obj)) {
+        if (keys.indexOf(key) > -1) {
+            res[key] = '<obfuscated>'
+        } else {
+            res[key] = obj[key]            
+        }
+    }
+
+    return res
+}
+
 describe('ooth', () => {
+
+    let onRegister = () => null
+    let onLogin = () => null
+    let onLogout = () => null
+
+    beforeAll(async () => {
+        db = await MongoClient.connect(mongoUrl)
+        await db.dropDatabase()
+    })
 
     beforeEach(async () => {
         config = {
@@ -22,8 +50,9 @@ describe('ooth', () => {
             sharedSecret: '',
             standalone: false,
             path: '',
-            onLogin: () => null,
-            onLogout: () => null,
+            onLogin: () => onLogin(),
+            onLogout: () => onLogout(),
+            onRegister: () => onRegister(),
         }
         app = express()
         app.use(session({
@@ -38,6 +67,7 @@ describe('ooth', () => {
 
     afterEach(async () => {
         await server.close()
+        await db.dropDatabase()
     })
 
     test('main route has status', async () => {
@@ -139,6 +169,136 @@ describe('ooth', () => {
                 expect(e.response.body).toMatchSnapshot()
             }
         })
+    })
+
+    describe('connect method', () => {
+
+        beforeEach(async () => {
+            ooth.use('test', ({
+                registerProfileField,
+                registerUniqueField,
+                registerPassportConnectMethod,
+            }) => {
+                registerProfileField('foo')
+                registerUniqueField('bar', 'bar')
+                registerPassportConnectMethod('login', new CustomStrategy((req, done) => done(null, req.body)))
+            })
+            ooth.use('test2', ({
+                registerProfileField,
+                registerUniqueField,
+                registerPassportConnectMethod,
+            }) => {
+                registerProfileField('baz')
+                registerUniqueField('bar', 'bar')
+                registerPassportConnectMethod('login', new CustomStrategy((req, done) => done(null, req.body)))
+            })
+            await startServer(app)
+        })
+
+        test('can register', async () => {
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/test/login',
+                body: {
+                    foo: 1,
+                    bar: 2,
+                },
+                json: true,
+            })
+            expect(obfuscate(res.user, '_id')).toMatchSnapshot()
+        })
+
+        describe('after register', () => {
+            let cookies
+            let user
+            beforeEach(async () => {
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/test/login',
+                    body: {
+                        foo: 1,
+                        bar: 2,
+                    },
+                    json: true,
+                    resolveWithFullResponse: true
+                })
+                cookies = res.headers['set-cookie']
+                user = res.body.user  
+            })
+
+            test('can log out', async () => {
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/logout',
+                    json: true,
+                    headers: {
+                        Cookie: cookies
+                    }
+                })
+                expect(res).toMatchSnapshot()
+            })
+
+            test('can log in again', async () => {
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/test/login',
+                    body: {
+                        foo: 2,
+                        bar: 2,
+                    },
+                    json: true
+                })
+                expect(res.user._id).toBe(user._id)
+                expect(obfuscate(res.user, '_id')).toMatchSnapshot()
+            })
+
+            test('can log in with other strategy', async () => {
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/test2/login',
+                    body: {
+                        foo: 2,
+                        bar: 2,
+                    },
+                    json: true
+                })
+                expect(res.user._id).toBe(user._id)
+                expect(obfuscate(res.user, '_id')).toMatchSnapshot()
+            })
+
+            test('can log in with other strategy', async () => {
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/test2/login',
+                    body: {
+                        foo: 2,
+                        bar: 2,
+                    },
+                    json: true
+                })
+                expect(res.user._id).toBe(user._id)
+                expect(obfuscate(res.user, '_id')).toMatchSnapshot()
+            })
+
+            test('can connect another strategy', async () => {
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/test2/login',
+                    body: {
+                        bar: 3,
+                    },
+                    json: true,
+                    headers: {
+                        Cookie: cookies
+                    }
+                })
+                expect(res.user._id).toBe(user._id)
+                expect(obfuscate(res.user, '_id')).toMatchSnapshot()
+            })
+
+        })
+
+
     })
 
 })
