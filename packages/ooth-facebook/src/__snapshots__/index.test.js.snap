@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-facebook fails to log in with valid token 1`] = `
+Object {
+  "message": "Failed to fetch user profile",
+  "status": "error",
+}
+`;
+
+exports[`ooth-facebook registers routes 1`] = `
+Object {
+  "methods": Object {
+    "facebook": Array [
+      "login",
+    ],
+    "root": Array [
+      "status",
+      "logout",
+    ],
+  },
+}
+`;
