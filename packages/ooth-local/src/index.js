@@ -14,6 +14,10 @@ const tests = {
         test: (password) => /\d/.test(password) && /[a-z]/.test(password) && /[A-Z]/.test(password) && /.{6,}/.test(password),
         error: 'Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.',
     },
+    email: {
+        regex: /^.+@.+$/,
+        error: 'Invalid email.',
+    }
 }
 
 function testValue(key, value) {
@@ -46,7 +50,7 @@ function hash(pass) {
 module.exports = function({
     onRegister,
     onGenerateVerificationToken,
-    onSendVerificationEmail,
+    onSetEmail,
     onVerify,
     onForgotPassword,
     onResetPassword,
@@ -109,7 +113,7 @@ module.exports = function({
             const { username } = req.body
 
             if (typeof username !== 'string') {
-                throw new Error('Invalid username')
+                throw new Error('Invalid username.')
             }
 
             testValue('username', username)
@@ -127,6 +131,44 @@ module.exports = function({
                     }).then(user => {
                         return res.send({
                             message: 'Username updated.',
+                            user: getProfile(user)
+                        })
+                    })
+                })
+        })
+
+        registerMethod('set-email', requireLogged, function(req, res) {
+            const { email } = req.body
+
+            if (typeof email !== 'string') {
+                throw new Error('Invalid email.')
+            }
+
+            testValue('email', email)
+
+            return getUserByUniqueField('email', email)
+                .then(user => {
+                    if (user && user._id !== req.user._id) {
+                        throw new Error('This email is already registered.')
+                    }
+
+                    const verificationToken = randomToken()
+
+                    updateUser(req.user._id, {
+                        email,
+                        verificationToken,
+                    }).then(() => {
+                        if (onSetEmail) {
+                            onSetEmail({
+                                _id: req.user._id,
+                                email,
+                                verificationToken
+                            })
+                        }
+                        return getUserById(req.user._id)
+                    }).then(user => {
+                        return res.send({
+                            message: 'Email updated.',
                             user: getProfile(user)
                         })
                     })
@@ -323,7 +365,7 @@ module.exports = function({
 
             return getUserById(req.user._id)
                 .then(user => {
-                    if ((password || user[name].password) && !compareSync(password, user[name].password)) {
+                    if ((password || (user[name] && user[name].password)) && !compareSync(password, user[name].password)) {
                         throw new Error('Incorrect password.')
                     }
 
@@ -334,7 +376,7 @@ module.exports = function({
                         if (onChangePassword) {
                             onChangePassword({
                                 _id: user._id,
-                                email: user[name].email
+                                email: user[name] && user[name].email
                             })
                         }
                         return res.send({

@@ -10,6 +10,17 @@ Object {
 }
 `;
 
+exports[`ooth-local after registration after login can set email 1`] = `
+Object {
+  "message": "Email updated.",
+  "user": Object {
+    "local": Object {
+      "email": "test@example.com",
+    },
+  },
+}
+`;
+
 exports[`ooth-local after registration after login can set username 1`] = `
 Object {
   "message": "Username updated.",

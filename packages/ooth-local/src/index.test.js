@@ -245,6 +245,22 @@ describe('ooth-local', () => {
                 expect(res).toMatchSnapshot()
             })
 
+            test('can set email', async () => {
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/local/set-email',
+                    body: {
+                        email: 'test@example.com'
+                    },
+                    json: true,
+                    headers: {
+                        Cookie: cookies
+                    }
+                })
+                delete(res.user._id)
+                expect(res).toMatchSnapshot()
+            })
+
             test('can\'t set invalid username', async () => {
                 try {
                     await request({
