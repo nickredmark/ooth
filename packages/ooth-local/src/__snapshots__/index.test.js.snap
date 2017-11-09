@@ -10,6 +10,27 @@ Object {
 }
 `;
 
+exports[`ooth-local after registration after login can generate verification token 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "email": "test@example.com",
+  "verificationToken": "<obfuscated>",
+}
+`;
+
+exports[`ooth-local after registration after login can verify user with token 1`] = `
+Object {
+  "message": "Email verified",
+  "user": Object {
+    "_id": "<obfuscated>",
+    "local": Object {
+      "email": "test@example.com",
+      "verified": true,
+    },
+  },
+}
+`;
+
 exports[`ooth-local after registration after login can set email 1`] = `
 Object {
   "message": "Email updated.",
@@ -55,6 +76,22 @@ Object {
       "email": "test@example.com",
     },
   },
+}
+`;
+
+exports[`ooth-local after registration can login 2`] = `
+Object {
+  "user": Object {
+    "local": Object {
+      "email": "test@example.com",
+    },
+  },
+}
+`;
+
+exports[`ooth-local after registration can reset password 1`] = `
+Object {
+  "message": "Password has been reset.",
 }
 `;
 

@@ -33,10 +33,12 @@ const obfuscate = (obj, ...keys) => {
     return res
 }
 
-
 describe('ooth-local', () => {
 
     let onForgotPasswordListener;
+    let onRequestVerifyListener;
+    let resetToken;
+    let verificationToken;
 
     beforeAll(async () => {
         db = await MongoClient.connect(mongoUrl)
@@ -55,7 +57,17 @@ describe('ooth-local', () => {
         oothLocalConfig = {
             onForgotPassword(data) {
                 if (onForgotPasswordListener) {
+                    //Store reset token for follow on test
+                    resetToken = data.passwordResetToken
                     onForgotPasswordListener(data)
+                }
+            },
+
+            onGenerateVerificationToken(data) {
+                if (onRequestVerifyListener) {
+                    //Store verification token for follow on test
+                    verificationToken = data.verificationToken
+                    onRequestVerifyListener(data)
                 }
             }
         }
@@ -175,17 +187,18 @@ describe('ooth-local', () => {
             }
         })
 
-        test('can forget password', async () => {
-            onForgotPasswordListener = jest.fn()
+        test('can login', async () => {
             const res = await request({
                 method: 'POST',
-                uri: 'http://localhost:8080/local/forgot-password',
+                uri: 'http://localhost:8080/local/login',
                 body: {
                     username: 'test@example.com',
+                    password: 'Asdflba09',
                 },
                 json: true,
             })
-            expect(obfuscate(onForgotPasswordListener.mock.calls[0][0], '_id', 'passwordResetToken')).toMatchSnapshot()
+            delete(res.user._id)
+            expect(res).toMatchSnapshot()
         })
 
         test('can login', async () => {
@@ -202,6 +215,43 @@ describe('ooth-local', () => {
             expect(res).toMatchSnapshot()
         })
 
+        test('can forget password', async () => {
+            onForgotPasswordListener = jest.fn()
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/local/forgot-password',
+                body: {
+                    username: 'test@example.com',
+                },
+                json: true,
+            })
+            expect(obfuscate(onForgotPasswordListener.mock.calls[0][0], '_id', 'passwordResetToken')).toMatchSnapshot()
+        })
+
+        test('can reset password', async () =>{
+            onForgotPasswordListener = jest.fn()
+
+            //Store the password reset token so we can use it later
+            await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/local/forgot-password',
+                body: {
+                    username: 'test@example.com',
+                },
+                json: true,
+            })
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/local/reset-password',
+                body: {
+                    token: resetToken,
+                    newPassword: 'Asdflba10',
+                },
+                json: true,
+            })
+            expect(res).toMatchSnapshot()
+        })
+
         describe('after login', () => {
             beforeEach(async () => {
                 const res = await request({
@@ -215,6 +265,50 @@ describe('ooth-local', () => {
                     resolveWithFullResponse: true
                 })
                 cookies = res.headers['set-cookie']
+            })
+
+            test('can generate verification token', async () => {
+                onRequestVerifyListener = jest.fn()
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/local/generate-verification-token',
+                    json: true,
+                    headers: {
+                        Cookie: cookies
+                    }
+                })
+                expect(obfuscate(onRequestVerifyListener.mock.calls[0][0], '_id', 'verificationToken')).toMatchSnapshot()
+            })
+
+            test('can verify user with token', async () => {
+                onRequestVerifyListener = jest.fn()
+                //Store verification token for later use
+                await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/local/generate-verification-token',
+                    json: true,
+                    headers: {
+                        Cookie: cookies
+                    }
+                })
+                const res = await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/local/verify',
+                    json: true,
+                    body: {
+                        token: verificationToken
+                    },
+                    headers: {
+                        Cookie: cookies
+                    }
+                })
+                //This is a bit messy, probably need a nestedObfuscate
+                const obfuscatedRes = {
+                    message: (res.message ? res.message: null),
+                    user: obfuscate(res.user, '_id')
+                }
+                console.log(obfuscatedRes)
+                expect(obfuscatedRes).toMatchSnapshot()
             })
 
             test('can check status', async () => {

@@ -224,7 +224,7 @@ module.exports = function({
                 throw new Error('No email to verify')
             }
 
-            updateUser(req.user._id, {
+            return updateUser(req.user._id, {
                 verificationToken
             }).then(() => {
                 if (onGenerateVerificationToken) {
@@ -328,7 +328,7 @@ module.exports = function({
                 throw new Error('Invalid password.')
             }
 
-            testValue('password', password)
+            testValue('password', newPassword)
 
             return getUserByFields({
                 passwordResetToken: token
