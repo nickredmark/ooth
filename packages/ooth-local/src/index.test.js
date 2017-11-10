@@ -304,10 +304,9 @@ describe('ooth-local', () => {
                 })
                 //This is a bit messy, probably need a nestedObfuscate
                 const obfuscatedRes = {
-                    message: (res.message ? res.message: null),
+                    message: (res.message ? res.message : null),
                     user: obfuscate(res.user, '_id')
                 }
-                console.log(obfuscatedRes)
                 expect(obfuscatedRes).toMatchSnapshot()
             })
 
