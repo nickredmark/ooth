@@ -2,18 +2,22 @@
 
 This is an example of a protected graphql API,
 to which the user will need to authenticate using a JWT.
-This example API needs to be running for these example projects to work:
 
-* [ooth-create-react-app](../ooth-create-react-app)
-
-## Start it
+## Set up
 
 Copy `settings.dist.js` to `settings.js` and adapt.
+
+
+```
+yarn
+```
+
+## Start
 
 Run
 
 ```
-npm start
+yarn start
 ```
 
 The GraphQL endpoint is `/graphql`. Visit `/graphiql` to play with the data.

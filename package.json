@@ -3,6 +3,7 @@
     "lerna": "2.0.0-beta.36"
   },
   "scripts": {
-    "bootstrap": "lerna exec yarn --concurrency=1"
+    "bootstrap": "lerna exec yarn --concurrency=1",
+    "prepublish": "lerna run prepublish --concurrency=1"
   }
 }

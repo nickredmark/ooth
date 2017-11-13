@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react'
+import React, { Component } from 'react'
 import {ApolloProvider, graphql} from 'react-apollo'
 import './App.css'
 import ooth from './ooth'
@@ -6,6 +6,7 @@ import client from './apollo'
 import gql from 'graphql-tag'
 import {withOoth, OothProvider} from 'ooth-client-react'
 import {withContext, getContext, compose} from 'recompose'
+import PropTypes from 'prop-types'
 
 class App extends Component {
   render() {
@@ -77,11 +78,10 @@ class LoginStatusComponent extends Component {
         <button onClick={() => {
           oothClient.authenticate('guest', 'register')
             .then(res => {
-              console.log(res)
               refetchUser()
             })
             .catch(err => {
-              console.log(err)
+              console.error(err)
             })
         }}>Log in</button>
       </div>
@@ -112,12 +112,11 @@ class CreatePostComponent extends Component {
             content: this.content.value
           }
         }).then(({data}) => {
-          console.log(data)
           if (onCreatePost) {
             onCreatePost()
           }
         }).catch(e => {
-          console.log(e)
+          console.error(e)
         })
       }}>
         <div>
@@ -214,12 +213,11 @@ class CreateCommentComponent extends Component {
             content: this.content.value
           }
         }).then(({data}) => {
-          console.log(data)
           if (onCreateComment) {
             onCreateComment()
           }
         }).catch(e => {
-          console.log(e)
+          console.error(e)
         })
       }}>
         <div>

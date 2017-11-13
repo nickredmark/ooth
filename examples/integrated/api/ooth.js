@@ -2,23 +2,22 @@ const express = require('express')
 const Ooth = require('ooth')
 const oothGuest = require('ooth-guest')
 const oothLocal = require('ooth-local')
-//const oothFacebook = require('ooth-facebook')
-//const oothGoogle = require('ooth-google')
 const mail = require('./mail')
+const {MongoClient, ObjectId} = require('mongodb')
+const OothMongo = require('ooth-mongo')
 
 module.exports = async function start(app, settings) {
 
     const ooth = new Ooth({
-        mongoUrl: settings.mongoUrl,
         sharedSecret: settings.sharedSecret,
         path: settings.oothPath,
     })
-
-    await ooth.start(app)
+    const db = await MongoClient.connect(settings.mongoUrl)
+    const oothMongo = new OothMongo(db, ObjectId)
+    await ooth.start(app, oothMongo)
 
     ooth.use('guest', oothGuest()) 
     
-
     const sendMail = mail(settings.mailgun)
     ooth.use('local', oothLocal({
         onRegister({email, verificationToken}) {
@@ -74,9 +73,5 @@ module.exports = async function start(app, settings) {
             })
         }
     }))
-
-    //ooth.use('facebook', oothFacebook(settings.facebook))
-
-    //ooth.use('google', oothGoogle(settings.google))
 
 }

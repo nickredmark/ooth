@@ -18,28 +18,14 @@ If you want to integrate this library with a GUI, you might want to check out th
 
 There are many ways you can use ooth.
 
-The most complete example with a starting UI with all the main user account flow can now be found in the [staart project](https://github.com/nmaro/staart)!
+The most complete example with a starting UI with all the main user account flow is programmed with next.js and can now be found in the [staart project](https://github.com/nmaro/staart)!
 
-### Ooth, GraphQL API and create-react-app all in separate services
+The following two examples use create-react-app as a client. If you don't want to use cra you can still analyze the server folders and the code parts that use ooth-client independently.
 
-Set up and run these 3 folders
-
-* [ooth](examples/ooth)
-* [graphql-api-with-auth](examples/graphql-api-with-auth)
-* [ooth-create-react-app](examples/ooth-create-react-app)
-
-### Ooth integrated with a GraphQL API and separate create-react-app service
-
-* [graphql-api-with-ooth](examples/graphql-api-with-ooth)
-* [ooth-create-react-app-embedded](examples/ooth-create-react-app-embedded)
-
-### Ooth, Graphql API and Next.js all in one
-
-Check out the [staart project](https://github.com/nmaro/staart)!
+* [standalone](examples/standalone) - ooth runs as a microservice separate from api, auth transfer is done via JWT.
+* [integrated](examples/integrated) - ooth runs in same process as api, no need for JWT.
 
 ## Packages
-
-Find more documentation in the readmes of the individual packages.
 
 ### Core Packages
 

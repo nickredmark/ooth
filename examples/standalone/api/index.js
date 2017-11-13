@@ -14,7 +14,9 @@ const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 
 const prepare = (o) => {
-    o._id = o._id.toString()
+    if (o) {
+        o._id = o._id.toString()
+    }
     return o
 }
 
@@ -42,9 +44,8 @@ function setupAuthEndpoints(app) {
     })
     passport.use('jwt', new JwtStrategy({
         secretOrKey: settings.sharedSecret,
-        jwtFromRequest: ExtractJwt.fromAuthHeader()
+        jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt')
     }, nodeifyAsync(async (payload) => {
-        console.log(payload)
         if (!payload.user || !payload.user._id || typeof payload.user._id !== 'string') {
             console.error(payload)
             throw new Error('Malformed token payload.')
@@ -149,16 +150,16 @@ const start = async () => {
                         throw new Error('User not logged in.')
                     }
                     args.authorId = userId
-                    const res = await Posts.insert(args)
-                    return prepare(await Posts.findOne({_id: res.insertedIds[1]}))
+                    const {insertedId} = await Posts.insertOne(args)
+                    return prepare(await Posts.findOne(ObjectId(insertedId)))
                 },
                 createComment: async (root, args, {userId}) => {
                     if (!userId) {
                         throw new Error('User not logged in.')
                     }
                     args.authorId = userId
-                    const res = await Comments.insert(args)
-                    return prepare(await Comments.findOne({_id: res.insertedIds[1]}))
+                    const {insertedId} = await Comments.insertOne(args)
+                    return prepare(await Comments.findOne(ObjectId(insertedId)))
                 },
             },
         }
@@ -191,11 +192,11 @@ const start = async () => {
         }))
 
         app.listen(settings.port, () => {
-            console.log(`Online at ${settings.url}:${settings.port}`)
+            console.info(`Online at ${settings.url}:${settings.port}`)
         })
 
     } catch (e) {
-        console.log(e)
+        console.error(e)
     }
 }
 

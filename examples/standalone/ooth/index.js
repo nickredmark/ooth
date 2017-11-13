@@ -1,14 +1,14 @@
 const express = require('express')
 const Ooth = require('ooth')
+const OothMongo = require('ooth-mongo')
 const oothGuest = require('ooth-guest')
 const oothLocal = require('ooth-local')
-//const oothFacebook = require('ooth-facebook')
-//const oothGoogle = require('ooth-google')
 const morgan = require('morgan')
 const cors = require('cors')
 const mail = require('./mail')
 const settings = require('./settings')
 const session = require('express-session')
+const {MongoClient, ObjectId} = require('mongodb')
 
 async function start() {
 
@@ -33,10 +33,11 @@ async function start() {
 
         const ooth = new Ooth({
             standalone: true,
-            mongoUrl: settings.mongoUrl,
             sharedSecret: settings.sharedSecret
         })
-        await ooth.start(app)
+        const db = await MongoClient.connect(settings.mongoUrl)
+        const oothMongo = new OothMongo(db, ObjectId)
+        await ooth.start(app, oothMongo)
 
         ooth.use('guest', oothGuest())
 
@@ -95,10 +96,6 @@ async function start() {
                 })
             }
         }))
-
-        //ooth.use('facebook', oothFacebook(settings.facebook))
-
-        //ooth.use('google', oothGoogle(settings.google))
 
         app.listen(settings.port, function() {
             console.info(`Ooth started on port ${settings.port}`)
