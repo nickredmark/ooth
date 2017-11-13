@@ -5,6 +5,8 @@ const nodeify = require('nodeify')
 
 const SALT_ROUNDS = 10
 
+const HOUR = 1000 * 60 * 60
+
 const tests = {
     username: {
         regex: /^[a-z][0-9a-z_]{3,19}$/,
@@ -156,7 +158,8 @@ module.exports = function({
 
                     updateUser(req.user._id, {
                         email,
-                        verificationToken,
+                        verificationToken: hash(verificationToken),
+                        verificationTokenExpiresAt: new Date(Date.now() + HOUR)
                     }).then(() => {
                         if (onSetEmail) {
                             onSetEmail({
@@ -199,6 +202,7 @@ module.exports = function({
                         email,
                         password: hash(password),
                         verificationToken: hash(verificationToken),
+                        verificationTokenExpiresAt: new Date(Date.now() + HOUR),
                     }).then(_id => {
                         if (onRegister) {
                             onRegister({
@@ -226,6 +230,7 @@ module.exports = function({
 
             return updateUser(req.user._id, {
                 verificationToken: hash(verificationToken),
+                verificationTokenExpiresAt: new Date(Date.now() + HOUR),
             }).then(() => {
                 if (onGenerateVerificationToken) {
                     onGenerateVerificationToken({
@@ -236,7 +241,7 @@ module.exports = function({
                 }
 
                 res.send({
-                    message: 'Message token generated'
+                    message: 'Verification token generated.'
                 })
             })
         })
@@ -266,6 +271,14 @@ module.exports = function({
                     }
                     
                     if (!compareSync(token, user[name].verificationToken)) {
+                        throw new Error('Verification token invalid, expired or already used.')
+                    }
+
+                    if (!user[name].verificationTokenExpiresAt) {
+                        throw new Error('Verification token invalid, expired or already used.')
+                    }
+
+                    if (new Date() >= user[name].verificationTokenExpiresAt) {
                         throw new Error('Verification token invalid, expired or already used.')
                     }
                     
@@ -316,6 +329,7 @@ module.exports = function({
 
                     updateUser(user._id, {
                         passwordResetToken: hash(passwordResetToken),
+                        passwordResetTokenExpiresAt: new Date(Date.now() + HOUR),
                         email,
                     }).then(() => {
 
@@ -359,12 +373,20 @@ module.exports = function({
 
                     if (!user[name] || !user[name].passwordResetToken) {
                         // No password to reset, but let's not leak this information
-                        throw new Error('Invalid password reset token.')
+                        throw new Error('Password reset token invalid, expired or already used.')
                     }
 
                     if (!compareSync(token, user[name].passwordResetToken)) {
-                        throw new Error('Invalid password reset token.')
+                        throw new Error('Password reset token invalid, expired or already used.')
                     }
+
+                    if (!user[name].passwordResetTokenExpiresAt) {
+                        throw new Error('Password reset token invalid, expired or already used.')
+                    }
+
+                    if (new Date() >= user[name].passwordResetTokenExpiresAt) {
+                        throw new Error('Password reset token invalid, expired or already used.')
+                    }                    
 
                     return updateUser(user._id, {
                         passwordResetToken: null,

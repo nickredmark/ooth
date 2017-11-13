@@ -110,10 +110,11 @@ describe('ooth-local', () => {
                 uri: 'http://localhost:8080/local/register',
                 json: true,
             })
-            expect(false)
         } catch (e) {
             expect(e.response.body).toMatchSnapshot()
+            return
         }
+        throw new Error('Didn\'t fail')
     })
 
     test('fails without password', async () => {
@@ -126,10 +127,11 @@ describe('ooth-local', () => {
                 },
                 json: true,
             })
-            expect(false)
         } catch (e) {
             expect(e.response.body).toMatchSnapshot()
+            return
         }
+        throw new Error('Didn\'t fail')
     })
 
     test('fails without valid password', async () => {
@@ -143,10 +145,11 @@ describe('ooth-local', () => {
                 },
                 json: true,
             })
-            expect(false)
         } catch (e) {
             expect(e.response.body).toMatchSnapshot()
+            return
         }
+        throw new Error('Didn\'t fail')
     })
 
     test('can register', async () => {
@@ -186,10 +189,11 @@ describe('ooth-local', () => {
                     },
                     json: true,
                 })
-                expect(false)
             } catch (e) {
                 expect(e.response.body).toMatchSnapshot()
+                return
             }
+            throw new Error('Didn\'t fail')
         })
 
         test('can login', async () => {
@@ -258,6 +262,36 @@ describe('ooth-local', () => {
             expect(res).toMatchSnapshot()
         })
 
+        test('can\'t reset password with invalid token', async () =>{
+            onForgotPasswordListener = jest.fn()
+
+            //Store the password reset token and userId so we can use it later
+            await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/local/forgot-password',
+                body: {
+                    username: 'test@example.com',
+                },
+                json: true,
+            })
+            try {
+                await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/local/reset-password',
+                    body: {
+                        userId,
+                        token: 'wrongtoken',
+                        newPassword: 'Asdflba10',
+                    },
+                    json: true,
+                })
+            } catch (e) {
+                expect(e.response.body).toMatchSnapshot()
+                return
+            }
+            throw new Error('Didn\'t fail')
+        })
+
         describe('after login', () => {
             beforeEach(async () => {
                 const res = await request({
@@ -310,6 +344,37 @@ describe('ooth-local', () => {
                     }
                 })
                 expect(obfuscate(res, 'user._id')).toMatchSnapshot()
+            })
+
+            test('can\'t verify user with invalid token', async () => {
+                onRequestVerifyListener = jest.fn()
+                //Store verification token and userId for later use
+                await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/local/generate-verification-token',
+                    json: true,
+                    headers: {
+                        Cookie: cookies
+                    }
+                })
+                try {
+                    await request({
+                        method: 'POST',
+                        uri: 'http://localhost:8080/local/verify',
+                        json: true,
+                        body: {
+                            userId,
+                            token: 'wrongtoken'
+                        },
+                        headers: {
+                            Cookie: cookies
+                        }
+                    })
+                } catch (e) {
+                    expect(e.response.body).toMatchSnapshot()
+                    return
+                }
+                throw new Error('Didn\'t fail')
             })
 
             test('can check status', async () => {
@@ -369,10 +434,11 @@ describe('ooth-local', () => {
                             Cookie: cookies
                         }
                     })
-                    expect(false)
                 } catch (e) {
                     expect(e.response.body).toMatchSnapshot()
+                    return
                 }
+                throw new Error('Didn\'t fail')
             })
         })
     })

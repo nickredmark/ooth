@@ -18,19 +18,6 @@ Object {
 }
 `;
 
-exports[`ooth-local after registration after login can verify user with token 1`] = `
-Object {
-  "message": "Email verified",
-  "user": Object {
-    "_id": "<obfuscated>",
-    "local": Object {
-      "email": "test@example.com",
-      "verified": true,
-    },
-  },
-}
-`;
-
 exports[`ooth-local after registration after login can set email 1`] = `
 Object {
   "message": "Email updated.",
@@ -54,9 +41,29 @@ Object {
 }
 `;
 
+exports[`ooth-local after registration after login can verify user with token 1`] = `
+Object {
+  "message": "Email verified",
+  "user": Object {
+    "_id": "<obfuscated>",
+    "local": Object {
+      "email": "test@example.com",
+      "verified": true,
+    },
+  },
+}
+`;
+
 exports[`ooth-local after registration after login can't set invalid username 1`] = `
 Object {
   "message": "Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.",
+  "status": "error",
+}
+`;
+
+exports[`ooth-local after registration after login can't verify user with invalid token 1`] = `
+Object {
+  "message": "Verification token invalid, expired or already used.",
   "status": "error",
 }
 `;
@@ -92,6 +99,13 @@ Object {
 exports[`ooth-local after registration can reset password 1`] = `
 Object {
   "message": "Password has been reset.",
+}
+`;
+
+exports[`ooth-local after registration can't reset password with invalid token 1`] = `
+Object {
+  "message": "Password reset token invalid, expired or already used.",
+  "status": "error",
 }
 `;
 
