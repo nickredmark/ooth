@@ -10,22 +10,32 @@ Read the newest article [Staart - a starter library for node.js projects with us
 
 Introducing medium article: [Ooth - user accounts for node.js](https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a#.97kyfg4xg).
 
-NOTE: Until version 1.0.0 is reached, the API will be unstable and can't be considered safe for production.
-
 ## Staart
 
 If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](https://github.com/nmaro/staart).
 
 ## Examples
 
-The most up-to-date example, complete with a starting UI with all the main user account flow can now be found in the [staart project](https://github.com/nmaro/staart)!
+There are many ways you can use ooth.
 
-* [ooth](examples/ooth) - an ooth microservice instantiation
-* [graphql-api-with-auth](examples/graphql-api-with-auth) - an example graphql api with JWT auth
-* [graphql-api-with-ooth](examples/graphql-api-with-ooth) - same example graphql api but with ooth embedded as library
-* [ooth-create-react-app](examples/ooth-create-react-app) - an ooth client integration with create-react-app, connecting to [ooth](examples/ooth) and [graphql-api-with-auth](examples/graphql-api-with-auth)
-* [ooth-create-react-app-embedded](examples/ooth-create-react-app-embedded) - same example but connecting to [graphql-api-with-ooth](examples/graphql-api-with-ooth)
-* [ooth-next-with-api](examples/ooth-next-with-api) - an integration with next.js, where ooth server and api are all part of the same service
+The most complete example with a starting UI with all the main user account flow can now be found in the [staart project](https://github.com/nmaro/staart)!
+
+### Ooth, GraphQL API and create-react-app all in separate services
+
+Set up and run these 3 folders
+
+* [ooth](examples/ooth)
+* [graphql-api-with-auth](examples/graphql-api-with-auth)
+* [ooth-create-react-app](examples/ooth-create-react-app)
+
+### Ooth integrated with a GraphQL API and separate create-react-app service
+
+* [graphql-api-with-ooth](examples/graphql-api-with-ooth)
+* [ooth-create-react-app-embedded](examples/ooth-create-react-app-embedded)
+
+### Ooth, Graphql API and Next.js all in one
+
+Check out the [staart project](https://github.com/nmaro/staart)!
 
 ## Packages
 
