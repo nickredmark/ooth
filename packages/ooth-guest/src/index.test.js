@@ -3,13 +3,15 @@ import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
 import oothGuest from '.'
-import {MongoClient} from 'mongodb'
+import {MongoClient, ObjectId} from 'mongodb'
+import OothMongo from 'ooth-mongo'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
 let config
 let app
 let server
 let ooth
+let oothMongo
 let oothGuestConfig
 let db
 let cookies = ''
@@ -59,9 +61,10 @@ describe('ooth-guest', () => {
             resave: false,
             saveUninitialized: true,
         }))
+        oothMongo = new OothMongo(db, ObjectId)
         ooth = new Ooth(config)
-        await ooth.start(app)
         ooth.use('guest', oothGuest(oothGuestConfig))
+        await ooth.start(app, oothMongo)
         await startServer(app)
     })
 

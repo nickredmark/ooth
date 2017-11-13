@@ -1,15 +1,17 @@
 import Ooth from 'ooth'
+import OothMongo from 'ooth-mongo'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
 import oothFacebook from '.'
-import {MongoClient} from 'mongodb'
+import {MongoClient, ObjectId} from 'mongodb'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
 let config
 let app
 let server
 let ooth
+let oothMongo
 let oothFacebookConfig
 let db
 let cookies = ''
@@ -47,8 +49,9 @@ describe('ooth-facebook', () => {
             saveUninitialized: true,
         }))
         ooth = new Ooth(config)
-        await ooth.start(app)
         ooth.use('facebook', oothFacebook(oothFacebookConfig))
+        oothMongo = new OothMongo(db, ObjectId)
+        await ooth.start(app, oothMongo)
         await startServer(app)
     })
 

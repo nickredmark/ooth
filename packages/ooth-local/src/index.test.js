@@ -1,9 +1,10 @@
 import Ooth from 'ooth'
+import OothMongo from 'ooth-mongo'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
 import oothLocal from '.'
-import {MongoClient} from 'mongodb'
+import {MongoClient, ObjectId} from 'mongodb'
 import _ from 'lodash'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
@@ -14,6 +15,7 @@ let ooth
 let oothLocalConfig
 let db
 let cookies = ''
+let oothMongo
 
 const startServer = () => {
     return new Promise((resolve) => {
@@ -83,8 +85,9 @@ describe('ooth-local', () => {
             resave: false,
             saveUninitialized: true,
         }))
+        oothMongo = new OothMongo(db, ObjectId)
         ooth = new Ooth(config)
-        await ooth.start(app)
+        await ooth.start(app, oothMongo)
         ooth.use('local', oothLocal(oothLocalConfig))
         await startServer(app)
     })

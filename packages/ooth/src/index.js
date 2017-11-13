@@ -122,11 +122,19 @@ class Ooth {
         this.uniqueFields = {}
         this.strategies = {}
         this.connections = {}
+        this.route = express.Router()
     }
 
     start(app, backend) {
         return (async () => {
+            if (!app) {
+                throw new Error('App is required.')
+            }
             this.app = app
+
+            if (!backend) {
+                throw new Error('Backend is required.')
+            }
             this.backend = backend
 
             // App-wide configuration
@@ -136,7 +144,6 @@ class Ooth {
             app.use(passport.session())
             expressWs(app)
 
-            this.route = express.Router()
             app.use(this.path, this.route)
 
             passport.serializeUser((user, done) => {

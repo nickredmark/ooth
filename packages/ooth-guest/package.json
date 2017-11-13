@@ -21,6 +21,7 @@
     "jest": "^21.2.1",
     "mongodb": "^2.2.31",
     "ooth": "^0.13.0",
+    "ooth-mongo": "^0.0.0",
     "request-promise": "^4.2.2"
   }
 }
