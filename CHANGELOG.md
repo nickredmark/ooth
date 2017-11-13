@@ -2,6 +2,8 @@
 
 ## 1.0.0
 
+* BREAK: Target engine from now on is node 8.
+
 ### ooth
 
 * BREAK: Extracted db backend, now need to initialize using `ooth-mongo` (or another backend of your choice).

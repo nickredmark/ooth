@@ -1,5 +1,7 @@
 # OOTH - a user identity management system
 
+See the [project timeline](https://github.com/nmaro/ooth/projects/2).
+
 Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE2ODA2NjE0LTE1NGNmN2YzZTdiMWNjODExZmNjYzg3ZGJjZmVmZmI2YjVhOWYzZDQ1NWI4Y2JiNzNlMmI2Y2U5ZWFhODIzMWQ)!
 
 Get news about ooth on [ooth's twitter account](https://twitter.com/oothjs).
@@ -33,6 +35,10 @@ Find more documentation in the readmes of the individual packages.
 
 * [ooth](packages/ooth): extensible server package
 * [ooth-client](packages/ooth-client): client package
+
+### Backends
+
+* [ooth-mongo](packages/ooth-mongo): a MongoDB backend
 
 ### Strategies
 
