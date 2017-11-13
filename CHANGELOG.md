@@ -2,9 +2,17 @@
 
 ## 1.0.0
 
+### ooth
+
+* BREAK: Extracted db backend, now need to initialize using `ooth-mongo` (or another backend of your choice).
+
+### ooth-mongo
+
+* Extracted db backend from `ooth` as a standalone package.
+
 ### ooth-local
 
-* Breaking: Hash password reset and email validation tokens. They can't be used as keys anymore. To reset a password or validate an email, one has to pass userId parameter as well.
+* BREAK: Hash password reset and email validation tokens. They can't be used as keys anymore. To reset a password or validate an email, one has to pass userId parameter as well.
 * Password reset and email validation tokens expire after 1 hour.
 
 ## 0.7.0

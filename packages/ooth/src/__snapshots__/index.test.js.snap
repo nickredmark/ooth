@@ -26,7 +26,7 @@ Array [
 ]
 `;
 
-exports[`ooth connect method after register can connect another strategy 1`] = `
+exports[`ooth connect method after login can connect another strategy 1`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
@@ -36,7 +36,7 @@ Object {
 }
 `;
 
-exports[`ooth connect method after register can log in again 1`] = `
+exports[`ooth connect method after login can log in again 1`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
@@ -45,7 +45,7 @@ Object {
 }
 `;
 
-exports[`ooth connect method after register can log in with other strategy 1`] = `
+exports[`ooth connect method after login can log in with other strategy 1`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
@@ -55,7 +55,7 @@ Object {
 }
 `;
 
-exports[`ooth connect method after register can log in with other strategy 2`] = `
+exports[`ooth connect method after login can log in with other strategy 2`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
@@ -65,9 +65,20 @@ Object {
 }
 `;
 
-exports[`ooth connect method after register can log out 1`] = `
+exports[`ooth connect method after login can log out 1`] = `
 Object {
   "message": "Logged out",
+}
+`;
+
+exports[`ooth connect method can log in 1`] = `
+Object {
+  "user": Object {
+    "_id": "<obfuscated>",
+    "test": Object {
+      "foo": 1,
+    },
+  },
 }
 `;
 

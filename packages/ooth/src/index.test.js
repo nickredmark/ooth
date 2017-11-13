@@ -2,10 +2,11 @@ import Ooth from '.'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
-import util from 'util'
 import Strategy from 'passport-strategy'
-import {MongoClient} from 'mongodb'
+import {MongoClient, ObjectId} from 'mongodb'
+import OothMongo from 'ooth-mongo'
 const CustomStrategy = require('passport-custom').Strategy
+import _ from 'lodash'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
 let db
@@ -13,6 +14,7 @@ let config
 let app 
 let server
 let ooth
+let oothMongo
 
 const startServer = () => {
     return new Promise((resolve) => {
@@ -20,14 +22,15 @@ const startServer = () => {
     })
 }
 
-const obfuscate = (obj, ...keys) => {
-    const res = {}
-    for (const key of Object.keys(obj)) {
-        if (keys.indexOf(key) > -1) {
-            res[key] = '<obfuscated>'
-        } else {
-            res[key] = obj[key]            
+const obfuscate = (obj, ...paths) => {
+    const res = _.cloneDeep(obj);
+    for (const path of paths) {
+        const keys = path.split('.')
+        let current = res
+        for (const key of keys.slice(0, -1)) {
+            current = current[key]
         }
+        current[keys[keys.length - 1]] = '<obfuscated>';
     }
 
     return res
@@ -46,7 +49,6 @@ describe('ooth', () => {
 
     beforeEach(async () => {
         config = {
-            mongoUrl: 'mongodb://localhost:27017/oothtest',
             sharedSecret: '',
             standalone: false,
             path: '',
@@ -61,8 +63,9 @@ describe('ooth', () => {
             resave: false,
             saveUninitialized: true,
         }))
+        oothMongo = new OothMongo(db, ObjectId)
         ooth = new Ooth(config)
-        await ooth.start(app)
+        await ooth.start(app, oothMongo)
     })
 
     afterEach(async () => {
@@ -208,9 +211,23 @@ describe('ooth', () => {
             expect(obfuscate(res.user, '_id')).toMatchSnapshot()
         })
 
-        describe('after register', () => {
+        test('can log in', async () => {
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/test/login',
+                body: {
+                    foo: 1,
+                    bar: 2,
+                },
+                json: true,
+            })
+            expect(obfuscate(res, 'user._id')).toMatchSnapshot()
+        })
+
+        describe('after login', () => {
             let cookies
             let user
+
             beforeEach(async () => {
                 const res = await request({
                     method: 'POST',
@@ -295,11 +312,6 @@ describe('ooth', () => {
                 expect(res.user._id).toBe(user._id)
                 expect(obfuscate(res.user, '_id')).toMatchSnapshot()
             })
-
         })
-
-
     })
-
 })
-

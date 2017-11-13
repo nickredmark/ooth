@@ -18,7 +18,6 @@
     "express-session": "^1.15.0",
     "express-ws": "^3.0.0",
     "jsonwebtoken": "^7.2.1",
-    "mongodb": "^2.2.31",
     "morgan": "^1.7.0",
     "nodeify": "^1.0.0",
     "passport": "^0.3.2",
@@ -29,6 +28,8 @@
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-env": "^1.6.0",
     "jest": "^20.0.4",
+    "mongodb": "^2.2.31",
+    "ooth-mongo": "^0.0.0",
     "passport-custom": "^1.0.5",
     "passport-strategy": "^1.0.0",
     "request-promise": "^4.2.1"

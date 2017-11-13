@@ -5,7 +5,6 @@ const session = require('express-session')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
-const {MongoClient, ObjectId} = require('mongodb')
 const {sign} = require('jsonwebtoken')
 const nodeify = require('nodeify')
 const {randomBytes} = require('crypto')
@@ -61,7 +60,7 @@ function post(route, routeName, ...handlers) {
                     return res.send(data)
                 })
                 .catch(e => {
-                    console.log(e)
+                    console.error(e)
                     return res.status(400).send({
                         status: 'error',
                         message: e.message || e,
@@ -105,16 +104,8 @@ function login(req, user) {
     })
 }
 
-const prepare = (o) => {
-    if (o && o._id) {
-        o._id = o._id.toString()
-    }
-    return o
-}
-
 class Ooth {
     constructor({
-        mongoUrl,
         sharedSecret,
         standalone,
         path,
@@ -122,7 +113,6 @@ class Ooth {
         onRegister,
         onLogout
     }) {
-        this.mongoUrl = mongoUrl
         this.sharedSecret = sharedSecret
         this.standalone = standalone
         this.path = path || '/'
@@ -134,11 +124,10 @@ class Ooth {
         this.connections = {}
     }
 
-    start(app) {
+    start(app, backend) {
         return (async () => {
             this.app = app
-            this.db = await MongoClient.connect(this.mongoUrl)
-            this.Users = this.db.collection('users')
+            this.backend = backend
 
             // App-wide configuration
             app.use(cookieParser())
@@ -155,12 +144,11 @@ class Ooth {
             })
             passport.deserializeUser((id, done) => {
                 if (typeof id === 'string') {
-                    this.Users.findOne(ObjectId(id), (e, user) => {
-                        if (e) {
-                            done(e, user)
-                        }                        
-                        done(e, prepare(user))
-                    })
+                    this.backend.getUserById(id)
+                        .then(user => {
+                            done(null, user)
+                        })
+                        .catch(done)
                 } else {
                     done(null, false)
                 }
@@ -253,16 +241,8 @@ class Ooth {
         })()
     }
 
-    getUserById = async (id) => {
-        return prepare(await this.Users.findOne(ObjectId(id)))
-    }
-    
     getUserByUniqueField = async (fieldName, value) => {
-        return prepare(await this.Users.findOne({
-            $or: Object.keys(this.uniqueFields[fieldName]).map(strategyName => ({
-                [`${strategyName}.${this.uniqueFields[fieldName][strategyName]}`]: value
-            }))
-        }))
+        return await this.backend.getUserByValue(Object.keys(this.uniqueFields[fieldName]).map(strategyName => `${strategyName}.${this.uniqueFields[fieldName][strategyName]}`), value)
     }
 
     updateUserStrategy = async (strategyName, id, fields) => {
@@ -270,11 +250,7 @@ class Ooth {
         Object.keys(fields).forEach(field => {
             actualFields[`${strategyName}.${field}`] = fields[field]
         })
-        return await this.Users.update({
-            _id: ObjectId(id)
-        }, {
-            $set: actualFields
-        })
+        return await this.backend.updateUser(id, actualFields)
     }
 
     insertUser = async (strategyName, fields) => {
@@ -282,8 +258,7 @@ class Ooth {
         if (fields) {
             query[strategyName] = fields
         }
-        const {insertedId} = await this.Users.insertOne(query)
-        return insertedId
+        return await this.backend.insertUser(query)
     }
 
     getProfile(user) {
@@ -373,7 +348,7 @@ class Ooth {
                 this.strategies[name].profileFields[fieldName] = true;
             },
             getProfile: user => this.getProfile(user),
-            getUserById: (id) => this.getUserById(id),
+            getUserById: (id) => this.backend.getUserById(id),
             getUserByUniqueField: this.getUserByUniqueField,
             getUniqueField: (user, fieldName) => {
                 if (this.uniqueFields[fieldName]) {
@@ -391,7 +366,7 @@ class Ooth {
                 Object.keys(fields).forEach(field => {
                     actualFields[`${name}.${field}`] = fields[field]
                 })
-                return await this.Users.findOne(actualFields)
+                return await this.backend.getUser(actualFields)
             },
             updateUser: async (id, fields) => {
                 return await this.updateUserStrategy(name, id, fields)
@@ -492,7 +467,7 @@ class Ooth {
             for (const field of Object.keys(this.strategies[strategy].uniqueFields)) {
                 const value = userPart[field]
                 if (value) {
-                    const userCandidate = prepare(await this.Users.findOne({
+                    const userCandidate = prepare(this.backend.getUser({
                         [`${strategy}.${field}`]: userPart
                     }))
                     if (!user || user._id === userCandidate._id) {
@@ -526,18 +501,18 @@ class Ooth {
 
                 // Update user
                 await this.updateUserStrategy(strategy, req.user._id, userPart)
-                user = await this.getUserById(req.user._id)
+                user = await this.backend.getUserById(req.user._id)
             } else {
                 // User hasn't logged in
 
                 if (user) {
                     // User exists already, update
                     await this.updateUserStrategy(strategy, user._id, userPart)
-                    user = await this.getUserById(user._id)
+                    user = await this.backend.getUserById(user._id)
                 } else {
                     // Need to create a new user
                     const _id = await this.insertUser(strategy, userPart)
-                    user = await this.getUserById(_id)
+                    user = await this.backend.getUserById(_id)
                     registered = true
                 }
             }
