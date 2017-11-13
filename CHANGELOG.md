@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0
+
+### ooth-local
+
+* Breaking: Hash password reset and email validation tokens. They can't be used as keys anymore. To reset a password or validate an email, one has to pass userId parameter as well.
+
 ## 0.7.0
 
 ### compose-next

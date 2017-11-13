@@ -39,6 +39,7 @@ describe('ooth-local', () => {
 
     let onForgotPasswordListener;
     let onRequestVerifyListener;
+    let userId;
     let resetToken;
     let verificationToken;
 
@@ -59,7 +60,8 @@ describe('ooth-local', () => {
         oothLocalConfig = {
             onForgotPassword(data) {
                 if (onForgotPasswordListener) {
-                    //Store reset token for follow on test
+                    //Store user id and reset token for follow on test
+                    userId = data._id
                     resetToken = data.passwordResetToken
                     onForgotPasswordListener(data)
                 }
@@ -67,7 +69,8 @@ describe('ooth-local', () => {
 
             onGenerateVerificationToken(data) {
                 if (onRequestVerifyListener) {
-                    //Store verification token for follow on test
+                    //Store user id and  verification token for follow on test
+                    userId = data._id
                     verificationToken = data.verificationToken
                     onRequestVerifyListener(data)
                 }
@@ -233,7 +236,7 @@ describe('ooth-local', () => {
         test('can reset password', async () =>{
             onForgotPasswordListener = jest.fn()
 
-            //Store the password reset token so we can use it later
+            //Store the password reset token and userId so we can use it later
             await request({
                 method: 'POST',
                 uri: 'http://localhost:8080/local/forgot-password',
@@ -246,6 +249,7 @@ describe('ooth-local', () => {
                 method: 'POST',
                 uri: 'http://localhost:8080/local/reset-password',
                 body: {
+                    userId,
                     token: resetToken,
                     newPassword: 'Asdflba10',
                 },
@@ -284,7 +288,7 @@ describe('ooth-local', () => {
 
             test('can verify user with token', async () => {
                 onRequestVerifyListener = jest.fn()
-                //Store verification token for later use
+                //Store verification token and userId for later use
                 await request({
                     method: 'POST',
                     uri: 'http://localhost:8080/local/generate-verification-token',
@@ -298,6 +302,7 @@ describe('ooth-local', () => {
                     uri: 'http://localhost:8080/local/verify',
                     json: true,
                     body: {
+                        userId,
                         token: verificationToken
                     },
                     headers: {

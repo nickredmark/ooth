@@ -198,7 +198,7 @@ module.exports = function({
                     insertUser({
                         email,
                         password: hash(password),
-                        verificationToken
+                        verificationToken: hash(verificationToken),
                     }).then(_id => {
                         if (onRegister) {
                             onRegister({
@@ -225,13 +225,13 @@ module.exports = function({
             }
 
             return updateUser(req.user._id, {
-                verificationToken
+                verificationToken: hash(verificationToken),
             }).then(() => {
                 if (onGenerateVerificationToken) {
                     onGenerateVerificationToken({
                         _id: user._id,
                         email: user[name].email,
-                        verificationToken
+                        verificationToken,
                     })
                 }
 
@@ -242,41 +242,53 @@ module.exports = function({
         })
 
         registerMethod('verify', function(req, res) {
-            if (!req.body.token) {
-                throw new Error('Verification token required.')
+
+            const { userId, token } = req.body
+
+            if (!userId) {
+                throw new Error('userId required.')
             }
 
-            return getUserByFields({
-                verificationToken: req.body.token
-            }).then(user => {
-                if (!user) {
-                    throw new Error('Verification token invalid, expired or already used.')
-                }
-
-                if (!user[name] || !user[name].email) {
-                    throw new Error('No email to verify.')
-                }
-
-                return updateUser(user._id, {
-                    verified: true,
-                    verificationToken: null
-                }).then(() => {
-                    return getUserById(user._id)
-                }).then(user => {
-
-                    if (onVerify) {
-                        onVerify({
-                            _id: user._id,
-                            email: user[name].email
-                        })
+            if (!token) {
+                throw new Error('Verification token required.')
+            }
+            
+            return getUserById(userId)
+                .then(user => {
+                    
+                    if (!user) {
+                        throw new Error('User does not exist.')
                     }
+                    
+                    if (!user[name] || !user[name].email) {
+                        // No email to verify, but let's not leak this information
+                        throw new Error('Verification token invalid, expired or already used.')
+                    }
+                    
+                    if (!compareSync(token, user[name].verificationToken)) {
+                        throw new Error('Verification token invalid, expired or already used.')
+                    }
+                    
+                    return updateUser(user._id, {
+                        verified: true,
+                        verificationToken: null
+                    }).then(() => {
+                        return getUserById(user._id)
+                    }).then(user => {
 
-                    return res.send({
-                        message: 'Email verified',
-                        user: getProfile(user)
+                        if (onVerify) {
+                            onVerify({
+                                _id: user._id,
+                                email: user[name].email
+                            })
+                        }
+
+                        return res.send({
+                            message: 'Email verified',
+                            user: getProfile(user)
+                        })
                     })
                 })
-            })
         })
 
         registerMethod('forgot-password', requireNotLogged, function(req, res) {
@@ -303,7 +315,7 @@ module.exports = function({
                     const passwordResetToken = randomToken()
 
                     updateUser(user._id, {
-                        passwordResetToken,
+                        passwordResetToken: hash(passwordResetToken),
                         email,
                     }).then(() => {
 
@@ -323,35 +335,52 @@ module.exports = function({
         })
 
         registerMethod('reset-password', requireNotLogged, function(req, res) {
-            const { token, newPassword } = req.body
+            const { userId, token, newPassword } = req.body
+
+            if (!userId) {
+                throw new Error('userId is required.')
+            }
+
+            if (!token) {
+                throw new Error('token is required.')
+            }
+
             if (!newPassword || !typeof newPassword === 'string') {
                 throw new Error('Invalid password.')
             }
 
             testValue('password', newPassword)
 
-            return getUserByFields({
-                passwordResetToken: token
-            }).then(user => {
-                if (!user) {
-                    throw new Error('Invalid password reset token.')
-                }
-
-                return updateUser(user._id, {
-                    passwordResetToken: null,
-                    password: hash(newPassword)
-                }).then(() => {
-                    if (onResetPassword) {
-                        onResetPassword({
-                            _id: user._id,
-                            email: user[name].email
-                        })
+            return getUserById(userId)
+                .then(user => {
+                    if (!user) {
+                        throw new Error('User does not exist.')
                     }
-                    return res.send({
-                        message: 'Password has been reset.'
+
+                    if (!user[name] || !user[name].passwordResetToken) {
+                        // No password to reset, but let's not leak this information
+                        throw new Error('Invalid password reset token.')
+                    }
+
+                    if (!compareSync(token, user[name].passwordResetToken)) {
+                        throw new Error('Invalid password reset token.')
+                    }
+
+                    return updateUser(user._id, {
+                        passwordResetToken: null,
+                        password: hash(newPassword)
+                    }).then(() => {
+                        if (onResetPassword) {
+                            onResetPassword({
+                                _id: user._id,
+                                email: user[name].email
+                            })
+                        }
+                        return res.send({
+                            message: 'Password has been reset.'
+                        })
                     })
                 })
-            })
         })
 
         registerMethod('change-password', requireLogged, function(req, res) {
