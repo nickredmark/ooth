@@ -4,7 +4,6 @@ const express = require('express')
 const session = require('express-session')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
-const ExtractJwt = require('passport-jwt').ExtractJwt
 const {sign} = require('jsonwebtoken')
 const nodeify = require('nodeify')
 const {randomBytes} = require('crypto')
