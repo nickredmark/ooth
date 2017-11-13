@@ -4,6 +4,7 @@ import session from 'express-session'
 import request from 'request-promise'
 import oothLocal from '.'
 import {MongoClient} from 'mongodb'
+import _ from 'lodash'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
 let config
@@ -20,14 +21,15 @@ const startServer = () => {
     })
 }
 
-const obfuscate = (obj, ...keys) => {
-    const res = {}
-    for (const key of Object.keys(obj)) {
-        if (keys.indexOf(key) > -1) {
-            res[key] = '<obfuscated>'
-        } else {
-            res[key] = obj[key]            
+const obfuscate = (obj, ...paths) => {
+    const res = _.cloneDeep(obj);
+    for (const path of paths) {
+        const keys = path.split('.')
+        let current = res
+        for (const key of keys.slice(0, -1)) {
+            current = current[key]
         }
+        current[keys[keys.length - 1]] = '<obfuscated>';
     }
 
     return res
@@ -302,12 +304,7 @@ describe('ooth-local', () => {
                         Cookie: cookies
                     }
                 })
-                //This is a bit messy, probably need a nestedObfuscate
-                const obfuscatedRes = {
-                    message: (res.message ? res.message : null),
-                    user: obfuscate(res.user, '_id')
-                }
-                expect(obfuscatedRes).toMatchSnapshot()
+                expect(obfuscate(res, 'user._id')).toMatchSnapshot()
             })
 
             test('can check status', async () => {
