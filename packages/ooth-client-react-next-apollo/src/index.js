@@ -69,7 +69,7 @@ module.exports = ({url, opts}) => {
                 const client = getClient(url, cookies, opts)
 
                 return Promise.resolve(Component.getInitialProps ? Component.getInitialProps(ctx) : {})
-                    .then(props => {
+                    .then(childProps => {
                         return Promise.resolve()
                             .then(() => {
                                 if (!process.browser) {
@@ -80,7 +80,7 @@ module.exports = ({url, opts}) => {
                                     }
                                     const app = (
                                         <ApolloProvider client={client}>
-                                            <Component url={url} {...props} />
+                                            <Component url={url} {...childProps} />
                                         </ApolloProvider>
                                     )
                                     return getDataFromTree(app)
@@ -89,6 +89,7 @@ module.exports = ({url, opts}) => {
                             .then(() => {
                                 return {
                                     initialData: client.cache.extract(),
+                                    childProps,
                                 }
                             })
                     })
@@ -103,7 +104,7 @@ module.exports = ({url, opts}) => {
             render () {
                 return (
                     <ApolloProvider client={this.client}>
-                        <Component {...this.props} />
+                        <Component {...this.props} {...this.props.childProps} />
                     </ApolloProvider>
                 )
             }

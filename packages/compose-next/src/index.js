@@ -17,37 +17,31 @@ export const composeInitialProps = (Parent) => (
     (Child) => (
         class extends React.Component {
             static getInitialProps(ctx) {
-                if (Parent.getInitialProps) {
-                    return Parent.getInitialProps(ctx).then(parentProps => {
-                        if (Child.getInitialProps) {
-                            return Child.getInitialProps(ctx).then(childProps => {
-                                return {
-                                    parentProps,
-                                    childProps
+                return Promise.resolve()
+                    .then(() => {
+                        if (Parent.getInitialProps) {
+                            return Parent.getInitialProps(ctx)
+                        } else {
+                            return {}
+                        }
+                    })
+                    .then(parentProps => {
+                        return Promise.resolve()
+                            .then(() => {
+                                if (Child.getInitialProps) {
+                                    return Child.getInitialProps(ctx)
+                                } else {
+                                    return {}
                                 }
                             })
-                        } else {
-                            return {
+                            .then(childProps => {
+                                return childProps
+                            })
+                            .then(childProps => ({
                                 parentProps,
-                                childProps: {}
-                            }
-                        }
+                                childProps,
+                            }))
                     })
-                } else if (Child.getInitialProps) {
-                    return Child.getInitialProps(ctx).then(childProps => {
-                        return {
-                            parentProps: {},
-                            childProps
-                        }
-                    })
-                } else {
-                    return new Promise(resolve => {
-                        return resolve({
-                            parentProps: {},
-                            childProps: {}
-                        })
-                    });
-                }
             }
             render() {
                 return <Parent
