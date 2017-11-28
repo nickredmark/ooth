@@ -1,6 +1,6 @@
 {
   "name": "ooth-local",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -23,8 +23,8 @@
     "express": "^4.16.2",
     "jest": "^20.0.4",
     "mongodb": "^2.2.30",
-    "ooth": "^1.0.1",
-    "ooth-mongo": "^1.0.1",
+    "ooth": "^1.1.0",
+    "ooth-mongo": "^1.1.0",
     "request-promise": "^4.2.1"
   }
 }

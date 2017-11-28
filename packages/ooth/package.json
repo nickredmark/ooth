@@ -1,6 +1,6 @@
 {
   "name": "ooth",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "babel-preset-env": "^1.6.0",
     "jest": "^20.0.4",
     "mongodb": "^2.2.31",
-    "ooth-mongo": "^1.0.1",
+    "ooth-mongo": "^1.1.0",
     "passport-custom": "^1.0.5",
     "passport-strategy": "^1.0.0",
     "request-promise": "^4.2.1"
