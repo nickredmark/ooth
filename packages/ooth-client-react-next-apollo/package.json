@@ -4,26 +4,29 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "link": "npm run prepublish && yarn link",
-    "prepublish": "npm run build",
+    "link": "yarn prepublish && yarn link",
+    "prepublish": "yarn build",
     "build": "babel src --out-dir lib --ignore '**/*.test.js'",
     "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
   "dependencies": {
-    "apollo-client": "^1.9.0-0",
-    "react": "^15.6.1",
-    "react-apollo": "^1.4.4",
-    "react-dom": "^15.6.1",
-    "recompose": "^0.24.0",
-    "redux": "^3.7.2"
+    "apollo-cache-inmemory": "^1.1.1",
+    "apollo-client": "^2.0.3",
+    "apollo-link": "^1.0.3",
+    "apollo-link-http": "^1.2.0",
+    "graphql": "^0.11.7",
+    "isomorphic-unfetch": "^2.0.0",
+    "react": "^16.1.1",
+    "react-apollo": "^2.0.1",
+    "react-dom": "^16.1.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.6.0",
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
-    "jest": "^20.0.4",
-    "react-test-renderer": "^15.6.1"
+    "jest": "^21.2.1",
+    "react-test-renderer": "^16.1.1"
   }
 }

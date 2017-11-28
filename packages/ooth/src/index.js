@@ -124,127 +124,125 @@ class Ooth {
         this.route = express.Router()
     }
 
-    start(app, backend) {
-        return (async () => {
-            if (!app) {
-                throw new Error('App is required.')
+    start = async (app, backend) => {
+        if (!app) {
+            throw new Error('App is required.')
+        }
+        this.app = app
+
+        if (!backend) {
+            throw new Error('Backend is required.')
+        }
+        this.backend = backend
+
+        // App-wide configuration
+        app.use(cookieParser())
+        app.use(bodyParser.json())
+        app.use(passport.initialize())
+        app.use(passport.session())
+        expressWs(app)
+
+        app.use(this.path, this.route)
+
+        passport.serializeUser((user, done) => {
+            done(null, user._id)
+        })
+        passport.deserializeUser((id, done) => {
+            if (typeof id === 'string') {
+                this.backend.getUserById(id)
+                    .then(user => {
+                        done(null, user)
+                    })
+                    .catch(done)
+            } else {
+                done(null, false)
             }
-            this.app = app
-
-            if (!backend) {
-                throw new Error('Backend is required.')
+        })
+        
+        this.route.all('/', (req, res) => {
+            const methods = {}
+            Object.keys(this.strategies).forEach(name => {
+                methods[name] = this.strategies[name].methods
+            })
+            res.send({
+                methods
+            })
+        })
+        this.strategies.root = {
+            methods: ['status', 'logout'],
+            profileFields: {
+                _id: true
             }
-            this.backend = backend
-
-            // App-wide configuration
-            app.use(cookieParser())
-            app.use(bodyParser.json())
-            app.use(passport.initialize())
-            app.use(passport.session())
-            expressWs(app)
-
-            app.use(this.path, this.route)
-
-            passport.serializeUser((user, done) => {
-                done(null, user._id)
-            })
-            passport.deserializeUser((id, done) => {
-                if (typeof id === 'string') {
-                    this.backend.getUserById(id)
-                        .then(user => {
-                            done(null, user)
-                        })
-                        .catch(done)
-                } else {
-                    done(null, false)
-                }
-            })
-            
-            this.route.all('/', (req, res) => {
-                const methods = {}
-                Object.keys(this.strategies).forEach(name => {
-                    methods[name] = this.strategies[name].methods
-                })
-                res.send({
-                    methods
-                })
-            })
-            this.strategies.root = {
-                methods: ['status', 'logout'],
-                profileFields: {
-                    _id: true
-                }
-            }
-            this.route.get('/status', (req, res) => {
-                if (req.user) {
-                    const user = this.getProfile(req.user)
-                    if (this.standalone) {
-                        res.send({
-                            user,
-                            token: this.getToken(user)
-                        })
-                    } else {
-                        res.send({
-                            user: this.getProfile(user)
-                        })
-                    }
+        }
+        this.route.get('/status', (req, res) => {
+            if (req.user) {
+                const user = this.getProfile(req.user)
+                if (this.standalone) {
+                    res.send({
+                        user,
+                        token: this.getToken(user)
+                    })
                 } else {
                     res.send({
-                        user: null
+                        user: this.getProfile(user)
                     })
                 }
-            })
-            post(this.route, '/logout', requireLogged, async (req, res) => {
-                const user = req.user
-                this.sendStatus(req, {})
-                req.logout()
-                if (this.onLogout) {
-                    this.onLogout(user)
-                }
-                return {
-                    message: 'Logged out'
-                }
-            })
+            } else {
+                res.send({
+                    user: null
+                })
+            }
+        })
+        post(this.route, '/logout', requireLogged, async (req, res) => {
+            const user = req.user
+            this.sendStatus(req, {})
+            req.logout()
+            if (this.onLogout) {
+                this.onLogout(user)
+            }
+            return {
+                message: 'Logged out'
+            }
+        })
 
-            if (this.standalone) {
-                this.registerPassportMethod('root', 'login', requireNotLogged, new JwtStrategy({
-                    secretOrKey: this.sharedSecret,
-                    jwtFromRequest: (req) => {
-                        if (!req.body || !req.body.token) {
-                            throw new Error('Malformed body')
-                        }
-                        return req.body.token
+        if (this.standalone) {
+            this.registerPassportMethod('root', 'login', requireNotLogged, new JwtStrategy({
+                secretOrKey: this.sharedSecret,
+                jwtFromRequest: (req) => {
+                    if (!req.body || !req.body.token) {
+                        throw new Error('Malformed body')
                     }
-                }, nodeifyAsync(async (payload) => {
-                    if (!payload.user || !payload.user._id || typeof payload.user._id !== 'string') {
-                        console.error(payload)
-                        throw new Error('Malformed token payload.')
-                    }
-                    return payload.user
-                })))
+                    return req.body.token
+                }
+            }, nodeifyAsync(async (payload) => {
+                if (!payload.user || !payload.user._id || typeof payload.user._id !== 'string') {
+                    console.error(payload)
+                    throw new Error('Malformed token payload.')
+                }
+                return payload.user
+            })))
+        }
+
+        this.route.ws('/status', (ws, req) => {
+            if (!this.connections[req.session.id]) {
+                this.connections[req.session.id] = []
+            }
+            this.connections[req.session.id].push(ws)
+
+            if (req.user) {
+                ws.send(JSON.stringify({
+                    user: this.getProfile(req.user)
+                }))
+            } else {
+                ws.send(JSON.stringify({
+                    user: null
+                }))
             }
 
-            this.route.ws('/status', (ws, req) => {
-                if (!this.connections[req.session.id]) {
-                    this.connections[req.session.id] = []
-                }
-                this.connections[req.session.id].push(ws)
-
-                if (req.user) {
-                    ws.send(JSON.stringify({
-                        user: this.getProfile(req.user)
-                    }))
-                } else {
-                    ws.send(JSON.stringify({
-                        user: null
-                    }))
-                }
-
-                ws.on('close', () => {
-                    this.connections[req.session.id] = this.connections[req.session.id].filter(wss => ws !== wss)
-                })
+            ws.on('close', () => {
+                this.connections[req.session.id] = this.connections[req.session.id].filter(wss => ws !== wss)
             })
-        })()
+        })
     }
 
     getUserByUniqueField = async (fieldName, value) => {
@@ -473,9 +471,9 @@ class Ooth {
             for (const field of Object.keys(this.strategies[strategy].uniqueFields)) {
                 const value = userPart[field]
                 if (value) {
-                    const userCandidate = prepare(this.backend.getUser({
+                    const userCandidate = await this.backend.getUser({
                         [`${strategy}.${field}`]: userPart
-                    }))
+                    })
                     if (!user || user._id === userCandidate._id) {
                         user = userCandidate
                     } else {

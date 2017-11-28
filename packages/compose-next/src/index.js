@@ -7,7 +7,7 @@ export const addInitialProps = (getInitialProps) => {
                 return getInitialProps(ctx)
             }
             render() {
-                return React.createElement(Component, this.props)
+                return <Component {...this.props}/>
             }
         }
     )
@@ -50,11 +50,15 @@ export const composeInitialProps = (Parent) => (
                 }
             }
             render() {
-                return React.createElement(
-                    Parent,
-                    Object.assign({}, this.props, this.props.parentProps),
-                    React.createElement(Child, Object.assign({}, this.props, this.props.childProps))
-                )
+                return <Parent
+                    {...this.props}
+                    {...this.props.parentProps}
+                >
+                    <Child
+                        {...this.props}
+                        {...this.props.childProps}
+                    />
+                </Parent>
             }
         }
     )

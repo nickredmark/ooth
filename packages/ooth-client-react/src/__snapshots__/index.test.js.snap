@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-client-react withOoth 1`] = `
+<p>
+  hi
+</p>
+`;
+
+exports[`ooth-client-react withUser 1`] = `
+<p>
+  hi
+</p>
+`;

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0
+
+* BREAK: Node 8, react 16, apollo 2 (affecting only packages that were still in 0.X: compose-next, ooth-client-react, ooth-client-react-next, ooth-client-react-next-apollo)
+
 ## 1.0.0
 
 * BREAK: Target engine from now on is node 8.

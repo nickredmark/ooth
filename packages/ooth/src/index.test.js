@@ -47,6 +47,10 @@ describe('ooth', () => {
         await db.dropDatabase()
     })
 
+    afterAll(async () => {
+        await db.close()
+    })
+
     beforeEach(async () => {
         config = {
             sharedSecret: '',

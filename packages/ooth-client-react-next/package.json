@@ -4,22 +4,23 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "link": "npm run prepublish && yarn link",
-    "prepublish": "npm run build",
-    "build": "babel src --out-dir lib",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "link": "yarn prepublish && yarn link",
+    "prepublish": "yarn build",
+    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
+    "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
   "dependencies": {
     "compose-next": "^0.9.0",
     "ooth-client-react": "^0.8.0",
-    "react": "^15.4.2",
-    "recompose": "^0.22.0"
+    "react": "^16.1.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-react": "^6.24.1"
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "jest": "^21.2.1",
+    "ooth-client": "^0.9.4"
   }
 }

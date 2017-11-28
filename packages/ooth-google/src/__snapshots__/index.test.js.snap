@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-google fails to log in with valid token 1`] = `
+Object {
+  "message": "malformed idToken",
+  "status": "error",
+}
+`;
+
+exports[`ooth-google registers routes 1`] = `
+Object {
+  "methods": Object {
+    "google": Array [
+      "login",
+    ],
+    "root": Array [
+      "status",
+      "logout",
+    ],
+  },
+}
+`;

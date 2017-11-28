@@ -41,6 +41,10 @@ describe('ooth-guest', () => {
         await db.dropDatabase()
     })
 
+    afterAll(async () => {
+        await db.close()
+    })
+
     beforeEach(async () => {
         config = {
             mongoUrl,

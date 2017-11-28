@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`composeInitialProps should merge initial props 1`] = `
+Object {
+  "childProps": Object {
+    "b": 2,
+  },
+  "parentProps": Object {
+    "a": 1,
+  },
+}
+`;

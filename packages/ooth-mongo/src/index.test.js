@@ -27,6 +27,10 @@ describe('ooth-mongo', () => {
         oothMongo = new OothMongo(db, ObjectId)
     })
 
+    afterAll(async () => {
+        await db.close()
+    })
+
     afterEach(async () => {
         await db.dropDatabase()
     })

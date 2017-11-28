@@ -12,7 +12,7 @@ Copy `settings.dist.js` to `settings.js` and adapt.
 Run
 
 ```
-npm start
+yarn start
 ```
 
 The GraphQL endpoint is `/graphql`. Visit `/graphiql` to play with the data.

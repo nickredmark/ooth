@@ -23,6 +23,6 @@
     "ooth-mongo": "^1.0.1"
   },
   "engines": {
-    "node": ">=7.5"
+    "node": ">=8"
   }
 }

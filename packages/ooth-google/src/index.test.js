@@ -3,7 +3,7 @@ import OothMongo from 'ooth-mongo'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
-import oothFacebook from '.'
+import oothGoogle from '.'
 import {MongoClient, ObjectId} from 'mongodb'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
@@ -12,7 +12,7 @@ let app
 let server
 let ooth
 let oothMongo
-let oothFacebookConfig
+let oothGoogleConfig
 let db
 let cookies = ''
 
@@ -22,7 +22,7 @@ const startServer = () => {
     })
 }
 
-describe('ooth-facebook', () => {
+describe('ooth-google', () => {
     beforeAll(async () => {
         db = await MongoClient.connect(mongoUrl)
         await db.dropDatabase()
@@ -41,7 +41,7 @@ describe('ooth-facebook', () => {
             onLogin: () => null,
             onLogout: () => null,
         }
-        oothFacebookConfig = {
+        oothGoogleConfig = {
             clientID: 'XXX',
             clientSecret: 'XXX',
         }
@@ -53,7 +53,7 @@ describe('ooth-facebook', () => {
             saveUninitialized: true,
         }))
         ooth = new Ooth(config)
-        ooth.use('facebook', oothFacebook(oothFacebookConfig))
+        ooth.use('google', oothGoogle(oothGoogleConfig))
         oothMongo = new OothMongo(db, ObjectId)
         await ooth.start(app, oothMongo)
         await startServer(app)
@@ -77,10 +77,10 @@ describe('ooth-facebook', () => {
         try {
             const res = await request({
                 method: 'POST',
-                uri: 'http://localhost:8080/facebook/login',
+                uri: 'http://localhost:8080/google/login',
                 json: true,
                 body: {
-                    access_token: 'XXX'
+                    id_token: 'XXX'
                 }
             })
 

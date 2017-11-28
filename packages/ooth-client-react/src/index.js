@@ -1,4 +1,5 @@
 const React = require('react')
+const PropTypes = require('prop-types')
 const {getContext} = require('recompose')
 
 class OothProvider extends React.Component {
@@ -26,6 +27,9 @@ class OothProvider extends React.Component {
         }
     }
     render() {
+        if (!this.props.children) {
+            return null
+        }
         return React.Children.only(this.props.children)
     }
     getChildContext() {
@@ -38,16 +42,16 @@ class OothProvider extends React.Component {
     }
 }
 OothProvider.childContextTypes = {
-    oothClient: React.PropTypes.object.isRequired,
-    user: React.PropTypes.object
+    oothClient: PropTypes.object.isRequired,
+    user: PropTypes.object
 }
 
 const withOoth = getContext({
-    oothClient: React.PropTypes.object.isRequired
+    oothClient: PropTypes.object.isRequired
 })
 
 const withUser = getContext({
-    user: React.PropTypes.object
+    user: PropTypes.object
 })
 
 module.exports = {

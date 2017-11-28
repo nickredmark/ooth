@@ -16,7 +16,7 @@ yarn
 ### Start
 
 ```
-npm start
+yarn start
 ```
 
 Open `http://localhost:3000` to see a list of available routes. E.g. try out `http://localhost:3000/status`

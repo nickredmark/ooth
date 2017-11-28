@@ -4,8 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "link": "npm run prepublish && yarn link",
-    "prepublish": "npm run build",
+    "link": "yarn prepublish && yarn link",
+    "prepublish": "yarn build",
     "build": "babel src --out-dir lib --ignore '**/*.test.js'",
     "test": "jest"
   },
@@ -14,7 +14,12 @@
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-preset-env": "^1.6.0",
-    "jest": "^20.0.4"
+    "express": "^4.16.2",
+    "jest": "^20.0.4",
+    "mongodb": "^2.2.33",
+    "ooth": "^1.0.1",
+    "ooth-mongo": "^1.0.1",
+    "request-promise": "^4.2.2"
   },
   "dependencies": {
     "nodeify": "^1.0.1",

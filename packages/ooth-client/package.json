@@ -4,10 +4,10 @@
   "description": "Ooth client library, wrapper around the ooth API.",
   "main": "lib/index.js",
   "scripts": {
-    "link": "npm run prepublish && yarn link",
-    "prepublish": "npm run build",
-    "build": "babel src --out-dir lib",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "link": "yarn prepublish && yarn link",
+    "prepublish": "yarn build",
+    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
+    "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "ISC",
@@ -16,5 +16,8 @@
     "babel-preset-env": "^1.6.0",
     "isomorphic-fetch": "^2.2.1",
     "rx": "^4.1.0"
+  },
+  "devDependencies": {
+    "jest": "^21.2.1"
   }
 }

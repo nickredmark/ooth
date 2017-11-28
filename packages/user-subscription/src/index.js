@@ -3,6 +3,7 @@ const gql = require('graphql-tag')
 const {graphql, withApollo} = require('react-apollo')
 const {withContext, getContext, compose} = require('recompose')
 const cloneDeep = require('lodash.clonedeep')
+const PropTypes = require('prop-types')
 
 const UserQuery = gql`
   query {
@@ -55,14 +56,14 @@ class UserProviderComponent extends React.Component {
   }
 }
 UserProviderComponent.childContextTypes = {
-  user: React.PropTypes.object,
-  userLoading: React.PropTypes.bool
+  user: PropTypes.object,
+  userLoading: PropTypes.bool,
 }
 const UserProvider = graphql(UserQuery)(UserProviderComponent)
 
 const withUser = getContext({
-  user: React.PropTypes.object,
-  refetchUser: React.PropTypes.func
+  user: PropTypes.object,
+  refetchUser: PropTypes.func,
 })
 
 module.exports = {

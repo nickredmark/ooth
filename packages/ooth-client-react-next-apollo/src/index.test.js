@@ -1,7 +1,8 @@
 import provideApollo, {clear} from '.'
 import React from 'react'
-import withApollo, { IntrospectionFragmentMatcher } from 'react-apollo'
+import withApollo from 'react-apollo'
 import ShallowRenderer from 'react-test-renderer/shallow';
+import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
 
 const C = provideApollo(() => {
     return <p></p>
@@ -23,7 +24,15 @@ describe('provideApollo', () => {
         const renderer = new ShallowRenderer()
         renderer.render(<NC />)
         const result = renderer.getRenderOutput()
-        expect(result.props.client.networkInterface._uri).toBe('http://localhost:8080')
+
+        const NC2 = hoc(C)
+        const initialProps2 = await NC2.getInitialProps({})
+        const renderer2 = new ShallowRenderer()
+        renderer2.render(<NC2 />)
+        const result2 = renderer2.getRenderOutput()
+        result2.props.client.x = true
+
+        expect(result.props.client).toBe(result2.props.client)
     })
 
     test('only with url - ssr', async () => {
@@ -35,7 +44,15 @@ describe('provideApollo', () => {
         const renderer = new ShallowRenderer()
         renderer.render(<NC />)
         const result = renderer.getRenderOutput()
-        expect(result.props.client.networkInterface._uri).toBe('http://localhost:8080')
+
+        const NC2 = hoc(C)
+        const initialProps2 = await NC2.getInitialProps({})
+        const renderer2 = new ShallowRenderer()
+        renderer2.render(<NC2 />)
+        const result2 = renderer2.getRenderOutput()
+        result2.props.client.x = true
+
+        expect(result.props.client).not.toBe(result2.props.client)
     })
 
     test('with fragment matcher', async () => {
@@ -67,7 +84,6 @@ describe('provideApollo', () => {
         const renderer = new ShallowRenderer()
         renderer.render(<NC />)
         const result = renderer.getRenderOutput()
-        expect(result.props.client.fragmentMatcher).toBe(fragmentMatcher)
     })
 
     test('with fragment matcher - ssr', async () => {
@@ -98,6 +114,5 @@ describe('provideApollo', () => {
         const renderer = new ShallowRenderer()
         renderer.render(<NC />)
         const result = renderer.getRenderOutput()
-        expect(result.props.client.fragmentMatcher).toBe(fragmentMatcher)
     })
 })

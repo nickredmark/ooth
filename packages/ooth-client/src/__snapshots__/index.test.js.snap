@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OothClient can construct 1`] = `
+OothClient {
+  "oothUrl": "http://localhost:3000/auth",
+  "standalone": undefined,
+}
+`;
+
+exports[`OothClient can construct standalone 1`] = `
+OothClient {
+  "apiLoginUrl": "http://localhost:3000/login",
+  "apiLogoutUrl": "http://localhost:3000/logout",
+  "oothUrl": "http://localhost:3000/auth",
+  "standalone": true,
+}
+`;
