@@ -23,7 +23,7 @@ const getBrowserClient = (uri, cacheOpts, initialData) => {
     })
 }
 
-const getServerClient = (uri, cookies, cacheOpts) => {
+const getServerClient = (uri, cookies, cacheOpts, initialData) => {
     let link = new HttpLink({
         uri
     })
@@ -40,6 +40,9 @@ const getServerClient = (uri, cookies, cacheOpts) => {
     }
 
     const cache = new InMemoryCache(cacheOpts)
+    if (initialData) {
+        cache.restore(initialData)
+    }
 
     return new ApolloClient({
         ssrMode: true,
@@ -51,7 +54,7 @@ const getServerClient = (uri, cookies, cacheOpts) => {
 const getClient = (uri, cookies, cacheOpts, initialData) => {
     if (!process.browser) {
         // on server, create a new client for each request
-        return getServerClient(uri, cookies, cacheOpts)
+        return getServerClient(uri, cookies, cacheOpts, initialData)
     } else {
         // on client, create singleton
         if (!client) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+
+* Fix ooth-client-react-next-apollo - was not server-rendering!
+
 ## 1.1.1
 
 * Fix next clients (getInitialState).
