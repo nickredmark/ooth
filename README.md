@@ -18,7 +18,17 @@ If you want to integrate this library with a GUI, you might want to check out th
 
 There are many ways you can use ooth.
 
+### Vanilla JS
+
+A good starting point could be this minimal example. Reading through the two files of client and server code is recommended.
+
+* [minimal](examples/minimal)
+
+### With UI and next.js
+
 The most complete example with a starting UI with all the main user account flow is programmed with next.js and can now be found in the [staart project](https://github.com/nmaro/staart)!
+
+### With create-react-app
 
 The following two examples use create-react-app as a client. If you don't want to use cra you can still analyze the server folders and the code parts that use ooth-client independently.
 

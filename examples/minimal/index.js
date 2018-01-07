@@ -1,0 +1,73 @@
+const {MongoClient, ObjectId} = require('mongodb')
+const express = require('express')
+const bodyParser = require('body-parser')
+const session = require('express-session')
+const cookieParser = require('cookie-parser')
+const cors = require('cors')
+const {promisify} = require('util')
+const Ooth = require('ooth')
+const oothLocal = require('ooth-local')
+const OothMongo = require('ooth-mongo')
+
+const MONGO_HOST = 'mongodb://localhost:27017'
+const MONGO_DB = 'ooth-minimal'
+const HOST = 'http://localhost'
+const PORT = 3000
+const SECRET = 'somesecret'
+const SHARED_SECRET = 'somesharedsecret'
+const OOTH_PATH = '/auth'
+
+const start = async () => {
+    try {
+        const client = await MongoClient.connect(MONGO_HOST)
+        const db = client.db(MONGO_DB)
+    
+        const app = express()
+        const corsMiddleware = cors({
+            origin: HOST,
+            credentials: true,
+            preflightContinue: false,
+        })
+        app.use(corsMiddleware)
+        app.options(corsMiddleware)
+        app.use(session({
+            name: 'api-session-id',
+            secret: SECRET,
+            resave: false,
+            saveUninitialized: true,
+        }))
+
+        const ooth = new Ooth({
+            sharedSecret: SHARED_SECRET,
+            path: OOTH_PATH,
+        })
+        const oothMongo = new OothMongo(db, ObjectId)
+        await ooth.start(app, oothMongo)
+        ooth.use('local', oothLocal({
+            onRegister({email, verificationToken}) {
+                console.log(`Someone registered.`)
+            },
+            onGenerateVerificationToken({email, verificationToken}) {
+                console.log(`Someone requested a verification email.`)
+            },
+            onVerify({email}) {
+                console.log(`Someone verified their email`)
+            },
+            onForgotPassword({email, passwordResetToken}) {
+                console.log(`Someone forgot their password`)
+            },
+            onResetPassword({email}) {
+                console.log(`Someone reset their password`)
+            },
+        }))
+
+        app.get('/', (req, res) => res.sendFile(`${__dirname}/index.html`))
+
+        await promisify(app.listen)(PORT)
+        console.info(`Online at ${HOST}:${PORT}`)
+    } catch (e) {
+        console.error(e)
+    }
+}
+
+start()
