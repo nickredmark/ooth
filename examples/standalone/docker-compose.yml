@@ -11,9 +11,9 @@ services:
   mongodb:
     image: mongo:latest
     environment:
-      - MONGO_DATA_DIR=/db
+      - MONGO_DATA_DIR=/db/data
     volumes:
-      - ./db:/db
+      - ./db/data:/db/data
     ports:
       - 27017:27017
     command: mongod
