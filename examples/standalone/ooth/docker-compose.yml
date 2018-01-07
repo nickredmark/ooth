@@ -1,0 +1,19 @@
+version: '3'
+services:
+  ooth:
+    image: ooth
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    ports:
+      - 3001:3001
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_DATA_DIR=/db
+    volumes:
+      - ./db:/db
+    ports:
+      - 27017:27017
+    command: mongod

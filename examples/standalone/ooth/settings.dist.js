@@ -1,6 +1,6 @@
 module.exports = {
     port: 3001,
-    mongoUrl: 'mongodb://localhost:27017/ooth',
+    mongoUrl: 'mongodb://mongodb:27017/ooth',
     originUrl: 'http://localhost:3000',
     mailgun: {
         apiKey: "XXX",
