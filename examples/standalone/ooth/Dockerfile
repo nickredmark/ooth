@@ -4,6 +4,7 @@ WORKDIR /opt/
 COPY index.js .
 COPY mail.js .
 COPY settings.js .
+COPY strategies.js .
 COPY package.json .
 COPY yarn.lock .
 
