@@ -1,7 +1,11 @@
 FROM node
 WORKDIR /opt/
 
-COPY . ./
+COPY public ./public/
+COPY src ./src/
+COPY package.json .
+COPY yarn.lock .
+
 RUN yarn
 RUN yarn build
 
