@@ -1,7 +1,7 @@
 version: '3'
 services:
   api:
-    build: ./api
+    image: <docker-repository-name>/<api-image-name>:latest
     links:
       - mongodb
     depends_on:
@@ -9,11 +9,11 @@ services:
     ports:
       - 3002:3002
   client:
-    build: ./client
+    image: <docker-repository-name>/<client-image-name>:latest
     ports:
       - 3000:3000
   ooth:
-    build: ./ooth
+    image: nmaro/ooth:latest
     links:
       - mongodb
     depends_on:
