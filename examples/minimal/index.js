@@ -1,9 +1,6 @@
 const {MongoClient, ObjectId} = require('mongodb')
 const express = require('express')
-const bodyParser = require('body-parser')
 const session = require('express-session')
-const cookieParser = require('cookie-parser')
-const cors = require('cors')
 const {promisify} = require('util')
 const Ooth = require('ooth')
 const oothLocal = require('ooth-local')
@@ -23,13 +20,6 @@ const start = async () => {
         const db = client.db(MONGO_DB)
     
         const app = express()
-        const corsMiddleware = cors({
-            origin: HOST,
-            credentials: true,
-            preflightContinue: false,
-        })
-        app.use(corsMiddleware)
-        app.options(corsMiddleware)
         app.use(session({
             name: 'api-session-id',
             secret: SECRET,
