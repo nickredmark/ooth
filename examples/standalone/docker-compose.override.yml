@@ -1,7 +1,19 @@
 version: '3'
 services:
+  api:
+    build: ./api
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    ports:
+      - 3002:3002
+  client:
+    build: ./client
+    ports:
+      - 3000:3000
   ooth:
-    build: .
+    build: ./ooth
     links:
       - mongodb
     depends_on:
