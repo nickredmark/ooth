@@ -1,7 +1,19 @@
 version: '3'
 services:
+  api:
+    image: <docker-repository-name>/<api-image-name>:latest
+    links:
+      - mongodb
+    depends_on:
+      - mongodb
+    ports:
+      - 3002:3002
+  client:
+    image: <docker-repository-name>/<client-image-name>:latest
+    ports:
+      - 3000:3000
   ooth:
-    image: ooth
+    image: nmaro/ooth:latest
     links:
       - mongodb
     depends_on:
@@ -11,9 +23,9 @@ services:
   mongodb:
     image: mongo:latest
     environment:
-      - MONGO_DATA_DIR=/db/data
+      - MONGO_DATA_DIR=/db
     volumes:
-      - ./db/data:/db/data
+      - ./db:/db
     ports:
       - 27017:27017
     command: mongod
