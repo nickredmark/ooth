@@ -20,6 +20,8 @@ services:
       - mongodb
     ports:
       - 3001:3001
+    volumes:
+      - ./config:/opt/config
   mongodb:
     image: mongo:latest
     environment:

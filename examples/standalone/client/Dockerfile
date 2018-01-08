@@ -10,4 +10,4 @@ RUN yarn
 RUN yarn build
 
 # Yarn doesn't like Docker's CMD syntax ['yarn','start']
-CMD yarn start
+CMD ["npm","start"]

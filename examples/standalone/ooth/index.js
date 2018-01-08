@@ -5,13 +5,12 @@ const OothMongo = require('ooth-mongo')
 const morgan = require('morgan')
 const cors = require('cors')
 const mail = require('./mail')
-const settings = require('./settings')
+const settings = require('./config/settings.js')
 const session = require('express-session')
 const {MongoClient, ObjectId} = require('mongodb')
-const strategies = require('./strategies')
+const strategies = require('./config/strategies.js')
 
 async function start() {
-
     try {
 
         const app = express()
