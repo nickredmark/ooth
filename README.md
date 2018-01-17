@@ -24,6 +24,12 @@ A good starting point could be this minimal example. Reading through the two fil
 
 * [minimal](examples/minimal)
 
+### Vue.js
+
+The same minimal example as Vanilla JS, but using Vue.js. (https://vuejs.org/)
+
+* [minimal-vue](examples/minimal-vue)
+
 ### With UI and next.js
 
 The most complete example with a starting UI with all the main user account flow is programmed with next.js and can now be found in the [staart project](https://github.com/nmaro/staart)!
