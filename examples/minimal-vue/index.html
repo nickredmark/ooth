@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="vue/vue.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <h1>Minimal Ooth Example</h1>
+            <template v-if="user">
+                <p>Hello, {{ user._id }}</p>
+                <button v-on:click="logout($event)">Log out</button>
+            </template>
+            <template v-else>
+                <div>
+                    <h2>Register</h2>
+                    <form v-on:submit.prevent="register($event)">
+                        <div><label>E-Mail <input v-model="registerUser.email" id="register-email" type="email"/></label></div>
+                        <div><label>Password <input v-model="registerUser.password" id="register-password" type="password"/></label></div>
+                        <button>Register</button>
+                    </form>
+                </div>
+                <div>
+                    <h2>Log in</h2>
+                    <form v-on:submit.prevent="loginWithEmailPassword(loginUser.email, loginUser.password)">
+                        <div><label>E-Mail <input v-model="loginUser.email" id="login-email" type="email"/></label></div>
+                        <div><label>Password <input v-model="loginUser.password" id="login-password" type="password"/></label></div>
+                        <button>Log in</button>
+                    </form>
+                </div>
+            </template>
+        </div>
+        <script src="app.js"></script>
+    </body>
+</html>
