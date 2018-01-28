@@ -5,10 +5,13 @@ const {promisify} = require('util')
 const Ooth = require('ooth')
 const oothLocal = require('ooth-local')
 const OothMongo = require('ooth-mongo')
+const fs = require('fs')
+const http = require('http')
+const https = require('https')
 
 const MONGO_HOST = 'mongodb://localhost:27017'
 const MONGO_DB = 'ooth-minimal'
-const HOST = 'http://localhost'
+const HOST = 'https://localhost'
 const PORT = 3000
 const SECRET = 'somesecret'
 const SHARED_SECRET = 'somesharedsecret'
@@ -16,6 +19,9 @@ const OOTH_PATH = '/auth'
 
 const start = async () => {
     try {
+        var privateKey = fs.readFileSync("../.keystore/key.pem")
+        var certificate = fs.readFileSync("../.keystore/xxxxxxxxxxxxxxxx.crt")
+
         const client = await MongoClient.connect(MONGO_HOST)
         const db = client.db(MONGO_DB)
     
@@ -53,8 +59,14 @@ const start = async () => {
 
         app.get('/', (req, res) => res.sendFile(`${__dirname}/index.html`))
 
-        await promisify(app.listen)(PORT)
-        console.info(`Online at ${HOST}:${PORT}`)
+        var server = https.createServer({
+            key: privateKey,
+            cert: certificate
+        }, app)
+
+        server.listen(PORT, function(){
+            console.info(`Online at ${HOST}:${PORT}`)
+        })
     } catch (e) {
         console.error(e)
     }
