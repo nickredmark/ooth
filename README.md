@@ -14,6 +14,24 @@ Introducing medium article: [Ooth - user accounts for node.js](https://medium.co
 
 If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](https://github.com/nmaro/staart).
 
+## Development
+
+Via `yarn`:
+
+```bash
+yarn global add lerna
+cd ooth
+yarn run bootstrap
+```
+
+Via `npm`:
+
+```bash
+npm i -g lerna
+cd ooth
+npm run bootstrap
+```
+
 ## Examples
 
 There are many ways you can use ooth.
