@@ -6,7 +6,7 @@ const oothLocal = require('ooth-local')
 const morgan = require('morgan')
 const cors = require('cors')
 const mail = require('./mail')
-const settings = require('./settings')
+const settings = require('config')
 const session = require('express-session')
 const {MongoClient, ObjectId} = require('mongodb')
 
