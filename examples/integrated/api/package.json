@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.18.2",
+    "config": "^1.29.2",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "es6-promisify": "^5.0.0",

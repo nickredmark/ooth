@@ -7,7 +7,11 @@ This example API needs to be running for these example projects to work:
 
 ## Start it
 
-Copy `settings.dist.js` to `settings.js` and adapt.
+Configs are handled via [node-config](https://github.com/lorenwest/node-config).
+
+You can simply modify `./config/default.js` file or create `./config/local.js` file with your custom config.
+
+See full configuration instructions on related [page](https://github.com/lorenwest/node-config/wiki/Configuration-Files)
 
 Run
 
