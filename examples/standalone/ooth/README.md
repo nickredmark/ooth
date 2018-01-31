@@ -7,7 +7,11 @@ Standalone Ooth server with
 
 ## Setup
 
-Copy `settings.dist.js` to `settings.js` and adapt the settings.
+Configs are handled via [node-config](https://github.com/lorenwest/node-config).
+
+You can simply modify `./config/default.js` file or create `./config/local.js` file with your custom config.
+
+See full configuration instructions on related [page](https://github.com/lorenwest/node-config/wiki/Configuration-Files)
 
 ```
 yarn

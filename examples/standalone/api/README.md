@@ -5,7 +5,11 @@ to which the user will need to authenticate using a JWT.
 
 ## Set up
 
-Copy `settings.dist.js` to `settings.js` and adapt.
+Configs are handled via [node-config](https://github.com/lorenwest/node-config).
+
+You can simply modify `./config/default.js` file or create `./config/local.js` file with your custom config.
+
+See full configuration instructions on related [page](https://github.com/lorenwest/node-config/wiki/Configuration-Files)
 
 
 ```
