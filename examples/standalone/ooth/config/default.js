@@ -7,7 +7,9 @@ module.exports = {
         domain: "XXX"
     },
     mail: {
-        from: "info@example.com"
+        from: "info@example.com",
+        siteName: 'Ooth local config',
+        url: 'http://localhost:3000'
     },
     sharedSecret: 'XXX', // Has to be the same in api server
     sessionSecret: 'XXX'

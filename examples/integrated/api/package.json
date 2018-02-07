@@ -29,6 +29,7 @@
     "ooth": "^1.0.1",
     "ooth-guest": "^1.0.1",
     "ooth-local": "^1.0.1",
+    "ooth-local-emailer": "^1.2.0",
     "ooth-mongo": "^1.0.1",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.1",

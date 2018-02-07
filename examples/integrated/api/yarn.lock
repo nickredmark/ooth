@@ -746,6 +746,10 @@ ooth-guest@^1.0.1:
     nodeify "^1.0.0"
     passport-custom "^1.0.5"
 
+ooth-local-emailer@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/ooth-local-emailer/-/ooth-local-emailer-1.2.0.tgz#21958481e9d94f39809c22a85f96d1b64d498a5e"
+
 ooth-local@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/ooth-local/-/ooth-local-1.0.1.tgz#fe296679ba4d66a6428f327e4f6e60f65aa046f7"

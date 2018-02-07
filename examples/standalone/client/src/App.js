@@ -74,7 +74,7 @@ class LoginStatusComponent extends Component {
       </div>
     } else {
       return <div>
-        Click on the button to create a guest session.<br/>
+        <p>Click on the button to create a guest session.</p>
         <button onClick={() => {
           oothClient.authenticate('guest', 'register')
             .then(res => {
@@ -84,6 +84,39 @@ class LoginStatusComponent extends Component {
               console.error(err)
             })
         }}>Log in</button>
+        <p>alternatively, create an account here:</p>
+        <form onSubmit={e => {
+          e.preventDefault()
+          oothClient.method('local', 'register', {
+            email: this.email.value,
+            password: this.password.value,
+          }).then(() => {
+            return this.props.oothClient.authenticate('local', 'login', {
+                username: this.email.value,
+                password: this.password.value,
+            })
+          }).catch(e => {
+            alert(e.message)
+          })
+        }}>
+            <div><label>E-Mail <input ref={ref => this.email = ref} id="register-email" type="email"/></label></div>
+            <div><label>Password <input ref={ref => this.password = ref} id="register-password" type="password"/></label></div>
+            <button>Register</button>
+        </form>
+        <p>or, if you already registered, log in:</p>
+        <form onSubmit={e => {
+          e.preventDefault()
+          return this.props.oothClient.authenticate('local', 'login', {
+              username: this.loginEmail.value,
+              password: this.loginPassword.value,
+          }).catch(e => {
+            alert(e.message)
+          })
+        }}>
+            <div><label>E-Mail <input ref={ref => this.loginEmail = ref} id="register-email" type="email"/></label></div>
+            <div><label>Password <input ref={ref => this.loginPassword = ref} id="register-password" type="password"/></label></div>
+            <button>Register</button>
+        </form>
       </div>
     }
   }

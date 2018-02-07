@@ -69,6 +69,8 @@ class LoginStatusComponent extends Component {
           return this.props.oothClient.authenticate('local', 'login', {
               username: this.loginEmail.value,
               password: this.loginPassword.value,
+          }).catch(e => {
+            alert(e.message)
           })
         }}>
             <div><label>E-Mail <input ref={ref => this.loginEmail = ref} id="register-email" type="email"/></label></div>
