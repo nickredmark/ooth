@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+
+* License is now `MIT` in all `package.json` files.
+* Added new packate `ooth-local-emailer`
+
 ## 1.1.2
 
 * Fix ooth-client-react-next-apollo - was not server-rendering!
