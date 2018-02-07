@@ -42,6 +42,11 @@ A good starting point could be this minimal example. Reading through the two fil
 
 * [minimal](examples/minimal)
 
+Slight variations of the minimal example:
+
+* [minimal-mongo-auth](examples/minimal-mongo-auth) - for mongodb authentication
+* [minimal-ssh](examples/minimal-ssh) - for express with ssh
+
 ### Vue.js
 
 The same minimal example as Vanilla JS, but using Vue.js. (https://vuejs.org/)
