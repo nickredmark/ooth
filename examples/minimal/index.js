@@ -16,7 +16,7 @@ const OOTH_PATH = '/auth'
 
 const start = async () => {
     try {
-        const client = await MongoClient.connect(MONGO_HOST)
+        const client = await MongoClient.connect(MONGO_HOST + "/" + MONGO_DB, {auth: {user: "exampleuser", password: "ExamplePass1"}})
         const db = client.db(MONGO_DB)
     
         const app = express()
