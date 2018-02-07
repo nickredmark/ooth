@@ -60,9 +60,8 @@ const start = async () => {
             cert: fs.readFileSync('keys/cert.pem'),
         }, app)
 
-        await server.listen(PORT, () => {
-            console.info(`Online at ${HOST}:${PORT}`)
-        })
+        await new Promise(resolve => server.listen(PORT, resolve));
+        console.info(`Online at ${HOST}:${PORT}`);
     } catch (e) {
         console.error(e)
     }
