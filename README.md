@@ -1,36 +1,17 @@
 # OOTH - a user identity management system
 
-See the [project timeline](https://github.com/nmaro/ooth/projects/2).
-
 Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE2ODA2NjE0LTE1NGNmN2YzZTdiMWNjODExZmNjYzg3ZGJjZmVmZmI2YjVhOWYzZDQ1NWI4Y2JiNzNlMmI2Y2U5ZWFhODIzMWQ)!
 
-Get news about ooth on [ooth's twitter account](https://twitter.com/oothjs).
+See the [project timeline](https://github.com/nmaro/ooth/projects/2).
 
-Read the newest article [Staart - a starter library for node.js projects with user accounts](https://medium.com/@nmaro/staart-a-starter-library-for-node-js-projects-with-user-accounts-d1328b46a59).
+## Articles
 
-Introducing medium article: [Ooth - user accounts for node.js](https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a#.97kyfg4xg).
+* Introducing medium article: [Ooth - user accounts for node.js](https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a#.97kyfg4xg).
+* Read the newest article [Staart - a starter library for node.js projects with user accounts](https://medium.com/@nmaro/staart-a-starter-library-for-node-js-projects-with-user-accounts-d1328b46a59).
 
 ## Staart
 
 If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](https://github.com/nmaro/staart).
-
-## Development
-
-Via `yarn`:
-
-```bash
-yarn global add lerna
-cd ooth
-yarn run bootstrap
-```
-
-Via `npm`:
-
-```bash
-npm i -g lerna
-cd ooth
-npm run bootstrap
-```
 
 ## Examples
 
@@ -79,6 +60,7 @@ The following two examples use create-react-app as a client. If you don't want t
 
 * [ooth-guest](packages/ooth-guest): login as a guest, no credentials needed
 * [ooth-local](packages/ooth-local): login with username/email/password
+* [ooth-local-emailer](packages/ooth-local-emailer): sends emails on `ooth-local` events (register, verify email, reset password...)
 * [ooth-faceboook](packages/ooth-facebook): login with Facebook
 * [ooth-google](packages/ooth-google): login with Google
 
@@ -92,6 +74,24 @@ The following two examples use create-react-app as a client. If you don't want t
 ### Utilities
 
 * [compose-next](packages/compose-next): utility to create providers that handle getInitialProps of children
+
+## Development
+
+Via `yarn`:
+
+```bash
+yarn global add lerna
+cd ooth
+yarn run bootstrap
+```
+
+Via `npm`:
+
+```bash
+npm i -g lerna
+cd ooth
+npm run bootstrap
+```
 
 ## Feature requests, Bugs, Contributions
 
