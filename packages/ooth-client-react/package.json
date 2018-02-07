@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "create-react-class": "^15.6.2",
     "prop-types": "^15.6.0",

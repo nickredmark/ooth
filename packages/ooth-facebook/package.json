@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "nodeify": "^1.0.1",
     "passport-facebook-token": "^3.3.0"

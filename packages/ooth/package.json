@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "author": "Nick Redmark <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^1.16.0",
     "cookie-parser": "^1.4.3",

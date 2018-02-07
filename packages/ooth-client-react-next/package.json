@@ -10,7 +10,7 @@
     "test": "jest"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "compose-next": "^1.1.1",
     "ooth-client-react": "^1.1.0",
