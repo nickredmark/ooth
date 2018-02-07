@@ -4,10 +4,9 @@ Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE
 
 See the [project timeline](https://github.com/nmaro/ooth/projects/2).
 
-## Articles
+## Documentation
 
-* Introducing medium article: [Ooth - user accounts for node.js](https://medium.com/the-ideal-system/ooth-user-accounts-for-node-js-93cfcd28ed1a#.97kyfg4xg).
-* Read the newest article [Staart - a starter library for node.js projects with user accounts](https://medium.com/@nmaro/staart-a-starter-library-for-node-js-projects-with-user-accounts-d1328b46a59).
+Check out the ultimate [ooth documentation wiki](https://github.com/nmaro/ooth/wiki)!
 
 ## Staart
 
@@ -30,7 +29,7 @@ Slight variations of the minimal example:
 
 ### Vue.js
 
-The same minimal example as Vanilla JS, but using Vue.js. (https://vuejs.org/)
+The same minimal example as Vanilla JS, but using [Vue.js](https://vuejs.org/).
 
 * [minimal-vue](examples/minimal-vue)
 
@@ -95,7 +94,7 @@ npm run bootstrap
 
 ## Feature requests, Bugs, Contributions
 
-Start an issue here https://github.com/nmaro/ooth/issues.
+Start an [issue](https://github.com/nmaro/ooth/issues).
 
 ## Support
 
