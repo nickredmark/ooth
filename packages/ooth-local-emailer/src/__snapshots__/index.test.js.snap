@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-local-emailer sends mail on change password 1`] = `
+Array [
+  Array [
+    Object {
+      "body": "Your password for Example Site has been changed.",
+      "from": "noreply@example.com",
+      "html": "Your password for Example Site has been changed.",
+      "subject": "Example Site password changed",
+      "to": "user@gmail.com",
+    },
+  ],
+]
+`;
+
+exports[`ooth-local-emailer sends mail on forgot password 1`] = `
+Array [
+  Array [
+    Object {
+      "body": "Reset your password for Sorters Club on the following page: /reset-password?token=xxx&userId=1",
+      "from": "noreply@example.com",
+      "html": "Reset your password for Sorters Club on the following page: /reset-password?token=xxx&userId=1",
+      "subject": "Reset Example Site password",
+      "to": "user@gmail.com",
+    },
+  ],
+]
+`;
+
+exports[`ooth-local-emailer sends mail on reset password 1`] = `
+Array [
+  Array [
+    Object {
+      "body": "Your password for Example Site has been reset.",
+      "from": "noreply@example.com",
+      "html": "Your password for Example Site has been reset.",
+      "subject": "Example Site password reset",
+      "to": "user@gmail.com",
+    },
+  ],
+]
+`;
+
+exports[`ooth-local-emailer sends mail on set email 1`] = `
+Array [
+  Array [
+    Object {
+      "body": "Please verify your Example Site email by opening the following url: /verify-email?token=xxx&userId=1.",
+      "from": "noreply@example.com",
+      "html": "Please verify your Example Site email by opening the following url: /verify-email?token=xxx&userId=1.",
+      "subject": "Verify your Example Site address",
+      "to": "user@gmail.com",
+    },
+  ],
+]
+`;
+
+exports[`ooth-local-emailer sends mail on verification token 1`] = `undefined`;
+
+exports[`ooth-local-emailer sends mail on verify 1`] = `
+Array [
+  Array [
+    Object {
+      "body": "Your Example Site address has been verified.",
+      "from": "noreply@example.com",
+      "html": "Your Example Site address has been verified.",
+      "subject": "Example Site address verified",
+      "to": "user@gmail.com",
+    },
+  ],
+]
+`;
+
+exports[`ooth-local-emailer sends mails on register 1`] = `
+Array [
+  Array [
+    Object {
+      "body": "Thank you for joining Example Site!",
+      "from": "noreply@example.com",
+      "html": "Thank you for joining Example Site!",
+      "subject": "Welcome to Example Site",
+      "to": "user@gmail.com",
+    },
+  ],
+  Array [
+    Object {
+      "body": "Please verify your Example Site email by opening the following url: /verify-email?token=xxx&userId=1.",
+      "from": "noreply@example.com",
+      "html": "Please verify your Example Site email by opening the following url: /verify-email?token=xxx&userId=1.",
+      "subject": "Verify your Example Site address",
+      "to": "user@gmail.com",
+    },
+  ],
+]
+`;

@@ -1,0 +1,32 @@
+{
+    "welcome": {
+        "subject": "Welcome to {site-name}",
+        "body": "Thank you for joining {site-name}!",
+        "html": "Thank you for joining {site-name}!"
+    },
+    "verify-email": {
+        "subject": "Verify your {site-name} address",
+        "body": "Please verify your {site-name} email by opening the following url: {verify-email-url}.",
+        "html": "Please verify your {site-name} email by opening the following url: {verify-email-url}."
+    },
+    "email-verified": {
+        "subject": "{site-name} address verified",
+        "body": "Your {site-name} address has been verified.",
+        "html": "Your {site-name} address has been verified."
+    },
+    "reset-password": {
+        "subject": "Reset {site-name} password",
+        "body": "Reset your password for Sorters Club on the following page: {reset-password-url}",
+        "html": "Reset your password for Sorters Club on the following page: {reset-password-url}"
+    },
+    "password-reset": {
+        "subject": "{site-name} password reset",
+        "body": "Your password for {site-name} has been reset.",
+        "html": "Your password for {site-name} has been reset."
+    },
+    "password-changed": {
+        "subject": "{site-name} password changed",
+        "body": "Your password for {site-name} has been changed.",
+        "html": "Your password for {site-name} has been changed."
+    }
+}
