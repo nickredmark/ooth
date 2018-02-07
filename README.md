@@ -14,6 +14,24 @@ Introducing medium article: [Ooth - user accounts for node.js](https://medium.co
 
 If you want to integrate this library with a GUI, you might want to check out the sister project [Staart](https://github.com/nmaro/staart).
 
+## Development
+
+Via `yarn`:
+
+```bash
+yarn global add lerna
+cd ooth
+yarn run bootstrap
+```
+
+Via `npm`:
+
+```bash
+npm i -g lerna
+cd ooth
+npm run bootstrap
+```
+
 ## Examples
 
 There are many ways you can use ooth.
@@ -23,6 +41,12 @@ There are many ways you can use ooth.
 A good starting point could be this minimal example. Reading through the two files of client and server code is recommended.
 
 * [minimal](examples/minimal)
+
+### Vue.js
+
+The same minimal example as Vanilla JS, but using Vue.js. (https://vuejs.org/)
+
+* [minimal-vue](examples/minimal-vue)
 
 ### With UI and next.js
 

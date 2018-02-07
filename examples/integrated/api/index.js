@@ -7,7 +7,7 @@ const {graphqlExpress, graphiqlExpress} = require('graphql-server-express')
 const {makeExecutableSchema} = require('graphql-tools')
 const morgan = require('morgan')
 const cors = require('cors')
-const settings = require('./settings')
+const settings = require('config')
 const nodeify = require('nodeify')
 const ooth = require('./ooth')
 
