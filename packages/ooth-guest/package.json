@@ -1,6 +1,6 @@
 {
   "name": "ooth-guest",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -21,8 +21,8 @@
     "express": "^4.16.2",
     "jest": "^21.2.1",
     "mongodb": "^2.2.31",
-    "ooth": "^1.2.0",
-    "ooth-mongo": "^1.2.0",
+    "ooth": "^1.2.1",
+    "ooth-mongo": "^1.2.1",
     "request-promise": "^4.2.2"
   }
 }
