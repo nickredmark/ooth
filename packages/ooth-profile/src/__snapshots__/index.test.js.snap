@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-profile can set values 1`] = `
+Object {
+  "message": "Profile updated.",
+  "user": Object {
+    "_id": "5a7df5115d21cc5c3d4e8e66",
+    "profile": Object {
+      "age": 20,
+      "firstName": "John",
+      "lastName": "Smith",
+    },
+  },
+}
+`;
+
+exports[`ooth-profile registers routes 1`] = `
+Object {
+  "methods": Object {
+    "guest": Array [
+      "register",
+    ],
+    "profile": Array [
+      "update",
+    ],
+    "root": Array [
+      "status",
+      "logout",
+    ],
+  },
+}
+`;
+
+exports[`ooth-profile should fail with invalid field 1`] = `
+Object {
+  "message": "Invalid field foo",
+  "status": "error",
+}
+`;
+
+exports[`ooth-profile should fail with invalid value 1`] = `
+Object {
+  "message": "Age out of bounds -1.",
+  "status": "error",
+}
+`;
