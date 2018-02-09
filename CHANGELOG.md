@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+* Just added README.md to packages for better appearance on npmjs.com.
+
 ## 1.2.0
 
 * License is now `MIT` in all `package.json` files.
