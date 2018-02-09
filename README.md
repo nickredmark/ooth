@@ -63,6 +63,7 @@ The following two examples use create-react-app as a client. If you don't want t
 * [ooth-faceboook](packages/ooth-facebook): login with Facebook
 * [ooth-google](packages/ooth-google): login with Google
 * [ooth-profile](packages/ooth-profile): set profile data
+* [ooth-roles](packages/ooth-roles): manage user roles
 
 ### Client Packages
 

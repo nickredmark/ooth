@@ -1,0 +1,25 @@
+{
+  "name": "ooth-roles",
+  "version": "1.3.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "link": "yarn prepublish && yarn link",
+    "prepublish": "yarn build",
+    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
+    "test": "jest"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.6.0",
+    "jest": "^22.2.2",
+    "mongodb": "^3.0.2",
+    "ooth": "^1.2.1",
+    "ooth-guest": "^1.2.1",
+    "ooth-mongo": "^1.2.1",
+    "request-promise": "^4.2.2"
+  }
+}
