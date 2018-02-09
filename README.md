@@ -62,6 +62,7 @@ The following two examples use create-react-app as a client. If you don't want t
 * [ooth-local-emailer](packages/ooth-local-emailer): sends emails on `ooth-local` events (register, verify email, reset password...)
 * [ooth-faceboook](packages/ooth-facebook): login with Facebook
 * [ooth-google](packages/ooth-google): login with Google
+* [ooth-profile](packages/ooth-profile): set profile data
 
 ### Client Packages
 
