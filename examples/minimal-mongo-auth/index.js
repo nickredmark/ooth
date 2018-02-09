@@ -41,7 +41,7 @@ const start = async () => {
         const oothMongo = new OothMongo(db, ObjectId)
         await ooth.start(app, oothMongo)
         ooth.use('local', oothLocal({
-            onRegister({email, verificationToken}) {
+            onRegister({email, verificationToken, _id}) {
                 console.log(`Someone registered.`)
             },
             onGenerateVerificationToken({email, verificationToken}) {
