@@ -16,8 +16,8 @@
     },
     "reset-password": {
         "subject": "Reset {site-name} password",
-        "body": "Reset your password for Sorters Club on the following page: {reset-password-url}",
-        "html": "Reset your password for Sorters Club on the following page: {reset-password-url}"
+        "body": "Reset your password for {site-name} on the following page: {reset-password-url}",
+        "html": "Reset your password for {site-name} on the following page: {reset-password-url}"
     },
     "password-reset": {
         "subject": "{site-name} password reset",
