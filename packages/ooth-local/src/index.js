@@ -3,7 +3,7 @@ const { randomBytes } = require('crypto')
 const LocalStrategy = require('passport-local').Strategy
 const nodeify = require('nodeify')
 
-const SALT_ROUNDS = 10
+const SALT_ROUNDS = 12
 
 const HOUR = 1000 * 60 * 60
 
