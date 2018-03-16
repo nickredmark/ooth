@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.1
+
+* Increase bcrypt cost factor (`SALT_ROUNDS`) to 12.
+
+## 1.4.0
+
+* New package `ooth-roles`
+
+## 1.3.0
+
+* New Pakage `ooth-profile`
+
 ## 1.2.1
 
 * Just added README.md to packages for better appearance on npmjs.com.
