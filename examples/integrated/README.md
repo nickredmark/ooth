@@ -18,7 +18,7 @@ See full configuration instructions on related [page](https://github.com/lorenwe
 
 Run
 
-```
+```js
 cd api
 yarn
 yarn start
@@ -30,7 +30,7 @@ The client is a create-react-app that connects to the API.
 
 Run (in a new terminal)
 
-```
+```js
 cd client
 yarn
 yarn start
