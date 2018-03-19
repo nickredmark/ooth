@@ -11,7 +11,7 @@ import _ from 'lodash'
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
 let db
 let config
-let app 
+let app
 let server
 let ooth
 let oothMongo
@@ -228,6 +228,28 @@ describe('ooth', () => {
             expect(obfuscate(res, 'user._id')).toMatchSnapshot()
         })
 
+        test('plugin can add properties to user', async () => {
+            ooth.use('test', ({registerUserTransformer, registerProfileField}) => {
+                registerProfileField('testProp', 'testProp')
+                registerUserTransformer(user => {
+                    if (user) {
+                        user.test.testProp = 'foo'
+                    }
+                    return user
+                })
+            })
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/test/login',
+                body: {
+                    foo: 1,
+                    bar: 2,
+                },
+                json: true,
+            })
+            expect(obfuscate(res, 'user._id')).toMatchSnapshot()
+        })
+
         describe('after login', () => {
             let cookies
             let user
@@ -244,7 +266,7 @@ describe('ooth', () => {
                     resolveWithFullResponse: true
                 })
                 cookies = res.headers['set-cookie']
-                user = res.body.user  
+                user = res.body.user
             })
 
             test('can log out', async () => {

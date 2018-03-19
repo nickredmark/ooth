@@ -17,6 +17,7 @@ Array [
     "registerProfileField": [Function],
     "registerStrategyUniqueField": [Function],
     "registerUniqueField": [Function],
+    "registerUserTransformer": [Function],
     "requireLogged": [Function],
     "requireNotLogged": [Function],
     "requireNotRegistered": [Function],
@@ -87,6 +88,17 @@ Object {
   "_id": "<obfuscated>",
   "test": Object {
     "foo": 1,
+  },
+}
+`;
+
+exports[`ooth connect method plugin can add properties to user 1`] = `
+Object {
+  "user": Object {
+    "_id": "<obfuscated>",
+    "test": Object {
+      "testProp": "foo",
+    },
   },
 }
 `;

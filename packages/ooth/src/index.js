@@ -18,7 +18,7 @@ function requireLogged(req, res, next) {
         return res.status(400).send({
             status: 'error',
             message: 'Not logged in'
-        })        
+        })
     }
     next()
 }
@@ -80,11 +80,11 @@ function authenticate(passport, methodName, req, res) {
             if (err) {
                 reject(err)
             }
-            
+
             if (!user) {
                 reject(new Error(info && info.message || 'Unknown error.'))
             }
-            
+
             resolve(user)
         })
         auth(req, res)
@@ -133,7 +133,20 @@ class Ooth {
         if (!backend) {
             throw new Error('Backend is required.')
         }
-        this.backend = backend
+        this.backend = Object.assign({}, backend, {
+            getUserByFields: async (fields) => {
+                let user = await backend.getUserByFields(fields)
+                return await this.applyUserTransforms(user)
+            },
+            getUserById: async (userId) => {
+                let user = await backend.getUserById(userId)
+                return await this.applyUserTransforms(user)
+            },
+            getUserByValue: async (fields, value) => {
+                let user = await backend.getUserByValue(fields, value)
+                return await this.applyUserTransforms(user)
+            }
+        })
 
         // App-wide configuration
         app.use(cookieParser())
@@ -158,7 +171,7 @@ class Ooth {
                 done(null, false)
             }
         })
-        
+
         this.route.all('/', (req, res) => {
             const methods = {}
             Object.keys(this.strategies).forEach(name => {
@@ -245,6 +258,20 @@ class Ooth {
         })
     }
 
+    applyUserTransforms = async (user) => {
+        const transforms = Object.keys(this.strategies).reduce((transforms, name) => {
+            const transformer = this.strategies[name].userTransformer
+            if (transformer) {
+                transforms.push(transformer)
+            }
+            return transforms
+        }, [])
+        for (let i = 0; i < transforms.length; i++) {
+            user = await transforms[i](user)
+        }
+        return user
+    }
+
     getUserByUniqueField = async (fieldName, value) => {
         return await this.backend.getUserByValue(Object.keys(this.uniqueFields[fieldName]).map(strategyName => `${strategyName}.${this.uniqueFields[fieldName][strategyName]}`), value)
     }
@@ -309,7 +336,7 @@ class Ooth {
             },
             registerMethod: (method, ...handlers) => {
                 this.strategies[name].methods.push(method)
-                
+
                 // Split handlers into [...middleware, handler]
                 const middleware = handlers.slice(0, -1)
                 const handler = handlers[handlers.length-1]
@@ -350,6 +377,9 @@ class Ooth {
             },
             registerProfileField: (fieldName) => {
                 this.strategies[name].profileFields[fieldName] = true;
+            },
+            registerUserTransformer: (method) => {
+                this.strategies[name].userTransformer = method
             },
             getProfile: user => this.getProfile(user),
             getUserById: (id) => this.backend.getUserById(id),
@@ -520,19 +550,19 @@ class Ooth {
                     registered = true
                 }
             }
-            
+
             let loggedIn = false
             if (!req.user) {
                 await login(req, user)
                 loggedIn = true
             }
-            
+
             const profile = this.getProfile(user)
-            
+
             this.sendStatus(req, {
                 user: profile
             })
-            
+
             if (loggedIn && this.onLogin) {
                 this.onLogin(profile)
             }
