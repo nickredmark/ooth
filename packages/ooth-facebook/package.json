@@ -1,6 +1,6 @@
 {
   "name": "ooth-facebook",
-  "version": "1.2.1",
+  "version": "1.4.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "express": "^4.16.2",
     "jest": "^20.0.4",
     "mongodb": "^2.2.33",
-    "ooth": "^1.2.1",
+    "ooth": "^1.4.2",
     "ooth-mongo": "^1.2.1",
     "request-promise": "^4.2.2"
   }

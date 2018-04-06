@@ -1,0 +1,30 @@
+{
+  "name": "ooth-example",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^1.29.2",
+    "cors": "^2.8.1",
+    "es6-promisify": "^5.0.0",
+    "express": "^4.14.1",
+    "mailcomposer": "^4.0.1",
+    "mailgun-js": "^0.13.1",
+    "mongodb": "^2.2.33",
+    "morgan": "^1.8.0",
+    "ooth": "^1.0.1",
+    "ooth-guest": "^1.0.1",
+    "ooth-local": "^1.0.1",
+    "ooth-local-emailer": "^1.2.0",
+    "ooth-mongo": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=8"
+  }
+}

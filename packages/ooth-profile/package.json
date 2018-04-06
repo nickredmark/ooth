@@ -1,6 +1,6 @@
 {
   "name": "ooth-profile",
-  "version": "1.4.0",
+  "version": "1.4.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -17,8 +17,8 @@
     "babel-preset-env": "^1.6.0",
     "jest": "^22.2.2",
     "mongodb": "^3.0.2",
-    "ooth": "^1.2.1",
-    "ooth-guest": "^1.2.1",
+    "ooth": "^1.4.2",
+    "ooth-guest": "^1.4.2",
     "ooth-mongo": "^1.2.1",
     "request-promise": "^4.2.2"
   }
