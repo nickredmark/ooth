@@ -472,7 +472,7 @@ class Ooth {
                 const value = userPart[field]
                 if (value) {
                     const userCandidate = await this.backend.getUser({
-                        [`${strategy}.${field}`]: userPart
+                        [`${strategy}.${field}`]: value,
                     })
                     if (!user || user._id === userCandidate._id) {
                         user = userCandidate
