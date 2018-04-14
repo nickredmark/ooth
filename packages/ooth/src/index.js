@@ -112,6 +112,7 @@ class Ooth {
         onLogin,
         onRegister,
         onLogout,
+        specJwt
     }) {
         this.sharedSecret = sharedSecret
         this.standalone = standalone
@@ -124,6 +125,7 @@ class Ooth {
         this.strategies = {}
         this.connections = {}
         this.route = express.Router()
+        this.specJwt = specJwt
     }
 
     start = async (app, backend) => {
@@ -299,7 +301,13 @@ class Ooth {
         if (this.tokenExpires && this.tokenExpires > 0) {
             token.exp = token.iat + this.tokenExpires;
         }
-        return sign(Object.assign({}, token, user), this.sharedSecret);
+
+        if (this.specJwt) {
+            token._id = user._id;
+        } else {
+            token.user = { ...user };
+        }
+        return sign(token, this.sharedSecret);
     }
 
     use(name, strategy) {
