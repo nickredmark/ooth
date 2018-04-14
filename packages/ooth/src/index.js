@@ -276,36 +276,41 @@ class Ooth {
                   })
             })
             this.route.post('/refresh', async (req, res) => {
-                const tokenPayload = await authenticate(passport, 'refresh', req, res)
                 if (!req.body.refreshToken) {
                     throw new Error('Must supply refreshToken.')
                 }
 
                 if (this.onRefreshRequest) {
                     this.onRefreshRequest({
-                        tokenPayload: token,
                         refreshToken: req.body.refreshToken
                     })
                 }
     
-                const user = await this.backend.getUserByValue(['refreshToken'], req.body.refreshToken)
-                    .then(user => {
-                        if (!user) {
-                            throw new Error('No user found for that refreshToken.')
-                        }
-    
-                        if (!user || !user.refreshTokenExpiresAt) {
-                            throw new Error('Bad refreshToken.')
-                        }
-    
-                        const nowDate = new Date();
-                        const tokenExpiryDate = new Date(user.refreshTokenExpiresAt);
-    
-                        if (nowDate.getTime() > tokenExpiryDate.getTime()) {
-                            throw new Error('Refresh token expired.')
-                        }
-                        return user;
-                    });
+                try {
+                    const user = await this.backend.getUserByValue(['refreshToken'], req.body.refreshToken)
+                        .then(user => {
+                            if (!user) {
+                                throw new Error('No user found for that refreshToken.')
+                            }
+        
+                            if (!user || !user.refreshTokenExpiresAt) {
+                                throw new Error('Bad refreshToken.')
+                            }
+        
+                            const nowDate = new Date();
+                            const tokenExpiryDate = new Date(user.refreshTokenExpiresAt);
+        
+                            if (nowDate.getTime() > tokenExpiryDate.getTime()) {
+                                throw new Error('Refresh token expired.')
+                            }
+                            return user;
+                        });
+                } catch(e) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: e.message || e,
+                    })
+                }
 
                 return res.send({
                     token: this.getToken(user)
