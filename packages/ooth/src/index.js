@@ -113,6 +113,7 @@ class Ooth {
         onRegister,
         onLogout,
         onRefreshRequest,
+        onRefreshRequestUser,
         refreshTokenExpiry = 60 * 60 * 24, // seconds, 1 day
     }) {
         this.sharedSecret = sharedSecret
@@ -123,6 +124,7 @@ class Ooth {
         this.onRegister = onRegister
         this.onLogout = onLogout
         this.onRefreshRequest = onRefreshRequest
+        this.onRefreshRequestUser = onRefreshRequestUser
         this.refreshTokenExpiry = refreshTokenExpiry
         this.uniqueFields = {}
         this.strategies = {}
@@ -309,6 +311,13 @@ class Ooth {
                     return res.status(400).send({
                         status: 'error',
                         message: e.message || e,
+                    })
+                }
+
+                if (this.onRefreshRequestUser) {
+                    this.onRefreshRequestUser({
+                        user,
+                        refreshToken: req.body.refreshToken
                     })
                 }
 
