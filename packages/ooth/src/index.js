@@ -112,6 +112,9 @@ class Ooth {
         onLogin,
         onRegister,
         onLogout,
+        onRefreshRequest,
+        onRefreshRequestUser,
+        refreshTokenExpiry = 60 * 60 * 24, // seconds, 1 day
     }) {
         this.sharedSecret = sharedSecret
         this.standalone = standalone
@@ -120,6 +123,9 @@ class Ooth {
         this.onLogin = onLogin
         this.onRegister = onRegister
         this.onLogout = onLogout
+        this.onRefreshRequest = onRefreshRequest
+        this.onRefreshRequestUser = onRefreshRequestUser
+        this.refreshTokenExpiry = refreshTokenExpiry
         this.uniqueFields = {}
         this.strategies = {}
         this.connections = {}
@@ -171,7 +177,7 @@ class Ooth {
             })
         })
         this.strategies.root = {
-            methods: ['status', 'logout'],
+            methods: ['status', 'logout', 'refresh'],
             profileFields: {
                 _id: true
             }
@@ -208,21 +214,117 @@ class Ooth {
         })
 
         if (this.standalone) {
-            this.registerPassportMethod('root', 'login', requireNotLogged, new JwtStrategy({
-                secretOrKey: this.sharedSecret,
-                jwtFromRequest: (req) => {
-                    if (!req.body || !req.body.token) {
-                        throw new Error('Malformed body')
+            const passportJwtStrategy = new JwtStrategy({
+                    secretOrKey: this.sharedSecret,
+                    jwtFromRequest: (req) => {
+                        let token;
+                        if (req.body && req.body.token) {
+                            token = req.body.token
+                        }
+                        const authorization = req.get('authorization');
+                        if (authorization) {
+                            token = authorization.split(' ').pop();
+                        }
+
+                        if (!token) {
+                            throw new Error('No token found.')
+                        }
+                        
+                        return token
                     }
-                    return req.body.token
+                },
+                nodeifyAsync(async (payload) => {
+                    if (!payload._id && (!payload.user || !payload.user._id || typeof payload.user._id !== 'string')) {
+
+                        throw new Error('Malformed token payload.')
+                    }
+                    return payload._id ? payload : payload.user;
+                }));
+
+            // Login with JWT token
+            this.registerPassportMethod('root', 'login', requireNotLogged, passportJwtStrategy);
+
+            // Refresh tokens
+            passport.use('refresh', passportJwtStrategy);
+            this.route.get('/refresh', async (req, res) => {
+                
+                const tokenPayload = await authenticate(passport, 'refresh', req, res)
+    
+                if (!tokenPayload || !tokenPayload._id) {
+                    throw new Error('No user for refresh')
                 }
-            }, nodeifyAsync(async (payload) => {
-                if (!payload.user || !payload.user._id || typeof payload.user._id !== 'string') {
-                    console.error(payload)
-                    throw new Error('Malformed token payload.')
+    
+                return this.backend.getUserById(tokenPayload._id)
+                    .then(user => {
+    
+                        if (!user) {
+                            throw new Error('No user for refresh.')
+                        }
+    
+                        const refreshToken = randomToken();
+                        const now = new Date();
+                        const refreshTokenExpiresAt = new Date(now.valueOf() + (this.refreshTokenExpiry * 1000));
+                        return this.backend.updateUser(user._id, {
+                            refreshToken,
+                            refreshTokenExpiresAt
+                        }).then(() => {
+                            return this.backend.getUserById(user._id)
+                        }).then(user => {
+                            return res.send({
+                                refreshToken,
+                                refreshTokenExpiresAt
+                            })
+                        })
+                  })
+            })
+            this.route.post('/refresh', async (req, res) => {
+                if (!req.body.refreshToken) {
+                    throw new Error('Must supply refreshToken.')
                 }
-                return payload.user
-            })))
+
+                if (this.onRefreshRequest) {
+                    this.onRefreshRequest({
+                        refreshToken: req.body.refreshToken
+                    })
+                }
+    
+                try {
+                    const user = await this.backend.getUserByValue(['refreshToken'], req.body.refreshToken)
+                        .then(user => {
+                            if (!user) {
+                                throw new Error('No user found for that refreshToken.')
+                            }
+        
+                            if (!user || !user.refreshTokenExpiresAt) {
+                                throw new Error('Bad refreshToken.')
+                            }
+        
+                            const nowDate = new Date();
+                            const tokenExpiryDate = new Date(user.refreshTokenExpiresAt);
+        
+                            if (nowDate.getTime() > tokenExpiryDate.getTime()) {
+                                throw new Error('Refresh token expired.')
+                            }
+                            return user;
+                        });
+                } catch(e) {
+                    return res.status(400).send({
+                        status: 'error',
+                        message: e.message || e,
+                    })
+                }
+
+                if (this.onRefreshRequestUser) {
+                    this.onRefreshRequestUser({
+                        user,
+                        refreshToken: req.body.refreshToken
+                    })
+                }
+
+                return res.send({
+                    token: this.getToken(user)
+                })
+            });
         }
 
         this.route.ws('/status', (ws, req) => {
