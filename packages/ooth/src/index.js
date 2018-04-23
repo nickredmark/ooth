@@ -4,9 +4,9 @@ const express = require('express')
 const session = require('express-session')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
-const {sign} = require('jsonwebtoken')
+const { sign } = require('jsonwebtoken')
 const nodeify = require('nodeify')
-const {randomBytes} = require('crypto')
+const { randomBytes } = require('crypto')
 const expressWs = require('express-ws')
 
 function randomToken() {
@@ -18,7 +18,7 @@ function requireLogged(req, res, next) {
         return res.status(400).send({
             status: 'error',
             message: 'Not logged in'
-        })        
+        })
     }
     next()
 }
@@ -44,14 +44,14 @@ function requireNotRegistered(req, res, next) {
 }
 
 function nodeifyAsync(asyncFunction) {
-    return function(...args) {
-        return nodeify(asyncFunction(...args.slice(0, -1)), args[args.length-1])
+    return function (...args) {
+        return nodeify(asyncFunction(...args.slice(0, -1)), args[args.length - 1])
     }
 }
 
 function post(route, routeName, ...handlers) {
     const middleware = handlers.slice(0, -1)
-    const handler = handlers[handlers.length-1]
+    const handler = handlers[handlers.length - 1]
     route.post(routeName, ...middleware, (req, res) => {
         try {
             return handler(req, res)
@@ -80,11 +80,11 @@ function authenticate(passport, methodName, req, res) {
             if (err) {
                 reject(err)
             }
-            
+
             if (!user) {
                 reject(new Error(info && info.message || 'Unknown error.'))
             }
-            
+
             resolve(user)
         })
         auth(req, res)
@@ -108,13 +108,15 @@ class Ooth {
         sharedSecret,
         standalone,
         path,
+        tokenExpires,
         onLogin,
         onRegister,
-        onLogout
+        onLogout,
     }) {
         this.sharedSecret = sharedSecret
         this.standalone = standalone
         this.path = path || '/'
+        this.tokenExpires = tokenExpires
         this.onLogin = onLogin
         this.onRegister = onRegister
         this.onLogout = onLogout
@@ -158,7 +160,7 @@ class Ooth {
                 done(null, false)
             }
         })
-        
+
         this.route.all('/', (req, res) => {
             const methods = {}
             Object.keys(this.strategies).forEach(name => {
@@ -290,7 +292,14 @@ class Ooth {
     }
 
     getToken(user) {
-        return sign({ user }, this.sharedSecret)
+        let token = {
+            iat: new Date().getTime() / 1000, // Unix timestamp
+        };
+
+        if (this.tokenExpires && this.tokenExpires > 0) {
+            token.exp = token.iat + this.tokenExpires;
+        }
+        return sign(Object.assign({}, token, user), this.sharedSecret);
     }
 
     use(name, strategy) {
@@ -309,10 +318,10 @@ class Ooth {
             },
             registerMethod: (method, ...handlers) => {
                 this.strategies[name].methods.push(method)
-                
+
                 // Split handlers into [...middleware, handler]
                 const middleware = handlers.slice(0, -1)
-                const handler = handlers[handlers.length-1]
+                const handler = handlers[handlers.length - 1]
 
                 const finalHandler = (req, res) => {
                     try {
@@ -414,7 +423,7 @@ class Ooth {
 
         // Split handlers into [...middleware, handler]
         const middleware = handlers.slice(0, -1)
-        const handler = handlers[handlers.length-1]
+        const handler = handlers[handlers.length - 1]
 
         const methodName = strategy !== 'root' ? `${strategy}-${method}` : method
         const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
@@ -454,7 +463,7 @@ class Ooth {
 
         // Split handlers into [...middleware, handler]
         const middleware = handlers.slice(0, -1)
-        const handler = handlers[handlers.length-1]
+        const handler = handlers[handlers.length - 1]
 
         const methodName = strategy !== 'root' ? `${strategy}-${method}` : method
         const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`
@@ -520,19 +529,19 @@ class Ooth {
                     registered = true
                 }
             }
-            
+
             let loggedIn = false
             if (!req.user) {
                 await login(req, user)
                 loggedIn = true
             }
-            
+
             const profile = this.getProfile(user)
-            
+
             this.sendStatus(req, {
                 user: profile
             })
-            
+
             if (loggedIn && this.onLogin) {
                 this.onLogin(profile)
             }
