@@ -5,6 +5,8 @@
 * Options to make JWT spec compliant, in particular
 ** `tokenExpires` (default false, will be true in next major) with `refreshTokenExpiry` (default  1 day), `onRefreshRequest`, `onRefreshRequestUser` and new route `refresh`.
 ** `specJwt` (default false, will be true in next major) puts only `_id` in the token, not all user profile data.
+* All messages are now customizable and internationalizable (with new package `ooth-i18n`)
+* Various text and dependency fixes
 
 ## 1.4.1
 
