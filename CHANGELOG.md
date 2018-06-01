@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.0
+
+* Options to make JWT spec compliant, in particular
+** `tokenExpires` (default false, will be true in next major) with `refreshTokenExpiry` (default  1 day), `onRefreshRequest`, `onRefreshRequestUser` and new route `refresh`.
+** `specJwt` (default false, will be true in next major) puts only `_id` in the token, not all user profile data.
+
 ## 1.4.1
 
 * Increase bcrypt cost factor (`SALT_ROUNDS`) to 12.

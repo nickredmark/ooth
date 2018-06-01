@@ -108,10 +108,11 @@ class Ooth {
         sharedSecret,
         standalone,
         path,
-        tokenExpires,
+        tokenExpires, // TODO NEXT MAJOR: true
         onLogin,
         onRegister,
         onLogout,
+        specJwt, // TODO NEXT MAJOR: true
         onRefreshRequest,
         onRefreshRequestUser,
         refreshTokenExpiry = 60 * 60 * 24, // seconds, 1 day
@@ -123,6 +124,7 @@ class Ooth {
         this.onLogin = onLogin
         this.onRegister = onRegister
         this.onLogout = onLogout
+        this.specJwt = specJwt
         this.onRefreshRequest = onRefreshRequest
         this.onRefreshRequestUser = onRefreshRequestUser
         this.refreshTokenExpiry = refreshTokenExpiry
@@ -401,7 +403,16 @@ class Ooth {
         if (this.tokenExpires && this.tokenExpires > 0) {
             token.exp = token.iat + this.tokenExpires;
         }
-        return sign(Object.assign({}, token, user), this.sharedSecret);
+
+        if (this.specJwt) {
+            token._id = user._id
+        } else {
+            token = {
+                ...token,
+                ...user,
+            }
+        }
+        return sign(token, this.sharedSecret)
     }
 
     use(name, strategy) {
