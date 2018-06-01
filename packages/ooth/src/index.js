@@ -2,45 +2,22 @@ const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const express = require('express')
 const session = require('express-session')
+const locale = require('locale')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const { sign } = require('jsonwebtoken')
 const nodeify = require('nodeify')
 const { randomBytes } = require('crypto')
 const expressWs = require('express-ws')
+const { getI18n } = require('ooth-i18n')
+
+const DEFAULT_LANGUAGE = 'en'
+const DEFAULT_TRANSLATIONS = {
+    en: require('../i18n/en.json')
+}
 
 function randomToken() {
     return randomBytes(43).toString('hex')
-}
-
-function requireLogged(req, res, next) {
-    if (!req.user) {
-        return res.status(400).send({
-            status: 'error',
-            message: 'Not logged in'
-        })
-    }
-    next()
-}
-
-function requireNotLogged(req, res, next) {
-    if (req.user) {
-        return res.status(400).send({
-            status: 'error',
-            message: 'User is already logged in'
-        })
-    }
-    next()
-}
-
-function requireNotRegistered(req, res, next) {
-    if (req.user) {
-        return res.status(400).send({
-            status: 'error',
-            message: 'Current user is already registered'
-        })
-    }
-    next()
 }
 
 function nodeifyAsync(asyncFunction) {
@@ -116,6 +93,8 @@ class Ooth {
         onRefreshRequest,
         onRefreshRequestUser,
         refreshTokenExpiry = 60 * 60 * 24, // seconds, 1 day
+        defaultLanguage,
+        translations,
     }) {
         this.sharedSecret = sharedSecret
         this.standalone = standalone
@@ -132,6 +111,9 @@ class Ooth {
         this.strategies = {}
         this.connections = {}
         this.route = express.Router()
+        this.translations = translations || DEFAULT_TRANSLATIONS,
+        this.defaultLanguage = defaultLanguage || DEFAULT_LANGUAGE
+        this.__ = getI18n(this.translations, this.defaultLanguage)
     }
 
     start = async (app, backend) => {
@@ -150,6 +132,7 @@ class Ooth {
         app.use(bodyParser.json())
         app.use(passport.initialize())
         app.use(passport.session())
+        app.use(locale(Object.keys(this.translations), this.defaultLanguage))
         expressWs(app)
 
         app.use(this.path, this.route)
@@ -203,7 +186,7 @@ class Ooth {
                 })
             }
         })
-        post(this.route, '/logout', requireLogged, async (req, res) => {
+        post(this.route, '/logout', this.requireLogged, async (req, res) => {
             const user = req.user
             this.sendStatus(req, {})
             req.logout()
@@ -244,7 +227,7 @@ class Ooth {
                 }));
 
             // Login with JWT token
-            this.registerPassportMethod('root', 'login', requireNotLogged, passportJwtStrategy);
+            this.registerPassportMethod('root', 'login', this.requireNotLogged, passportJwtStrategy);
 
             // Refresh tokens
             passport.use('refresh', passportJwtStrategy);
@@ -500,21 +483,51 @@ class Ooth {
             insertUser: async (fields) => {
                 return await this.insertUser(name, fields)
             },
-            requireLogged,
-            requireNotLogged,
-            requireNotRegistered,
+            requireLogged: this.requireLogged,
+            requireNotLogged: this.requireNotLogged,
+            requireNotRegistered: this.requireNotRegistered,
             requireRegisteredWithThis: this.requireRegisteredWith(name)
         })
     }
 
-    requireRegisteredWith(strategy) {
+    requireLogged = (req, res, next) => {
+        if (!req.user) {
+            return res.status(400).send({
+                status: 'error',
+                message: this.__('not_logged', null, req.locale),
+            })
+        }
+        next()
+    }
+    
+    requireNotLogged = (req, res, next) => {
+        if (req.user) {
+            return res.status(400).send({
+                status: 'error',
+                message: this.__('already_logged', null, req.locale),
+            })
+        }
+        next()
+    }
+    
+    requireNotRegistered = (req, res, next) => {
+        if (req.user) {
+            return res.status(400).send({
+                status: 'error',
+                message: this.__('already_registered', null, req.locale),
+            })
+        }
+        next()
+    }
+    
+    requireRegisteredWith = (strategy) => {
         return (req, res, next) => {
-            return requireLogged(req, res, () => {
+            return this.requireLogged(req, res, () => {
                 const user = req.user
                 if (!user[strategy]) {
                     return res.status(400).send({
                         status: 'error',
-                        message: `This user didn\'t register with strategy ${strategy}.`
+                        message: this.__('not_registered_with', { strategy }, req.locale),
                     })
                 }
                 req.user[strategy] = user[strategy]
@@ -599,7 +612,7 @@ class Ooth {
                     if (!user || user._id === userCandidate._id) {
                         user = userCandidate
                     } else {
-                        throw new Error('Multiple users conform to this authentication.')
+                        throw new Error(this.__('register.ambiguous_authentication_strategy', null, req.locale))
                     }
                 }
             }
@@ -611,7 +624,7 @@ class Ooth {
                         if (!user || user._id === userCandidate._id) {
                             user = userCandidate
                         } else {
-                            throw new Error('Multiple users conform to this authentication.')
+                            throw new Error(this.__('register.ambiguous_authentication_strategy', null, req.locale))
                         }
                     }
                 }
@@ -622,7 +635,7 @@ class Ooth {
                 // User is already logged in
 
                 if (user && user._id !== req.user._id) {
-                    throw new Error('This authentication strategy belongs to another account.')
+                    throw new Error(this.__('register.foreign_authentication_strategy', null, req.locale))
                 }
 
                 // Update user

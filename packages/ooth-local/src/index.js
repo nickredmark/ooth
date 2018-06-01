@@ -2,36 +2,26 @@ const { hashSync, compareSync, genSaltSync } = require('bcrypt-nodejs')
 const { randomBytes } = require('crypto')
 const LocalStrategy = require('passport-local').Strategy
 const nodeify = require('nodeify')
+const { getI18n } = require('ooth-i18n')
 
 const SALT_ROUNDS = 12
-
 const HOUR = 1000 * 60 * 60
-
-const tests = {
+const DEFAULT_LANGUAGE = 'en'
+const DEFAULT_TRANSLATIONS = {
+    en: require('../i18n/en.json')
+}
+const DEFAULT_VALIDATORS = {
     username: {
         regex: /^[a-z][0-9a-z_]{3,19}$/,
-        error: 'Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.',
+        error: 'validators.invalid_username',
     },
     password: {
         test: (password) => /\d/.test(password) && /[a-z]/.test(password) && /[A-Z]/.test(password) && /.{6,}/.test(password),
-        error: 'Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.',
+        error: 'validators.invalid_password',
     },
     email: {
         regex: /^.+@.+$/,
-        error: 'Invalid email.',
-    }
-}
-
-function testValue(key, value) {
-    const test = tests[key]
-    if (test.regex) {
-        if (!test.regex.test(value)) {
-            throw new Error(test.error)
-        }
-    } else {
-        if (!test.test(value)) {
-            throw new Error(test.error)
-        }
+        error: 'validators.invalid_email',
     }
 }
 
@@ -56,8 +46,27 @@ module.exports = function({
     onVerify,
     onForgotPassword,
     onResetPassword,
-    onChangePassword
+    onChangePassword,
+    defaultLanguage,
+    translations,
+    validators,
 }) {
+    const __ = getI18n(translations || DEFAULT_TRANSLATIONS, defaultLanguage || DEFAULT_LANGUAGE)
+    const actualValidators = { ...DEFAULT_VALIDATORS, ...validators }
+
+    function testValue(key, value, language) {
+        const test = actualValidators[key]
+        if (test.regex) {
+            if (!test.regex.test(value)) {
+                throw new Error(__(test.error, null, language))
+            }
+        } else {
+            if (!test.test(value)) {
+                throw new Error(__(test.error, null, language))
+            }
+        }
+    }
+    
     return function({
         name,
         registerPassportMethod,
@@ -85,8 +94,9 @@ module.exports = function({
 
         registerPassportMethod('login', requireNotLogged, new LocalStrategy({
             usernameField: 'username',
-            passwordField: 'password'
-        }, nodeifyAsync((username, password) => {
+            passwordField: 'password',
+            passReqToCallback: true,
+        }, nodeifyAsync((req, username, password) => {
             return getUserByUniqueField('username', username)
                 .then(user => {
                     if (!user) {
@@ -96,15 +106,15 @@ module.exports = function({
                     }
                 }).then(user => {
                     if (!user) {
-                        throw new Error('Incorrect email or username.')
+                        throw new Error(__('login.no_user', null, req.locale))
                     }
 
                     if (!user[name]) {
-                        throw new Error('No password associated with this account.')
+                        throw new Error(__('login.no_password', null, req.locale))
                     }
 
                     if (!compareSync(password, user[name].password)) {
-                        throw new Error('Incorrect password.')
+                        throw new Error(__('login.invalid_password', null, req.locale))
                     }
 
                     return user
@@ -115,15 +125,15 @@ module.exports = function({
             const { username } = req.body
 
             if (typeof username !== 'string') {
-                throw new Error('Invalid username.')
+                throw new Error(__('set_username.invalid_username', null, req.locale))
             }
 
-            testValue('username', username)
+            testValue('username', username, req.locale)
 
             return getUserByUniqueField('username', username)
                 .then(user => {
                     if (user) {
-                        throw new Error('This username is already registered.')
+                        throw new Error(__('username_taken.invalid_username', null, req.locale))
                     }
 
                     updateUser(req.user._id, {
@@ -132,7 +142,7 @@ module.exports = function({
                         return getUserById(req.user._id)
                     }).then(user => {
                         return res.send({
-                            message: 'Username updated.',
+                            message: __('set_username.username_updated', null, req.locale),
                             user: getProfile(user)
                         })
                     })
@@ -143,15 +153,15 @@ module.exports = function({
             const { email } = req.body
 
             if (typeof email !== 'string') {
-                throw new Error('Invalid email.')
+                throw new Error(__('set_email.invalid_email', null, req.locale))
             }
 
-            testValue('email', email)
+            testValue('email', email, req.locale)
 
             return getUserByUniqueField('email', email)
                 .then(user => {
                     if (user && user._id !== req.user._id) {
-                        throw new Error('This email is already registered.')
+                        throw new Error(__('set_email.email_already_registered', null, req.locale))
                     }
 
                     const verificationToken = randomToken()
@@ -171,7 +181,7 @@ module.exports = function({
                         return getUserById(req.user._id)
                     }).then(user => {
                         return res.send({
-                            message: 'Email updated.',
+                            message: __('set_email.email_updated', null, req.locale),
                             user: getProfile(user)
                         })
                     })
@@ -182,18 +192,18 @@ module.exports = function({
             const { email, password } = req.body
 
             if (typeof email !== 'string') {
-                throw new Error('Invalid email')
+                throw new Error(__('register.invalid_email', null, req.locale))
             }
             if (typeof password !== 'string') {
-                throw new Error('Invalid password')
+                throw new Error(__('register.invalid_password', null, req.locale))
             }
 
-            testValue('password', password)
+            testValue('password', password, req.locale)
 
             return getUserByUniqueField('email', email)
                 .then(user => {
                     if (user) {
-                        throw new Error('This email is already registered.')
+                        throw new Error(__('register.email_already_registered', null, req.locale))
                     }
 
                     const verificationToken = randomToken()
@@ -214,7 +224,7 @@ module.exports = function({
                     }
 
                     res.send({
-                        message: 'User registered successfully.'
+                        message: __('register.registered', null, req.locale)
                     })
                 })
         })
@@ -225,7 +235,7 @@ module.exports = function({
             const user = req.user
 
             if (!user[name] || !user[name].email) {
-                throw new Error('No email to verify')
+                throw new Error(__('generate_verification_token.no_email', null, req.locale))
             }
 
             return updateUser(req.user._id, {
@@ -241,7 +251,7 @@ module.exports = function({
                 }
 
                 res.send({
-                    message: 'Verification token generated.'
+                    message: __('generate_verification_token.token_generated', null, req.locale)
                 })
             })
         })
@@ -251,35 +261,35 @@ module.exports = function({
             const { userId, token } = req.body
 
             if (!userId) {
-                throw new Error('userId required.')
+                throw new Error(__('verify.no_user_id', null, req.locale))
             }
 
             if (!token) {
-                throw new Error('Verification token required.')
+                throw new Error(__('verify.token_generated', null, req.locale))
             }
             
             return getUserById(userId)
                 .then(user => {
                     
                     if (!user) {
-                        throw new Error('User does not exist.')
+                        throw new Error(__('verify.no_user', null, req.locale))
                     }
                     
                     if (!user[name] || !user[name].email) {
                         // No email to verify, but let's not leak this information
-                        throw new Error('Verification token invalid, expired or already used.')
+                        throw new Error(__('verify.no_email', null, req.locale))
                     }
                     
                     if (!compareSync(token, user[name].verificationToken)) {
-                        throw new Error('Verification token invalid, expired or already used.')
+                        throw new Error(__('verify.invalid_token', null, req.locale))
                     }
 
                     if (!user[name].verificationTokenExpiresAt) {
-                        throw new Error('Verification token invalid, expired or already used.')
+                        throw new Error(__('verify.no_expiry', null, req.locale))
                     }
 
                     if (new Date() >= user[name].verificationTokenExpiresAt) {
-                        throw new Error('Verification token invalid, expired or already used.')
+                        throw new Error(__('verify.expired_token', null, req.locale))
                     }
                     
                     return updateUser(user._id, {
@@ -297,7 +307,7 @@ module.exports = function({
                         }
 
                         return res.send({
-                            message: 'Email verified',
+                            message: __('verify.verified', null, req.locale),
                             user: getProfile(user)
                         })
                     })
@@ -308,7 +318,7 @@ module.exports = function({
             const { username } = req.body
 
             if (!username || typeof username !== 'string') {
-                throw new Error('Invalid username or email.')
+                throw new Error(__('forgot_password.invalid_username', null, req.locale))
             }
 
             return getUserByUniqueField('username', username)
@@ -320,7 +330,7 @@ module.exports = function({
                     return user;
                 }).then(user => {
                     if (!user) {
-                        throw new Error('Invalid username or email.')
+                        throw new Error(__('forgot_password.no_user', null, req.locale))
                     }
 
                     const email = getUniqueField(user, 'email')
@@ -342,7 +352,7 @@ module.exports = function({
                         }
 
                         return res.send({
-                            message: 'Password reset token generated'
+                            message: __('forgot_password.token_generated', null, req.locale)
                         })
                     })
                 })
@@ -352,18 +362,18 @@ module.exports = function({
             const { userId, token, newPassword } = req.body
 
             if (!userId) {
-                throw new Error('userId is required.')
+                throw new Error(__('reset_password.no_user_id', null, req.locale))
             }
 
             if (!token) {
-                throw new Error('token is required.')
+                throw new Error(__('reset_password.no_token', null, req.locale))
             }
 
             if (!newPassword || !typeof newPassword === 'string') {
-                throw new Error('Invalid password.')
+                throw new Error(__('reset_password.invalid_password', null, req.locale))
             }
 
-            testValue('password', newPassword)
+            testValue('password', newPassword, req.locale)
 
             return getUserById(userId)
                 .then(user => {
@@ -372,20 +382,19 @@ module.exports = function({
                     }
 
                     if (!user[name] || !user[name].passwordResetToken) {
-                        // No password to reset, but let's not leak this information
-                        throw new Error('Password reset token invalid, expired or already used.')
+                        throw new Error(__('reset_password.no_reset_token', null, req.locale))
                     }
 
                     if (!compareSync(token, user[name].passwordResetToken)) {
-                        throw new Error('Password reset token invalid, expired or already used.')
+                        throw new Error(__('reset_password.invalid_token', null, req.locale))
                     }
 
                     if (!user[name].passwordResetTokenExpiresAt) {
-                        throw new Error('Password reset token invalid, expired or already used.')
+                        throw new Error(__('reset_password.no_expiry', null, req.locale))
                     }
 
                     if (new Date() >= user[name].passwordResetTokenExpiresAt) {
-                        throw new Error('Password reset token invalid, expired or already used.')
+                        throw new Error(__('reset_password.expired_token', null, req.locale))
                     }                    
 
                     return updateUser(user._id, {
@@ -399,7 +408,7 @@ module.exports = function({
                             })
                         }
                         return res.send({
-                            message: 'Password has been reset.'
+                            message: __('reset_password.password_reset', null, req.locale),
                         })
                     })
                 })
@@ -409,15 +418,15 @@ module.exports = function({
             const { password, newPassword } = req.body
 
             if (!typeof password === 'string') {
-                throw new Error('Invalid password.')
+                throw new Error(__('change_password.invalid_password', null, req.locale))
             }
 
-            testValue('password', newPassword)
+            testValue('password', newPassword, req.locale)
 
             return getUserById(req.user._id)
                 .then(user => {
                     if ((password || (user[name] && user[name].password)) && !compareSync(password, user[name].password)) {
-                        throw new Error('Incorrect password.')
+                        throw new Error(__('change_password.invalid_password', null, req.locale))
                     }
 
                     updateUser(user._id, {
@@ -431,7 +440,7 @@ module.exports = function({
                             })
                         }
                         return res.send({
-                            message: 'Password has been changed.'
+                            message: __('change_password.password_changed', null, req.locale)
                         })
                     })
                 })

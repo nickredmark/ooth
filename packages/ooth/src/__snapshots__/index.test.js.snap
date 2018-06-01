@@ -133,6 +133,13 @@ Object {
 }
 `;
 
+exports[`ooth methods fails with requireLogged 1`] = `
+Object {
+  "message": "Not logged in",
+  "status": "error",
+}
+`;
+
 exports[`ooth methods handle async errors 1`] = `
 Object {
   "message": "Error message.",
@@ -150,5 +157,12 @@ Object {
 exports[`ooth methods handle method 1`] = `
 Object {
   "message": "hi",
+}
+`;
+
+exports[`ooth methods translates error 1`] = `
+Object {
+  "message": "French not logged",
+  "status": "error",
 }
 `;

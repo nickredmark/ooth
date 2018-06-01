@@ -1,0 +1,62 @@
+{
+    "validators": {
+        "invalid_username": "Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.",
+        "invalid_password": "Password must contain digits, lowercase and uppercase letters and be at least 6 characters long.",
+        "invalid_email": "Invalid email."
+    },
+    "login": {
+        "no_user": "Incorrect email or username.",
+        "no_password": "No password associated with this account.",
+        "invalid_password": "Incorrect password."
+    },
+    "set_username": {
+        "invalid_username": "Invalid username.",
+        "username_taken": "This username is already registered.",
+        "username_updated": "Username updated."
+    },
+    "set_email": {
+        "invalid_email": "Invalid email.",
+        "email_already_registered": "This email is already registered.",
+        "email_updated": "Email updated."
+    },
+    "register": {
+        "invalid_email": "Invalid email",
+        "invalid_password": "Invalid password",
+        "email_already_registered": "This email is already registered.",
+        "registered": "User registered successfully."
+    },
+    "generate_verification_token": {
+        "no_email": "No email to verify",
+        "token_generated": "Verification token generated."
+    },
+    "verify": {
+        "no_user_id": "userId required.",
+        "no_token": "Verification token required.",
+        "no_user": "User does not exist.",
+        "no_email": "Verification token invalid, expired or already used.",
+        "invalid_token": "Verification token invalid, expired or already used.",
+        "no_expiry": "Verification token invalid, expired or already used.",
+        "expired_token": "Verification token invalid, expired or already used.",
+        "verified": "Email verified"
+    },
+    "forgot_password": {
+        "invalid_username": "Invalid username or email.",
+        "no_user": "Invalid username or email.",
+        "token_generated": "Password reset token generated"
+    },
+    "reset_password": {
+        "no_user_id": "userId is required.",
+        "no_token": "token is required.",
+        "invalid_password": "Invalid password.",
+        "no_user": "User does not exist.",
+        "no_reset_token": "Password reset token invalid, expired or already used.",
+        "invalid_token": "Password reset token invalid, expired or already used.",
+        "no_expiry": "Password reset token invalid, expired or already used.",
+        "expired_token": "Password reset token invalid, expired or already used.",
+        "password_reset": "Password has been reset."
+    },
+    "change_password": {
+        "invalid_password": "Invalid password.",
+        "password_changed": "Password has been changed."
+    }
+}

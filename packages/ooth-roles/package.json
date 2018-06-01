@@ -7,10 +7,13 @@
     "link": "yarn prepublish && yarn link",
     "prepublish": "yarn build",
     "build": "babel src --out-dir lib --ignore '**/*.test.js'",
-    "test": "jest"
+    "test": "jest --forceExit"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
+  "dependencies": {
+    "ooth-i18n": "^0.0.0"
+  },
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-jest": "^20.0.3",

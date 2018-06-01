@@ -27,6 +27,19 @@ const startServer = () => {
     })
 }
 
+const obfuscate = (obj, ...keys) => {
+  const res = {}
+  for (const key of Object.keys(obj)) {
+      if (keys.indexOf(key) > -1) {
+          res[key] = '<obfuscated>'
+      } else {
+          res[key] = obj[key]            
+      }
+  }
+
+  return res
+}
+
 describe('ooth-roles', () => {
   beforeAll(async () => {
     client = await MongoClient.connect(mongoUrl)
@@ -108,7 +121,8 @@ describe('ooth-roles', () => {
       },
       json: true,
     })
-    expect(res).toMatchSnapshot()
+
+    expect(obfuscate(res.user, '_id')).toMatchSnapshot()
   })
 
   test('nonadmin can\'t set roles', async () => {

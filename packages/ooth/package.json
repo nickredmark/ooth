@@ -18,8 +18,10 @@
     "express-session": "^1.15.0",
     "express-ws": "^3.0.0",
     "jsonwebtoken": "^7.2.1",
+    "locale": "^0.1.0",
     "morgan": "^1.7.0",
     "nodeify": "^1.0.0",
+    "ooth-i18n": "^0.0.0",
     "passport": "^0.3.2",
     "passport-jwt": "^2.2.1"
   },

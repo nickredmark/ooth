@@ -2,15 +2,12 @@
 
 exports[`ooth-roles admin can set roles 1`] = `
 Object {
-  "message": "Roles set.",
-  "user": Object {
-    "_id": "5a7e0200ea0c6d7078745fa0",
-    "roles": Object {
-      "roles": Array [
-        "admin",
-        "editor",
-      ],
-    },
+  "_id": "<obfuscated>",
+  "roles": Object {
+    "roles": Array [
+      "admin",
+      "editor",
+    ],
   },
 }
 `;

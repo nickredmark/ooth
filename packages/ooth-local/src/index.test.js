@@ -72,13 +72,20 @@ describe('ooth-local', () => {
                     onForgotPasswordListener(data)
                 }
             },
-
             onGenerateVerificationToken(data) {
                 if (onRequestVerifyListener) {
                     //Store user id and  verification token for follow on test
                     userId = data._id
                     verificationToken = data.verificationToken
                     onRequestVerifyListener(data)
+                }
+            },
+            translations: {
+                en: require('../i18n/en.json'),
+                fr: {
+                    register: {
+                        invalid_email: 'french invalid email',
+                    },
                 }
             }
         }
@@ -115,6 +122,23 @@ describe('ooth-local', () => {
             const res = await request({
                 method: 'POST',
                 uri: 'http://localhost:8080/local/register',
+                json: true,
+            })
+        } catch (e) {
+            expect(e.response.body).toMatchSnapshot()
+            return
+        }
+        throw new Error('Didn\'t fail')
+    })
+
+    test('translates', async () => {
+        try {
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/local/register',
+                headers: {
+                    'Accept-Language': 'fr',
+                },
                 json: true,
             })
         } catch (e) {

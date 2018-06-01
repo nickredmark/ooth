@@ -1,7 +1,6 @@
 {
-    "name": "ooth-local-emailer",
-    "version": "1.4.1",
-    "description": "",
+    "name": "ooth-i18n",
+    "version": "0.0.0",
     "main": "lib/index.js",
     "scripts": {
         "link": "yarn prepublish && yarn link",
@@ -10,9 +9,6 @@
         "test": "jest"
     },
     "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-    "dependencies": {
-        "ooth-i18n": "^0.0.0"
-    },
     "devDependencies": {
         "babel-cli": "^6.26.0",
         "babel-jest": "^22.1.0",

@@ -1,0 +1,26 @@
+{
+    "not_logged": "Not logged in",
+    "already_logged": "User is already logged in",
+    "already_registered": "Current user is already registered",
+    "not_registered_with": "This user didn't register with strategy {strategy}.",
+    "unknown_error": "Unknown error.",
+    "jwt": {
+        "no_token_found": "No token found.",
+        "malformed_token_payload": "Malformed token payload."
+    },
+    "refresh": {
+        "get": {
+            "no_user": "No user for refresh"
+        },
+        "post": {
+            "no_refresh_token": "Must supply refreshToken.",
+            "no_user": "No user found for that refreshToken.",
+            "bad_refresh_token": "Bad refreshToken.",
+            "refresh_token_expired": "Refresh token expired."
+        }
+    },
+    "register": {
+        "ambiguous_authentication_strategy": "Multiple users conform to this authentication.",
+        "foreign_authentication_strategy": "This authentication strategy belongs to another account."
+    }
+}

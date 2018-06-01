@@ -1,6 +1,17 @@
+const { getI18n } = require('ooth-i18n')
+
+const DEFAULT_TRANSLATIONS = {
+  en: require('../i18n/en.json'),
+}
+const DEFAULT_LANGUAGE = 'en'
+
 module.exports = function({
   fields,
+  defaultLanguage,
+  translations,
 }) {
+  const __ = getI18n(translations || DEFAULT_TRANSLATIONS, defaultLanguage || DEFAULT_LANGUAGE)
+
   return function({
     name,
     registerPassportMethod,
@@ -26,7 +37,7 @@ module.exports = function({
       const body = req.body
       for (const name of Object.keys(body)) {
         if (!fields[name]) {
-          throw new Error(`Invalid field ${name}`)
+          throw new Error(__('invalid_field', { name }, req.locale))
         }
 
         const field = fields[name]
@@ -40,7 +51,7 @@ module.exports = function({
           return getUserById(req.user._id)
         }).then(user => {
           return res.send({
-            message: 'Profile updated.',
+            message: __('profile_updated', null, req.locale),
             user: getProfile(user)
           })
         })

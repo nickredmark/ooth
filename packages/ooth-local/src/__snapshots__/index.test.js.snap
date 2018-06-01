@@ -148,3 +148,10 @@ Object {
   "status": "error",
 }
 `;
+
+exports[`ooth-local translates 1`] = `
+Object {
+  "message": "Invalid email",
+  "status": "error",
+}
+`;

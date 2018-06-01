@@ -1,22 +1,4 @@
-function replace(string, values) {
-    for (const key of Object.keys(values)) {
-        string = string.replace(new RegExp(`{${key}}`, 'g'), values[key])
-    }
-    return string
-}
-
-function i18n(translations, language, key, values = {}) {
-    const parts = key.split('.')
-    let current = translations[language]
-    for (const part of parts) {
-        if (current[part] === undefined) {
-            throw Error(`Unknown translation ${language}.${key}.`)
-        }
-        current = current[part]
-    }
-    current = replace(current, values)
-    return current
-}
+const { getI18n, interpolate } = require('ooth-i18n')
 
 const DEFAULT_LANGUAGE = 'en'
 const DEFAULT_URLS = {
@@ -34,6 +16,7 @@ module.exports = function({
     sendMail,
     translations,
     urls,
+    defaultLanguage,
 }) {
     if (!urls) {
         urls = DEFAULT_URLS
@@ -41,14 +24,15 @@ module.exports = function({
     if (!translations) {
         translations = DEFAULT_TRANSLATIONS
     }
-    const __ = (language, key, values) => i18n(translations, language || DEFAULT_LANGUAGE, key, values)
+
+    const __ = getI18n(translations, defaultLanguage || DEFAULT_LANGUAGE)
 
     const sendI18nMail = (email, language, name, values) => sendMail({
         from,
         to: email,
-        subject: __(language, `${name}.subject`, values),
-        body: __(language, `${name}.body`, values),
-        html: __(language, `${name}.html`, values),
+        subject: __(`${name}.subject`, values, language),
+        body: __(`${name}.body`, values, language),
+        html: __(`${name}.html`, values, language),
     })
     return {
         onRegister({email, verificationToken, _id, language}) {
@@ -57,7 +41,7 @@ module.exports = function({
             })
             sendI18nMail(email, language, 'verify-email', {
                 'site-name': siteName,
-                'verify-email-url': replace(urls.verifyEmail, {
+                'verify-email-url': interpolate(urls.verifyEmail, {
                     'verification-token': verificationToken,
                     'user-id': _id,
                 }),
@@ -66,7 +50,7 @@ module.exports = function({
         onGenerateVerificationToken({email, verificationToken, _id, language}) {
             sendI18nMail(email, language, 'verify-email', {
                 'site-name': siteName,
-                'verify-email-url': replace(urls.verifyEmail, {
+                'verify-email-url': interpolate(urls.verifyEmail, {
                     'verification-token': verificationToken,
                     'user-id': _id,
                 }),
@@ -75,7 +59,7 @@ module.exports = function({
         onSetEmail({email, verificationToken, _id, language}) {
             sendI18nMail(email, language, 'verify-email', {
                 'site-name': siteName,
-                'verify-email-url': replace(urls.verifyEmail, {
+                'verify-email-url': interpolate(urls.verifyEmail, {
                     'verification-token': verificationToken,
                     'user-id': _id,
                 }),
@@ -89,7 +73,7 @@ module.exports = function({
         onForgotPassword({email, passwordResetToken, _id, language}) {
             sendI18nMail(email, language, 'reset-password', {
                 'site-name': siteName,
-                'reset-password-url': replace(urls.resetPassword, {
+                'reset-password-url': interpolate(urls.resetPassword, {
                     'password-reset-token': passwordResetToken,
                     'user-id': _id,
                 }),

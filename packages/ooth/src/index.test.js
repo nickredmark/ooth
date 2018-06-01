@@ -59,6 +59,12 @@ describe('ooth', () => {
             onLogin: () => onLogin(),
             onLogout: () => onLogout(),
             onRegister: () => onRegister(),
+            translations: {
+                en: require('../i18n/en.json'),
+                fr: {
+                    not_logged: 'French not logged',
+                },
+            }
         }
         app = express()
         app.use(session({
@@ -119,7 +125,7 @@ describe('ooth', () => {
     describe('methods', () => {
         test('handle method', async () => {
             ooth.use('test', ({registerMethod}) => {
-                registerMethod('login', (req, res) => {
+                registerMethod('foo', (req, res) => {
                     res.send({
                         message: 'hi'
                     })
@@ -129,15 +135,64 @@ describe('ooth', () => {
             await startServer(app)
             const res = await request({
                 method: 'POST',
-                uri: 'http://localhost:8080/test/login',
+                uri: 'http://localhost:8080/test/foo',
                 json: true,
             })
             expect(res).toMatchSnapshot()
         })
 
+        test('fails with requireLogged', async () => {
+            ooth.use('test', ({registerMethod, requireLogged}) => {
+                registerMethod('foo', requireLogged, (req, res) => {
+                    res.send({
+                        message: 'hi'
+                    })
+                })
+            })
+
+            await startServer(app)
+            try {
+                await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/test/foo',
+                    json: true,
+                })
+            } catch (e) {
+                expect(e.response.body).toMatchSnapshot()
+                return
+            }
+            throw new Error('Didn\'t fail')
+        })
+
+        test('translates error', async () => {
+            ooth.use('test', ({registerMethod, requireLogged}) => {
+                registerMethod('foo', requireLogged, (req, res) => {
+                    res.send({
+                        message: 'hi'
+                    })
+                })
+            })
+
+            await startServer(app)
+            try {
+                await request({
+                    method: 'POST',
+                    uri: 'http://localhost:8080/test/foo',
+                    headers: {
+                        'Accept-Language': 'fr',
+                    },
+                    json: true,
+                })
+            } catch (e) {
+                expect(e.response.body).toMatchSnapshot()
+                return
+            }
+            throw new Error('Didn\'t fail')
+        })
+
         test('handle errors', async () => {
             ooth.use('test', ({registerMethod}) => {
-                registerMethod('login', () => {
+                registerMethod('foo', () => {
                     throw new Error('Error message.')
                 })
             })
@@ -146,7 +201,7 @@ describe('ooth', () => {
             try {
                 const res = await request({
                     method: 'POST',
-                    uri: 'http://localhost:8080/test/login',
+                    uri: 'http://localhost:8080/test/foo',
                     json: true,
                 })
                 expect(false)
@@ -157,7 +212,7 @@ describe('ooth', () => {
 
         test('handle async errors', async () => {
             ooth.use('test', ({registerMethod}) => {
-                registerMethod('login', () => {
+                registerMethod('foo', () => {
                     return Promise.resolve().then(() => {
                         throw new Error('Error message.')
                     })
@@ -168,7 +223,7 @@ describe('ooth', () => {
             try {
                 const res = await request({
                     method: 'POST',
-                    uri: 'http://localhost:8080/test/login',
+                    uri: 'http://localhost:8080/test/foo',
                     json: true,
                 })
                 expect(false)
@@ -179,7 +234,6 @@ describe('ooth', () => {
     })
 
     describe('connect method', () => {
-
         beforeEach(async () => {
             ooth.use('test', ({
                 registerProfileField,
