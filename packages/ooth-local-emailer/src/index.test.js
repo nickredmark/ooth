@@ -8,10 +8,8 @@ describe('ooth-local-emailer', () => {
     beforeEach(() => {
         sendMail = jest.fn()
         emailerConfigs = {
-            mail: {
-                from: 'noreply@example.com',
-                siteName: 'Example Site',
-            },
+            from: 'noreply@example.com',
+            siteName: 'Example Site',
             url: 'http://www.example.com',
             sendMail,
         };

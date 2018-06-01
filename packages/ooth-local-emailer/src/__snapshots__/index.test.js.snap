@@ -18,9 +18,9 @@ exports[`ooth-local-emailer sends mail on forgot password 1`] = `
 Array [
   Array [
     Object {
-      "body": "Reset your password for Sorters Club on the following page: /reset-password?token=xxx&userId=1",
+      "body": "Reset your password for Example Site on the following page: /reset-password?token=xxx&userId=1",
       "from": "noreply@example.com",
-      "html": "Reset your password for Sorters Club on the following page: /reset-password?token=xxx&userId=1",
+      "html": "Reset your password for Example Site on the following page: /reset-password?token=xxx&userId=1",
       "subject": "Reset Example Site password",
       "to": "user@gmail.com",
     },
