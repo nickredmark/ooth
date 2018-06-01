@@ -1,6 +1,6 @@
 {
     "name": "ooth-i18n",
-    "version": "0.0.0",
+    "version": "1.5.0",
     "main": "lib/index.js",
     "scripts": {
         "link": "yarn prepublish && yarn link",

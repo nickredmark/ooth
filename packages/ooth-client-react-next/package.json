@@ -1,6 +1,6 @@
 {
   "name": "ooth-client-react-next",
-  "version": "1.2.1",
+  "version": "1.5.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -21,6 +21,6 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "jest": "^21.2.1",
-    "ooth-client": "^1.2.1"
+    "ooth-client": "^1.5.0"
   }
 }

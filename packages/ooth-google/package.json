@@ -1,6 +1,6 @@
 {
   "name": "ooth-google",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "express": "^4.16.2",
     "jest": "^20.0.4",
     "mongodb": "^2.2.33",
-    "ooth": "^1.4.2",
+    "ooth": "^1.5.0",
     "ooth-mongo": "^1.2.1",
     "request-promise": "^4.2.2"
   },
