@@ -97,6 +97,7 @@ Object {
     "root": Array [
       "status",
       "logout",
+      "refresh",
     ],
     "test": Array [
       "login",
@@ -111,6 +112,7 @@ Object {
     "root": Array [
       "status",
       "logout",
+      "refresh",
     ],
     "test": Array [
       "login",
@@ -125,6 +127,7 @@ Object {
     "root": Array [
       "status",
       "logout",
+      "refresh",
     ],
   },
 }
