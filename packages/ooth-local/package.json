@@ -21,7 +21,7 @@
     "babel-jest": "^20.0.3",
     "babel-preset-env": "^1.6.0",
     "express": "^4.16.2",
-    "jest": "^20.0.4",
+    "jest": "^23.1.0",
     "mongodb": "^2.2.30",
     "ooth": "^1.4.2",
     "ooth-mongo": "^1.2.1",

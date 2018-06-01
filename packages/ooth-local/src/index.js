@@ -198,20 +198,20 @@ module.exports = function({
 
                     const verificationToken = randomToken()
 
-                    insertUser({
+                    return insertUser({
                         email,
                         password: hash(password),
                         verificationToken: hash(verificationToken),
                         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
-                    }).then(_id => {
-                        if (onRegister) {
-                            onRegister({
-                                _id,
-                                email,
-                                verificationToken
-                            })
-                        }
                     })
+                }).then(_id => {
+                    if (onRegister) {
+                        onRegister({
+                            _id,
+                            email,
+                            verificationToken
+                        })
+                    }
 
                     res.send({
                         message: 'User registered successfully.'
