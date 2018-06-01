@@ -8,15 +8,7 @@ Object {
 `;
 
 exports[`ooth-facebook registers routes 1`] = `
-Object {
-  "methods": Object {
-    "facebook": Array [
-      "login",
-    ],
-    "root": Array [
-      "status",
-      "logout",
-    ],
-  },
-}
+Array [
+  "login",
+]
 `;

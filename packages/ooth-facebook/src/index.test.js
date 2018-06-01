@@ -70,7 +70,7 @@ describe('ooth-facebook', () => {
             uri: 'http://localhost:8080/',
             json: true,
         })
-        expect(res).toMatchSnapshot()
+        expect(res.methods.facebook).toMatchSnapshot()
     })
 
     test('fails to log in with valid token', async () => {

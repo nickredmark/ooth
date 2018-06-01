@@ -12,20 +12,9 @@ Object {
 `;
 
 exports[`ooth-profile registers routes 1`] = `
-Object {
-  "methods": Object {
-    "guest": Array [
-      "register",
-    ],
-    "profile": Array [
-      "update",
-    ],
-    "root": Array [
-      "status",
-      "logout",
-    ],
-  },
-}
+Array [
+  "update",
+]
 `;
 
 exports[`ooth-profile should fail with invalid field 1`] = `

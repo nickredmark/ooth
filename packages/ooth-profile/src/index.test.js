@@ -106,7 +106,7 @@ describe('ooth-profile', () => {
           uri: 'http://localhost:8080/',
           json: true,
       })
-      expect(res).toMatchSnapshot()
+      expect(res.methods.profile).toMatchSnapshot()
   })
   test('can set values', async () => {
     const res = await request({

@@ -81,7 +81,7 @@ describe('ooth-guest', () => {
             uri: 'http://localhost:8080/',
             json: true,
         })
-        expect(res).toMatchSnapshot()
+        expect(res.methods.guest).toMatchSnapshot()
     })
 
     test('can register', async () => {

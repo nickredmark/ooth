@@ -8,15 +8,7 @@ Object {
 `;
 
 exports[`ooth-google registers routes 1`] = `
-Object {
-  "methods": Object {
-    "google": Array [
-      "login",
-    ],
-    "root": Array [
-      "status",
-      "logout",
-    ],
-  },
-}
+Array [
+  "login",
+]
 `;
