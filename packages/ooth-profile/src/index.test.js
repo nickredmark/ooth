@@ -19,11 +19,9 @@ let oothProfileConfig
 let db
 let cookies = ''
 
-const startServer = () => {
-    return new Promise((resolve) => {
-        server = app.listen(8080, resolve())
-    })
-}
+const startServer = () => new Promise((resolve) => {
+  server = app.listen(8080, resolve)
+})
 
 const obfuscate = (obj, ...keys) => {
     const res = {}
@@ -40,13 +38,13 @@ const obfuscate = (obj, ...keys) => {
 
 describe('ooth-profile', () => {
   beforeAll(async () => {
-      client = await MongoClient.connect(mongoUrl)
-      db = client.db(dbName)
-      await db.dropDatabase()
+    client = await MongoClient.connect(mongoUrl)
+    db = await client.db(dbName)
+    await db.dropDatabase()
   })
-
+  
   afterAll(async () => {
-      await client.close()
+    await client.close()
   })
 
   beforeEach(async () => {
@@ -110,7 +108,6 @@ describe('ooth-profile', () => {
       })
       expect(res).toMatchSnapshot()
   })
-
   test('can set values', async () => {
     const res = await request({
       method: 'POST',
@@ -125,7 +122,7 @@ describe('ooth-profile', () => {
       },
       json: true,
     })
-    expect(res).toMatchSnapshot()
+    expect(obfuscate(res.user, '_id')).toMatchSnapshot()
   })
 
   test('should fail with invalid field', async () => {

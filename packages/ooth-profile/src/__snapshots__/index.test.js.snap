@@ -2,14 +2,11 @@
 
 exports[`ooth-profile can set values 1`] = `
 Object {
-  "message": "Profile updated.",
-  "user": Object {
-    "_id": "5a7df5115d21cc5c3d4e8e66",
-    "profile": Object {
-      "age": 20,
-      "firstName": "John",
-      "lastName": "Smith",
-    },
+  "_id": "<obfuscated>",
+  "profile": Object {
+    "age": 20,
+    "firstName": "John",
+    "lastName": "Smith",
   },
 }
 `;

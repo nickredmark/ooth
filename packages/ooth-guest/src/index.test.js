@@ -16,11 +16,9 @@ let oothGuestConfig
 let db
 let cookies = ''
 
-const startServer = () => {
-    return new Promise((resolve) => {
-        server = app.listen(8080, resolve())
-    })
-}
+const startServer = () => new Promise((resolve) => {
+    server = app.listen(8080, resolve)
+})
 
 const obfuscate = (obj, ...keys) => {
     const res = {}
