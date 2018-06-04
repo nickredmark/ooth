@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.5.1
+## 1.5.2
 
 ### ooth-local
 
