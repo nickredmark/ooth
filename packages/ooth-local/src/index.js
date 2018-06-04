@@ -200,13 +200,15 @@ module.exports = function({
 
             testValue('password', password, req.locale)
 
+            let verificationToken;
+
             return getUserByUniqueField('email', email)
                 .then(user => {
                     if (user) {
                         throw new Error(__('register.email_already_registered', null, req.locale))
                     }
 
-                    const verificationToken = randomToken()
+                    verificationToken = randomToken()
 
                     return insertUser({
                         email,

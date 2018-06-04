@@ -6,6 +6,7 @@
     "link": "lerna run link --concurrency=1",
     "test": "lerna run test --concurrency=1",
     "bootstrap": "lerna exec yarn --concurrency=1",
-    "prepublish": "lerna run prepublish --concurrency=1"
+    "prepublish": "lerna run prepublish --concurrency=1",
+    "safe-publish": "npm run bootstrap && npm run test && npm run prepublish && lerna publish"
   }
 }

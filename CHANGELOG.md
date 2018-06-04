@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.1
+
+### ooth-local
+
+* Fix on registration bug
+
 ## 1.5.0
 
 * Options to make JWT spec compliant, in particular

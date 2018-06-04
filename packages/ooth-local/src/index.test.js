@@ -41,6 +41,7 @@ describe('ooth-local', () => {
 
     let onForgotPasswordListener;
     let onRequestVerifyListener;
+    let onRegisterListener;
     let userId;
     let resetToken;
     let verificationToken;
@@ -64,6 +65,11 @@ describe('ooth-local', () => {
             onLogout: () => null,
         }
         oothLocalConfig = {
+            onRegister(...args) {
+                if (onRegisterListener) {
+                    onRegisterListener(...args);
+                }
+            },
             onForgotPassword(data) {
                 if (onForgotPasswordListener) {
                     //Store user id and reset token for follow on test
@@ -184,6 +190,7 @@ describe('ooth-local', () => {
     })
 
     test('can register', async () => {
+        onRegisterListener = jest.fn()
         const res = await request({
             method: 'POST',
             uri: 'http://localhost:8080/local/register',
@@ -193,7 +200,8 @@ describe('ooth-local', () => {
             },
             json: true,
         })
-        expect(res).toMatchSnapshot()        
+        expect(res).toMatchSnapshot()
+        expect(obfuscate(onRegisterListener.mock.calls[0][0], '_id', 'verificationToken')).toMatchSnapshot()
     })
 
     describe('after registration', () => {

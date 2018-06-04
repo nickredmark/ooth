@@ -128,6 +128,14 @@ Object {
 }
 `;
 
+exports[`ooth-local can register 2`] = `
+Object {
+  "_id": "<obfuscated>",
+  "email": "test@example.com",
+  "verificationToken": "<obfuscated>",
+}
+`;
+
 exports[`ooth-local fails without email 1`] = `
 Object {
   "message": "Invalid email",
