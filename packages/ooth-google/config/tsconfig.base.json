@@ -4,7 +4,7 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "removeComments": false,
-        "outDir": "../build",
+        "outDir": "../lib",
         "rootDir": "../src",
         "declaration": true,
         "sourceMap": false,
