@@ -1,30 +1,29 @@
 {
-    "name": "ooth-local-emailer",
-    "version": "1.5.0",
-    "description": "",
-    "main": "lib/index.js",
-    "scripts": {
-        "link": "npm run prepublish && npm run link",
-        "prepublish": "npm run build",
-        "clean": "del-cli ./lib ./coverage",
-        "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
-        "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
-        "test": "npm run lint && npm run clean && jest -c ./jest.json",
-        "test:watch": "npm run clean && jest -c ./jest.json --watch"
-    },
-    "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
-    "dependencies": {
-        "ooth-i18n": "^1.5.0"
-    },
-    "devDependencies": {
-        "@smartive/tslint-config": "^4.0.0",
-        "@types/jest": "^23.3.1",
-        "babel-jest": "^22.1.0",
-        "del-cli": "^1.1.0",
-        "jest": "^23.5.0",
-        "ts-jest": "^23.1.4",
-        "tslint": "^5.11.0",
-        "tsutils": "^3.0.0",
-        "typescript": "^3.0.1"
-    }
+  "name": "ooth-local-emailer",
+  "version": "1.5.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepublish": "npm run build",
+    "clean": "del-cli ./lib ./coverage",
+    "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
+    "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
+    "test": "npm run lint && npm run clean && jest -c ./jest.json",
+    "test:watch": "npm run clean && jest -c ./jest.json --watch"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "dependencies": {
+    "ooth-i18n": "^1.5.0"
+  },
+  "devDependencies": {
+    "@smartive/tslint-config": "^4.0.0",
+    "@types/jest": "^23.3.1",
+    "babel-jest": "^22.1.0",
+    "del-cli": "^1.1.0",
+    "jest": "^23.5.0",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "tsutils": "^3.0.0",
+    "typescript": "^3.0.1"
+  }
 }
