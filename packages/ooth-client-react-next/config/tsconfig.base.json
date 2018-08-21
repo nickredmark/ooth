@@ -12,6 +12,7 @@
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
+        "jsx": "react",
         "lib": [
             "es2015"
         ]
