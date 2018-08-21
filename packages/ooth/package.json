@@ -4,10 +4,13 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "link": "yarn prepublish && yarn link",
-    "prepublish": "yarn build",
-    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
-    "test": "jest"
+    "link": "npm run prepublish && npm run link",
+    "prepublish": "npm run build",
+    "clean": "del-cli ./build ./coverage",
+    "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
+    "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
+    "test": "npm run lint && npm run clean && jest -c ./jest.json", 
+    "test:watch": "npm run clean && jest -c ./jest.json --watch"
   },
   "author": "Nick Redmark <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
