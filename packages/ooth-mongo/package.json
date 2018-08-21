@@ -21,6 +21,7 @@
     "mongodb": "^2.2.33",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
     "tsutils": "^3.0.0",
     "typescript": "^3.0.1"
   }
