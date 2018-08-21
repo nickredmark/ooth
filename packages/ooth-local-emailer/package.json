@@ -14,6 +14,7 @@
         "ooth-i18n": "^1.5.0"
     },
     "devDependencies": {
+        "@smartive/tslint-config": "^4.0.0",
         "babel-jest": "^22.1.0",
         "jest": "^22.1.4"
     }

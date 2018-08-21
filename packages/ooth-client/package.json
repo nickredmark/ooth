@@ -16,6 +16,7 @@
     "rx": "^4.1.0"
   },
   "devDependencies": {
+    "@smartive/tslint-config": "^4.0.0",
     "jest": "^21.2.1"
   }
 }

@@ -23,6 +23,7 @@
     "react-dom": "^16.1.1"
   },
   "devDependencies": {
+    "@smartive/tslint-config": "^4.0.0",
     "jest": "^21.2.1",
     "react-test-renderer": "^16.1.1"
   }
