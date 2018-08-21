@@ -15,9 +15,7 @@
     "ooth-i18n": "^1.5.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
     "babel-jest": "^20.0.3",
-    "babel-preset-env": "^1.6.0",
     "jest": "^22.2.2",
     "mongodb": "^3.0.2",
     "ooth": "^1.5.1",

@@ -10,9 +10,7 @@
     },
     "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
     "devDependencies": {
-        "babel-cli": "^6.26.0",
         "babel-jest": "^22.1.0",
-        "babel-preset-env": "^1.6.1",
         "jest": "^22.1.4"
     }
 }

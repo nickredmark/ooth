@@ -16,8 +16,6 @@
     "passport-facebook-token": "^3.3.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-env": "^1.6.0",
     "express": "^4.16.2",
     "jest": "^20.0.4",
     "mongodb": "^2.2.33",
