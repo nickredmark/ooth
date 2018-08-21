@@ -1,0 +1,19 @@
+{
+    "collectCoverage": true,
+    "mapCoverage": true,
+    "transform": {
+        "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testMatch": [
+        "**/test/**/*.spec.ts"
+    ],
+    "testPathIgnorePatterns": [
+        "/node_modules/"
+    ],
+    "moduleFileExtensions": [
+        "ts",
+        "tsx",
+        "js",
+        "json"
+    ]
+}
