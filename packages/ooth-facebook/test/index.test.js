@@ -1,10 +1,10 @@
 import Ooth from 'ooth'
+import OothMongo from 'ooth-mongo'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
-import oothGuest from '.'
+import oothFacebook from '../src'
 import {MongoClient, ObjectId} from 'mongodb'
-import OothMongo from 'ooth-mongo'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
 let config
@@ -12,28 +12,17 @@ let app
 let server
 let ooth
 let oothMongo
-let oothGuestConfig
+let oothFacebookConfig
 let db
 let cookies = ''
 
-const startServer = () => new Promise((resolve) => {
-    server = app.listen(8080, resolve)
-})
-
-const obfuscate = (obj, ...keys) => {
-    const res = {}
-    for (const key of Object.keys(obj)) {
-        if (keys.indexOf(key) > -1) {
-            res[key] = '<obfuscated>'
-        } else {
-            res[key] = obj[key]            
-        }
-    }
-
-    return res
+const startServer = () => {
+    return new Promise((resolve) => {
+        server = app.listen(8080, resolve())
+    })
 }
 
-describe('ooth-guest', () => {
+describe('ooth-facebook', () => {
     beforeAll(async () => {
         db = await MongoClient.connect(mongoUrl)
         await db.dropDatabase()
@@ -52,7 +41,7 @@ describe('ooth-guest', () => {
             onLogin: () => null,
             onLogout: () => null,
         }
-        oothGuestConfig = {
+        oothFacebookConfig = {
             clientID: 'XXX',
             clientSecret: 'XXX',
         }
@@ -63,9 +52,9 @@ describe('ooth-guest', () => {
             resave: false,
             saveUninitialized: true,
         }))
-        oothMongo = new OothMongo(db, ObjectId)
         ooth = new Ooth(config)
-        ooth.use('guest', oothGuest(oothGuestConfig))
+        ooth.use('facebook', oothFacebook(oothFacebookConfig))
+        oothMongo = new OothMongo(db, ObjectId)
         await ooth.start(app, oothMongo)
         await startServer(app)
     })
@@ -81,16 +70,24 @@ describe('ooth-guest', () => {
             uri: 'http://localhost:8080/',
             json: true,
         })
-        expect(res.methods.guest).toMatchSnapshot()
+        expect(res.methods.facebook).toMatchSnapshot()
     })
 
-    test('can register', async () => {
-        const res = await request({
-            method: 'POST',
-            uri: 'http://localhost:8080/guest/register',
-            json: true,
-        })
+    test('fails to log in with valid token', async () => {
+        try {
+            const res = await request({
+                method: 'POST',
+                uri: 'http://localhost:8080/facebook/login',
+                json: true,
+                body: {
+                    access_token: 'XXX'
+                }
+            })
 
-        expect(obfuscate(res.user, '_id')).toMatchSnapshot()
+        } catch (e) {
+            expect(e.response.statusCode).toBe(400)
+            expect(e.response.body).toMatchSnapshot()
+        }
     })
+
 });

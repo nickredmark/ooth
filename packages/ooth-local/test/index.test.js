@@ -3,7 +3,7 @@ import OothMongo from 'ooth-mongo'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
-import oothLocal from '.'
+import oothLocal from '../src'
 import {MongoClient, ObjectId} from 'mongodb'
 import _ from 'lodash'
 

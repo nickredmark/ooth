@@ -1,4 +1,4 @@
-import emailer from '.'
+import emailer from '../src'
 
 describe('ooth-local-emailer', () => {
     let sendMail = () => null;

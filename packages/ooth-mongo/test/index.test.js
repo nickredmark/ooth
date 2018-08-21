@@ -1,4 +1,4 @@
-import OothMongo from '.'
+import OothMongo from '../src'
 import {MongoClient, ObjectId} from 'mongodb'
 import _ from 'lodash'
 

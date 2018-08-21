@@ -1,4 +1,4 @@
-import provideApollo, {clear} from '.'
+import provideApollo, {clear} from '../src'
 import React from 'react'
 import withApollo from 'react-apollo'
 import ShallowRenderer from 'react-test-renderer/shallow';

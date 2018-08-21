@@ -1,4 +1,4 @@
-import withOothNext from '.'
+import withOothNext from '../src'
 import OothClient from 'ooth-client'
 
 describe('withOothNext', () => {

@@ -1,4 +1,4 @@
-import OothClient from '.'
+import OothClient from '../src'
 
 describe('OothClient', () => {
     test('can construct', () => {

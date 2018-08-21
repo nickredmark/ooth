@@ -1,10 +1,10 @@
 import Ooth from 'ooth'
-import OothMongo from 'ooth-mongo'
 import express from 'express'
 import session from 'express-session'
 import request from 'request-promise'
-import oothGoogle from '.'
+import oothGuest from '../src'
 import {MongoClient, ObjectId} from 'mongodb'
+import OothMongo from 'ooth-mongo'
 
 let mongoUrl = 'mongodb://localhost:27017/oothtest'
 let config
@@ -12,17 +12,28 @@ let app
 let server
 let ooth
 let oothMongo
-let oothGoogleConfig
+let oothGuestConfig
 let db
 let cookies = ''
 
-const startServer = () => {
-    return new Promise((resolve) => {
-        server = app.listen(8080, resolve())
-    })
+const startServer = () => new Promise((resolve) => {
+    server = app.listen(8080, resolve)
+})
+
+const obfuscate = (obj, ...keys) => {
+    const res = {}
+    for (const key of Object.keys(obj)) {
+        if (keys.indexOf(key) > -1) {
+            res[key] = '<obfuscated>'
+        } else {
+            res[key] = obj[key]            
+        }
+    }
+
+    return res
 }
 
-describe('ooth-google', () => {
+describe('ooth-guest', () => {
     beforeAll(async () => {
         db = await MongoClient.connect(mongoUrl)
         await db.dropDatabase()
@@ -41,7 +52,7 @@ describe('ooth-google', () => {
             onLogin: () => null,
             onLogout: () => null,
         }
-        oothGoogleConfig = {
+        oothGuestConfig = {
             clientID: 'XXX',
             clientSecret: 'XXX',
         }
@@ -52,9 +63,9 @@ describe('ooth-google', () => {
             resave: false,
             saveUninitialized: true,
         }))
-        ooth = new Ooth(config)
-        ooth.use('google', oothGoogle(oothGoogleConfig))
         oothMongo = new OothMongo(db, ObjectId)
+        ooth = new Ooth(config)
+        ooth.use('guest', oothGuest(oothGuestConfig))
         await ooth.start(app, oothMongo)
         await startServer(app)
     })
@@ -70,24 +81,16 @@ describe('ooth-google', () => {
             uri: 'http://localhost:8080/',
             json: true,
         })
-        expect(res.methods.google).toMatchSnapshot()
+        expect(res.methods.guest).toMatchSnapshot()
     })
 
-    test('fails to log in with valid token', async () => {
-        try {
-            const res = await request({
-                method: 'POST',
-                uri: 'http://localhost:8080/google/login',
-                json: true,
-                body: {
-                    id_token: 'XXX'
-                }
-            })
+    test('can register', async () => {
+        const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/guest/register',
+            json: true,
+        })
 
-        } catch (e) {
-            expect(e.response.statusCode).toBe(400)
-            expect(e.response.body).toMatchSnapshot()
-        }
+        expect(obfuscate(res.user, '_id')).toMatchSnapshot()
     })
-
 });

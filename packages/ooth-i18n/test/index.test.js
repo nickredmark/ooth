@@ -1,4 +1,4 @@
-import { getI18n } from '.'
+import { getI18n } from '../src'
 
 describe('ooth-i18n', () => {
     let __
