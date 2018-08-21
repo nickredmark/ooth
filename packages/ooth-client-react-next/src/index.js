@@ -4,18 +4,12 @@ const { OothProvider } = require('ooth-client-react')
 
 module.exports = oothClient => {
     class OothProviderWithInitialProps extends React.Component {
-        static getInitialProps(ctx) {
-            return Promise.resolve()
-                .then(() => {
-                    if (ctx.req) {
-                        return oothClient.status(ctx.req.cookies)
-                    } else {
-                        return oothClient.start()
-                    }
-                })
-                .then(initialUser => ({
-                    initialUser,
-                }))
+        static async getInitialProps(ctx) {
+            return {
+                initialUser: ctx.req
+                    ? await oothClient.status(ctx.req.cookies)
+                    : await oothClient.start()
+            }
         }
 
         render() {
