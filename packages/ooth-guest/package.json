@@ -9,7 +9,7 @@
     "clean": "del-cli ./lib ./coverage",
     "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
     "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
-    "test": "npm run lint && npm run clean && jest -c ./jest.json", 
+    "test": "npm run lint && npm run clean && jest -c ./jest.json",
     "test:watch": "npm run clean && jest -c ./jest.json --watch"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
     "@types/jest": "^23.3.1",
+    "del-cli": "^1.1.0",
     "express": "^4.16.2",
     "jest": "^21.2.1",
     "mongodb": "^2.2.31",
