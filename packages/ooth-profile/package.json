@@ -16,12 +16,17 @@
   },
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
+    "@types/jest": "^23.3.1",
     "babel-jest": "^20.0.3",
     "jest": "^22.2.2",
     "mongodb": "^3.1.0-beta4",
     "ooth": "^1.5.1",
     "ooth-guest": "^1.5.2",
     "ooth-mongo": "^1.2.1",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "tsutils": "^3.0.0",
+    "typescript": "^3.0.1"
   }
 }

@@ -15,7 +15,12 @@
     },
     "devDependencies": {
         "@smartive/tslint-config": "^4.0.0",
+        "@types/jest": "^23.3.1",
         "babel-jest": "^22.1.0",
-        "jest": "^22.1.4"
+        "jest": "^22.1.4",
+        "ts-jest": "^23.1.4",
+        "tslint": "^5.11.0",
+        "tsutils": "^3.0.0",
+        "typescript": "^3.0.1"
     }
 }
