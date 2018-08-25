@@ -1,23 +1,19 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "removeComments": false,
-        "outDir": "../lib",
-        "rootDir": "../src",
-        "declaration": true,
-        "sourceMap": false,
-        "importHelpers": true,
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "lib": [
-            "es2015"
-        ]
-    },
-    "include": [
-        "../src/**/*"
-    ],
-    "exclude": []
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "removeComments": false,
+    "outDir": "../lib",
+    "rootDir": "../src",
+    "declaration": true,
+    "sourceMap": false,
+    "importHelpers": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "lib": ["es2015"]
+  },
+  "include": ["../src/**/*"],
+  "exclude": []
 }
