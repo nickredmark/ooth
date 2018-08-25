@@ -6,9 +6,3 @@ Object {
   "status": "error",
 }
 `;
-
-exports[`ooth-google registers routes 1`] = `
-Array [
-  "login",
-]
-`;
