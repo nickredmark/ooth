@@ -7,7 +7,6 @@ import { sign } from 'jsonwebtoken';
 import { getI18n, Translations, Values } from 'ooth-i18n';
 import * as passport from 'passport';
 import { Strategy as JwtStrategy } from 'passport-jwt';
-import { Strategy as PassportStrategy } from 'passport-strategy';
 import * as WebSocket from 'ws';
 import { callbackify } from 'util';
 
@@ -570,13 +569,13 @@ export class Ooth {
   public registerPassportConnectMethod(
     strategy: string,
     method: string,
-    ...handlers: (MyRequestHandler | PassportStrategy)[]
+    ...handlers: (MyRequestHandler | passport.Strategy)[]
   ): void {
     this.strategies[strategy].methods.push(method);
 
     // Split handlers into [...middleware, handler]
     const middleware = handlers.slice(0, -1) as MyRequestHandler[];
-    const handler = handlers[handlers.length - 1] as PassportStrategy;
+    const handler = handlers[handlers.length - 1] as passport.Strategy;
 
     const methodName = strategy !== 'root' ? `${strategy}-${method}` : method;
     const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`;
