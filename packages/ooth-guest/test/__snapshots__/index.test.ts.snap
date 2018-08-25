@@ -5,9 +5,3 @@ Object {
   "_id": "<obfuscated>",
 }
 `;
-
-exports[`ooth-guest registers routes 1`] = `
-Array [
-  "register",
-]
-`;
