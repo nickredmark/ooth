@@ -13,6 +13,9 @@
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
+  "engines": {
+    "node": ">= 10.9.0"
+  },
   "dependencies": {
     "nodeify": "^1.0.1",
     "passport-facebook-token": "^3.3.0"

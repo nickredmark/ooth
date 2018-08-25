@@ -13,6 +13,9 @@
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
+  "engines": {
+    "node": ">= 10.9.0"
+  },
   "dependencies": {
     "compose-next": "^1.2.1",
     "ooth-client-react": "^1.2.1",

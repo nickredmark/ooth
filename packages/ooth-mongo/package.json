@@ -13,6 +13,9 @@
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
+  "engines": {
+    "node": ">= 10.9.0"
+  },
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
     "@types/jest": "^23.3.1",

@@ -13,6 +13,9 @@
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
+  "engines": {
+    "node": ">= 10.9.0"
+  },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1",
     "rx": "^4.1.0"

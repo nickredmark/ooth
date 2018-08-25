@@ -12,6 +12,9 @@
     "test:watch": "npm run clean && jest -c ./jest.json --watch"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "engines": {
+    "node": ">= 10.9.0"
+  },
   "dependencies": {
     "ooth-i18n": "^1.5.0"
   },
