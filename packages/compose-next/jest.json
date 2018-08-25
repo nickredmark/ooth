@@ -1,7 +1,7 @@
 {
   "collectCoverage": true,
   "transform": {
-    "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    "^.+\\.tsx?$": "ts-jest"
   },
   "testMatch": ["**/test/**/*.test.ts"],
   "testPathIgnorePatterns": ["/node_modules/"],
