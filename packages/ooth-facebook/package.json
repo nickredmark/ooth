@@ -22,10 +22,12 @@
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
     "@types/jest": "^23.3.1",
+    "@types/passport-facebook-token": "^0.4.33",
     "del-cli": "^1.1.0",
     "express": "^4.16.2",
     "jest": "^23.5.0",
     "mongodb": "^2.2.33",
+    "mongodb-memory-server": "^2.0.1",
     "ooth": "^1.5.1",
     "ooth-mongo": "^1.2.1",
     "request-promise": "^4.2.2",

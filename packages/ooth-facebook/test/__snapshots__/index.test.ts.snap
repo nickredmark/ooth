@@ -6,9 +6,3 @@ Object {
   "status": "error",
 }
 `;
-
-exports[`ooth-facebook registers routes 1`] = `
-Array [
-  "login",
-]
-`;

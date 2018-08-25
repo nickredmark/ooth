@@ -1,12 +1,14 @@
 import { Ooth } from 'ooth';
 import { OothMongo } from 'ooth-mongo';
-import express from 'express';
-import session from 'express-session';
-import request from 'request-promise';
+import * as express from 'express';
+import * as session from 'express-session';
+import * as request from 'request-promise';
 import oothFacebook from '../src';
 import { MongoClient, ObjectId } from 'mongodb';
+import MongodbMemoryServer from 'mongodb-memory-server';
 
-let mongoUrl = 'mongodb://localhost:27017/oothtest';
+let mongoServer;
+let con;
 let config;
 let app;
 let server;
@@ -24,27 +26,19 @@ const startServer = () => {
 
 describe('ooth-facebook', () => {
   beforeAll(async () => {
-    db = await MongoClient.connect(mongoUrl);
-    await db.dropDatabase();
+    mongoServer = new MongodbMemoryServer();
+    const connectionString = await mongoServer.getConnectionString();
+    const dbName = await mongoServer.getDbName();
+    con = await MongoClient.connect(connectionString);
+    db = con.db(dbName);
   });
 
   afterAll(async () => {
-    await db.close();
+    await con.close();
+    await mongoServer.stop();
   });
 
   beforeEach(async () => {
-    config = {
-      mongoUrl,
-      sharedSecret: '',
-      standalone: false,
-      path: '',
-      onLogin: () => null,
-      onLogout: () => null,
-    };
-    oothFacebookConfig = {
-      clientID: 'XXX',
-      clientSecret: 'XXX',
-    };
     app = express();
     app.use(
       session({
@@ -54,25 +48,32 @@ describe('ooth-facebook', () => {
         saveUninitialized: true,
       }),
     );
-    ooth = new Ooth(config);
-    ooth.use('facebook', oothFacebook(oothFacebookConfig));
-    oothMongo = new OothMongo(db, ObjectId);
-    await ooth.start(app, oothMongo);
-    await startServer(app);
+    oothMongo = new OothMongo(db);
+    ooth = new Ooth({
+      app,
+      backend: oothMongo,
+      sharedSecret: '',
+      standalone: false,
+      path: '',
+      onLogin: () => null,
+      onLogout: () => null,
+    });
+    oothFacebook({
+      ooth,
+      clientID: 'XXX',
+      clientSecret: 'XXX',
+    });
+    await startServer();
   });
 
   afterEach(async () => {
-    await server.close();
-    await db.dropDatabase();
+    if (server) {
+      await server.close();
+    }
+    if (db) {
+      await db.dropDatabase();
+    }
     cookies = '';
-  });
-
-  test('registers routes', async () => {
-    const res = await request({
-      uri: 'http://localhost:8080/',
-      json: true,
-    });
-    expect(res.methods.facebook).toMatchSnapshot();
   });
 
   test('fails to log in with valid token', async () => {
