@@ -4,7 +4,7 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm run build",
+    "postinstall": "lerna link",
     "clean": "del-cli ./lib ./coverage",
     "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
     "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
@@ -17,7 +17,6 @@
     "node": ">= 10.9.0"
   },
   "dependencies": {
-    "nodeify": "^1.0.1",
     "passport-facebook-token": "^3.3.0"
   },
   "devDependencies": {

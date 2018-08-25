@@ -4,7 +4,6 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm run build",
     "clean": "del-cli ./lib ./coverage",
     "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
     "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
@@ -33,7 +32,6 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-    "nodeify": "^1.0.1",
     "passport-google-id-token": "^0.4.2"
   }
 }

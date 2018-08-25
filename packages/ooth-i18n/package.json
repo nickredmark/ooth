@@ -3,7 +3,7 @@
   "version": "1.5.0",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm run build",
+    "postinstall": "lerna link",
     "clean": "del-cli ./lib ./coverage",
     "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
     "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
