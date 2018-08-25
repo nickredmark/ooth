@@ -571,7 +571,7 @@ export class Ooth {
     method: string,
     ...handlers: (MyRequestHandler | passport.Strategy)[]
   ): void {
-    this.strategies[strategy].methods.push(method);
+    this.getStrategy(strategy).methods.push(method);
 
     // Split handlers into [...middleware, handler]
     const middleware = handlers.slice(0, -1) as MyRequestHandler[];
@@ -589,7 +589,7 @@ export class Ooth {
       }
 
       let user: User | null = null;
-      for (const field of Object.keys(this.strategies[strategy].uniqueFields)) {
+      for (const field of Object.keys(this.getStrategy(strategy).uniqueFields)) {
         const value = userPart[field];
         if (value) {
           const userCandidate = await this.backend!.getUser({
