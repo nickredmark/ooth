@@ -46,7 +46,7 @@ function hash(pass: string): string {
 }
 
 export type Options = {
-  name: string;
+  name?: string;
   ooth: Ooth;
   onRegister?: (args: { _id: string; email: string; verificationToken: string }) => void;
   onGenerateVerificationToken?: (args: { _id: string; email: string; verificationToken: string }) => void;

@@ -81,7 +81,7 @@ describe('ooth-local', () => {
       onLogin: () => null,
       onLogout: () => null,
     });
-    oothLocalConfig = {
+    oothLocal({
       ooth,
       onRegister(...args) {
         if (onRegisterListener) {
@@ -112,8 +112,7 @@ describe('ooth-local', () => {
           },
         },
       },
-    };
-    oothLocal(oothLocalConfig);
+    });
     await startServer();
   });
 
