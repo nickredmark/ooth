@@ -4,11 +4,12 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "prepublish": "npm run build",
+    "postinstall": "lerna link",
     "clean": "del-cli ./lib ./coverage",
     "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
     "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
-    "test": "npm run lint && npm run clean && jest -c ./jest.json",
+    "test:integration": "jest -c ./jest.json",
+    "test": "npm run lint && npm run clean && npm run test:integration",
     "test:watch": "npm run clean && jest -c ./jest.json --watch"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
@@ -18,18 +19,21 @@
   },
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
-    "nodeify": "^1.0.0",
     "ooth-i18n": "^1.5.0",
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
+    "@types/bcrypt-nodejs": "0.0.30",
     "@types/jest": "^23.3.1",
+    "@types/lodash": "^4.14.116",
+    "@types/passport-local": "^1.0.33",
     "babel-jest": "^20.0.3",
     "del-cli": "^1.1.0",
     "express": "^4.16.2",
     "jest": "^23.5.0",
     "mongodb": "^2.2.30",
+    "mongodb-memory-server": "^2.0.1",
     "ooth": "^1.5.1",
     "ooth-mongo": "^1.2.1",
     "request-promise": "^4.2.1",
