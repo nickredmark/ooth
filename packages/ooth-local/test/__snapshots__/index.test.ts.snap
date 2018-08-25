@@ -86,16 +86,6 @@ Object {
 }
 `;
 
-exports[`ooth-local after registration can login 2`] = `
-Object {
-  "user": Object {
-    "local": Object {
-      "email": "test@example.com",
-    },
-  },
-}
-`;
-
 exports[`ooth-local after registration can reset password 1`] = `
 Object {
   "message": "Password has been reset.",
