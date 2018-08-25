@@ -16,7 +16,7 @@ function prepare(o: any): User {
   return o;
 }
 
-class OothMongo {
+export class OothMongo {
   private users: Collection;
 
   constructor(private db: Db) {
@@ -63,5 +63,3 @@ class OothMongo {
     return insertedId.toString();
   };
 }
-
-export default OothMongo;

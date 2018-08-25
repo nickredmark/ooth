@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash';
 import { MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 
-import OothMongo from '../src';
+import { OothMongo } from '../src';
 
 let mongoServer;
 let con;
