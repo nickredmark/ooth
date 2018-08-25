@@ -1,15 +1,17 @@
 import { Ooth } from 'ooth';
-import express from 'express';
-import session from 'express-session';
-import request from 'request-promise';
+import * as express from 'express';
+import * as session from 'express-session';
+import * as request from 'request-promise';
 import oothProfile from '../src';
+import MongodbMemoryServer from 'mongodb-memory-server';
 import { MongoClient, ObjectId } from 'mongodb';
 import { OothMongo } from 'ooth-mongo';
 import oothGuest from 'ooth-guest';
 
 const dbName = 'oothtest';
 let client;
-let mongoUrl = `mongodb://localhost:27017/${dbName}`;
+let mongoServer;
+let con;
 let config;
 let app;
 let server;
@@ -39,25 +41,41 @@ const obfuscate = (obj, ...keys) => {
 
 describe('ooth-profile', () => {
   beforeAll(async () => {
-    client = await MongoClient.connect(mongoUrl);
-    db = await client.db(dbName);
-    await db.dropDatabase();
+    mongoServer = new MongodbMemoryServer();
+    const connectionString = await mongoServer.getConnectionString();
+    const dbName = await mongoServer.getDbName();
+    con = await MongoClient.connect(connectionString);
+    db = con.db(dbName);
   });
 
   afterAll(async () => {
-    await client.close();
+    await con.close();
+    await mongoServer.stop();
   });
 
   beforeEach(async () => {
-    config = {
-      mongoUrl,
+    app = express();
+    app.use(
+      session({
+        name: 'api-session-id',
+        secret: 'x',
+        resave: false,
+        saveUninitialized: true,
+      }),
+    );
+    oothMongo = new OothMongo(db);
+    ooth = new Ooth({
+      app,
+      backend: oothMongo,
       sharedSecret: '',
       standalone: false,
       path: '',
       onLogin: () => null,
       onLogout: () => null,
-    };
-    oothProfileConfig = {
+    });
+    oothGuest({ ooth });
+    oothProfile({
+      ooth,
       fields: {
         firstName: {},
         lastName: {},
@@ -72,22 +90,8 @@ describe('ooth-profile', () => {
           },
         },
       },
-    };
-    app = express();
-    app.use(
-      session({
-        name: 'api-session-id',
-        secret: 'x',
-        resave: false,
-        saveUninitialized: true,
-      }),
-    );
-    oothMongo = new OothMongo(db, ObjectId);
-    ooth = new Ooth(config);
-    ooth.use('guest', oothGuest());
-    ooth.use('profile', oothProfile(oothProfileConfig));
-    await ooth.start(app, oothMongo);
-    await startServer(app);
+    });
+    await startServer();
     const res = await request({
       method: 'POST',
       uri: 'http://localhost:8080/guest/register',
@@ -97,18 +101,15 @@ describe('ooth-profile', () => {
   });
 
   afterEach(async () => {
-    await server.close();
-    await db.dropDatabase();
+    if (server) {
+      await server.close();
+    }
+    if (db) {
+      await db.dropDatabase();
+    }
     cookies = '';
   });
 
-  test('registers routes', async () => {
-    const res = await request({
-      uri: 'http://localhost:8080/',
-      json: true,
-    });
-    expect(res.methods.profile).toMatchSnapshot();
-  });
   test('can set values', async () => {
     const res = await request({
       method: 'POST',
