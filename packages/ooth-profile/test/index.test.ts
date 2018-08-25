@@ -1,23 +1,20 @@
-import { Ooth } from 'ooth';
 import * as express from 'express';
 import * as session from 'express-session';
-import * as request from 'request-promise';
-import oothProfile from '../src';
+import { MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
-import { MongoClient, ObjectId } from 'mongodb';
-import { OothMongo } from 'ooth-mongo';
+import { Ooth } from 'ooth';
 import oothGuest from 'ooth-guest';
+import { OothMongo } from 'ooth-mongo';
+import * as request from 'request-promise';
 
-const dbName = 'oothtest';
-let client;
+import oothProfile from '../src';
+
 let mongoServer;
 let con;
-let config;
 let app;
 let server;
 let ooth;
 let oothMongo;
-let oothProfileConfig;
 let db;
 let cookies = '';
 
