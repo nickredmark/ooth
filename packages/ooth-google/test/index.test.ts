@@ -10,7 +10,6 @@ import oothGoogle from '../src';
 
 let mongoServer;
 let con;
-let config;
 let app;
 let server;
 let ooth;
