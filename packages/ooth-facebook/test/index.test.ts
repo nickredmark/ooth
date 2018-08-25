@@ -1,22 +1,20 @@
-import { Ooth } from 'ooth';
-import { OothMongo } from 'ooth-mongo';
 import * as express from 'express';
 import * as session from 'express-session';
-import * as request from 'request-promise';
-import oothFacebook from '../src';
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
+import { Ooth } from 'ooth';
+import { OothMongo } from 'ooth-mongo';
+import * as request from 'request-promise';
+
+import oothFacebook from '../src';
 
 let mongoServer;
 let con;
-let config;
 let app;
 let server;
 let ooth;
 let oothMongo;
-let oothFacebookConfig;
 let db;
-let cookies = '';
 
 const startServer = () => {
   return new Promise((resolve) => {

@@ -17,6 +17,7 @@
     "node": ">= 10.9.0"
   },
   "dependencies": {
+    "ooth": "^1.5.1",
     "passport-facebook-token": "^3.3.0"
   },
   "devDependencies": {
@@ -28,7 +29,6 @@
     "jest": "^23.5.0",
     "mongodb": "^2.2.33",
     "mongodb-memory-server": "^2.0.1",
-    "ooth": "^1.5.1",
     "ooth-mongo": "^1.2.1",
     "request-promise": "^4.2.2",
     "ts-jest": "^23.1.4",
