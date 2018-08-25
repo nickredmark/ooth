@@ -1,31 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ooth can register plugin 1`] = `
-Array [
-  Object {
-    "getProfile": [Function],
-    "getUniqueField": [Function],
-    "getUserByFields": [Function],
-    "getUserById": [Function],
-    "getUserByUniqueField": [Function],
-    "insertUser": [Function],
-    "name": "test",
-    "registerGetMethod": [Function],
-    "registerMethod": [Function],
-    "registerPassportConnectMethod": [Function],
-    "registerPassportMethod": [Function],
-    "registerProfileField": [Function],
-    "registerStrategyUniqueField": [Function],
-    "registerUniqueField": [Function],
-    "requireLogged": [Function],
-    "requireNotLogged": [Function],
-    "requireNotRegistered": [Function],
-    "requireRegisteredWithThis": [Function],
-    "updateUser": [Function],
-  },
-]
-`;
-
 exports[`ooth connect method after login can connect another strategy 1`] = `
 Object {
   "_id": "<obfuscated>",
@@ -87,48 +61,6 @@ Object {
   "_id": "<obfuscated>",
   "test": Object {
     "foo": 1,
-  },
-}
-`;
-
-exports[`ooth main route has additional passport route for passport method 1`] = `
-Object {
-  "methods": Object {
-    "root": Array [
-      "status",
-      "logout",
-      "refresh",
-    ],
-    "test": Array [
-      "login",
-    ],
-  },
-}
-`;
-
-exports[`ooth main route has additional route for method 1`] = `
-Object {
-  "methods": Object {
-    "root": Array [
-      "status",
-      "logout",
-      "refresh",
-    ],
-    "test": Array [
-      "login",
-    ],
-  },
-}
-`;
-
-exports[`ooth main route has status 1`] = `
-Object {
-  "methods": Object {
-    "root": Array [
-      "status",
-      "logout",
-      "refresh",
-    ],
   },
 }
 `;
