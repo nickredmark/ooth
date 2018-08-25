@@ -1,16 +1,15 @@
 import { Ooth } from 'ooth';
-import express from 'express';
-import session from 'express-session';
-import request from 'request-promise';
+import * as express from 'express';
+import * as session from 'express-session';
+import * as request from 'request-promise';
 import oothRoles from '../src';
+import MongodbMemoryServer from 'mongodb-memory-server';
 import { MongoClient, ObjectId } from 'mongodb';
 import { OothMongo } from 'ooth-mongo';
 import oothGuest from 'ooth-guest';
 
-const dbName = 'oothtest';
-let client;
-let mongoUrl = `mongodb://localhost:27017/${dbName}`;
-let config;
+let mongoServer;
+let con;
 let app;
 let server;
 let ooth;
@@ -42,24 +41,19 @@ const obfuscate = (obj, ...keys) => {
 
 describe('ooth-roles', () => {
   beforeAll(async () => {
-    client = await MongoClient.connect(mongoUrl);
-    db = client.db(dbName);
-    await db.dropDatabase();
+    mongoServer = new MongodbMemoryServer();
+    const connectionString = await mongoServer.getConnectionString();
+    const dbName = await mongoServer.getDbName();
+    con = await MongoClient.connect(connectionString);
+    db = con.db(dbName);
   });
 
   afterAll(async () => {
-    await client.close();
+    await con.close();
+    await mongoServer.stop();
   });
 
   beforeEach(async () => {
-    config = {
-      mongoUrl,
-      sharedSecret: '',
-      standalone: false,
-      path: '',
-      onLogin: () => null,
-      onLogout: () => null,
-    };
     app = express();
     app.use(
       session({
@@ -69,12 +63,19 @@ describe('ooth-roles', () => {
         saveUninitialized: true,
       }),
     );
-    oothMongo = new OothMongo(db, ObjectId);
-    ooth = new Ooth(config);
-    ooth.use('guest', oothGuest());
-    ooth.use('roles', oothRoles());
-    await ooth.start(app, oothMongo);
-    await startServer(app);
+    oothMongo = new OothMongo(db);
+    ooth = new Ooth({
+      app,
+      backend: oothMongo,
+      sharedSecret: '',
+      standalone: false,
+      path: '',
+      onLogin: () => null,
+      onLogout: () => null,
+    });
+    oothGuest({ ooth });
+    oothRoles({ ooth });
+    await startServer();
     let res = await request({
       method: 'POST',
       uri: 'http://localhost:8080/guest/register',
@@ -108,8 +109,12 @@ describe('ooth-roles', () => {
   });
 
   afterEach(async () => {
-    await server.close();
-    await db.dropDatabase();
+    if (server) {
+      await server.close();
+    }
+    if (db) {
+      await db.dropDatabase();
+    }
     adminCookies = '';
   });
 
