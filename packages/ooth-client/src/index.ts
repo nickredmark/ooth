@@ -1,6 +1,9 @@
-import isomorphicFetch from 'isomorphic-fetch';
-import { Rx } from 'rx';
-import url from 'url';
+import * as fetch from 'isomorphic-fetch';
+import * as Rx from 'rx';
+
+const url = require('url');
+
+declare var require: any;
 
 type Options = {
   oothUrl: string;
@@ -19,7 +22,7 @@ export class OothClient {
   private apiLoginUrl?: string;
   private apiLogoutUrl?: string;
   private started: boolean = false;
-  private userSubject?: Rx.BehaviorSubject;
+  private userSubject?: Rx.BehaviorSubject<User | null>;
 
   constructor({ oothUrl, standalone, apiLoginUrl, apiLogoutUrl }: Options) {
     this.oothUrl = oothUrl;
@@ -30,7 +33,7 @@ export class OothClient {
     }
   }
 
-  public async start(): Promise<User> {
+  public async start(): Promise<User | null> {
     if (!this.started) {
       this.started = true;
       this.user();
@@ -41,15 +44,15 @@ export class OothClient {
     return this.user().getValue();
   }
 
-  public user(): Rx.BehaviorSubject {
+  public user(): Rx.BehaviorSubject<User | null> {
     if (!this.userSubject) {
-      this.userSubject = new Rx.BehaviorSubject(null);
+      this.userSubject = new Rx.BehaviorSubject<User | null>(null);
     }
     return this.userSubject;
   }
 
   public async authenticate(strategy: string, method: string, body: any): Promise<User | null> {
-    const raw = isomorphicFetch(`${this.oothUrl}/${strategy}/${method}`, {
+    const raw = await fetch(`${this.oothUrl}/${strategy}/${method}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -63,7 +66,7 @@ export class OothClient {
     }
     const { user, token } = response;
     if (this.standalone) {
-      await isomorphicFetch(this.apiLoginUrl, {
+      await fetch(this.apiLoginUrl, {
         method: 'POST',
         headers: {
           Authorization: `JWT ${token}`,
@@ -75,7 +78,7 @@ export class OothClient {
   }
 
   public async method<T>(strategy: string, method: string, body: any): Promise<T> {
-    const raw = await isomorphicFetch(`${this.oothUrl}/${strategy}/${method}`, {
+    const raw = await fetch(`${this.oothUrl}/${strategy}/${method}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -94,12 +97,12 @@ export class OothClient {
   }
 
   public async logout(): Promise<void> {
-    await isomorphicFetch(`${this.oothUrl}/logout`, {
+    await fetch(`${this.oothUrl}/logout`, {
       method: 'POST',
       credentials: 'include',
     });
     if (this.standalone) {
-      await isomorphicFetch(this.apiLogoutUrl, {
+      await fetch(this.apiLogoutUrl, {
         method: 'POST',
         credentials: 'include',
       });
@@ -107,7 +110,7 @@ export class OothClient {
     this.next(null);
   }
 
-  public async status(cookies: { [key: string]: string }): Promise<User | null> {
+  public async status(cookies?: { [key: string]: string }): Promise<User | null> {
     const opts: any = {
       method: 'GET',
     };
@@ -120,7 +123,7 @@ export class OothClient {
     } else {
       opts.credentials = 'include';
     }
-    const raw = await isomorphicFetch(`${this.oothUrl}/status`, opts);
+    const raw = await fetch(`${this.oothUrl}/status`, opts);
     const { user } = await raw.json();
     return this.next(user);
   }
@@ -138,7 +141,7 @@ export class OothClient {
       const protocol = urlParts.protocol === 'https:' ? 'wss' : 'ws';
       const wsUrl = `${protocol}://${urlParts.host}${urlParts.path}/status`;
       const socket = new WebSocket(wsUrl);
-      socket.onerror = (err: Error) => console.error(err);
+      socket.onerror = (err: Event) => console.error(err);
       socket.onopen = () => {};
       socket.onclose = () => {};
       socket.onmessage = ({ data }: any) => {
