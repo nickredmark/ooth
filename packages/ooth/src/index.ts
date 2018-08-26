@@ -53,11 +53,15 @@ export type User = {
   [strategyName: string]: undefined | string | Date | StrategyValues;
 };
 
+type Method<T> = (params: any, user: User | null, locale: string) => Promise<T>;
+
 type Strategy = {
   profileFields: {
     [key: string]: true;
   };
-  methods: string[];
+  methods: {
+    [key: string]: Method<any>;
+  };
   uniqueFields: {
     [key: string]: true;
   };
@@ -97,10 +101,8 @@ function randomToken(): string {
   return randomBytes(43).toString('hex');
 }
 
-function post(route: Router, routeName: string, ...handlers: (MyRequestHandler | FinalRequestHandler)[]): void {
-  const middleware = handlers.slice(0, -1) as RequestHandler[];
-  const handler = handlers[handlers.length - 1] as FinalRequestHandler;
-  route.post(routeName, ...middleware, async (req: Request, res: Response) => {
+function post(route: Router, routeName: string, middleware: MyRequestHandler[], handler: FinalRequestHandler): void {
+  route.post(routeName, ...(middleware as RequestHandler[]), async (req: Request, res: Response) => {
     try {
       const data = await handler(req as FullRequest, res);
 
@@ -115,9 +117,9 @@ function post(route: Router, routeName: string, ...handlers: (MyRequestHandler |
   });
 }
 
-function authenticate(methodName: string, req: Request, res: Response): Promise<any> {
+function authenticate(methodName: string, req: Request, res: Response): Promise<User | StrategyValues> {
   return new Promise((resolve, reject) => {
-    const auth = passport.authenticate(methodName, (err: Error, user: any, info: any) => {
+    passport.authenticate(methodName, (err: Error, user: any, info: any) => {
       if (err) {
         reject(err);
       }
@@ -127,22 +129,12 @@ function authenticate(methodName: string, req: Request, res: Response): Promise<
       }
 
       resolve(user);
-    });
-    auth(req, res);
+    })(req, res);
   });
 }
 
-function login(req: Request, user: any): Promise<void> {
-  return new Promise((resolve, reject) => {
-    return req.login(user, (err) => {
-      if (err) {
-        reject(err);
-      }
-
-      resolve();
-    });
-  });
-}
+const login = (req: Request, user: User) =>
+  new Promise((resolve, reject) => req.login(user, (err) => (err ? reject(err) : resolve())));
 
 export class Ooth {
   private sharedSecret: string;
@@ -222,15 +214,11 @@ export class Ooth {
 
     this.app.use(this.path, this.route);
 
-    passport.serializeUser((user: User, done) => {
-      done(null, user._id);
-    });
+    passport.serializeUser((user: User, done) => done(null, user._id));
     passport.deserializeUser((id, done) => {
       if (typeof id === 'string') {
         this.backend!.getUserById(id)
-          .then((user) => {
-            done(null, user);
-          })
+          .then((user) => done(null, user))
           .catch(done);
       } else {
         done(null, false);
@@ -256,7 +244,7 @@ export class Ooth {
         });
       }
     });
-    post(this.route, '/logout', this.requireLogged, async (req: FullRequest, _res: Response) => {
+    post(this.route, '/logout', [this.requireLogged], async (req: FullRequest, _res: Response) => {
       const user = req.user;
       this.sendStatus(req, {});
       req.logout();
@@ -298,7 +286,7 @@ export class Ooth {
       );
 
       // Login with JWT token
-      this.registerPassportMethod('root', 'login', this.requireNotLogged, passportJwtStrategy);
+      this.registerPassportMethod('root', 'login', [this.requireNotLogged], passportJwtStrategy);
 
       // Refresh tokens
       passport.use('refresh', passportJwtStrategy);
@@ -407,24 +395,23 @@ export class Ooth {
     });
   }
 
-  public registerMethod(strategyName: string, method: string, ...handlers: any[]): void {
-    this.getStrategy(strategyName).methods.push(method);
+  public registerMethod<T>(
+    strategyName: string,
+    method: string,
+    middleware: MyRequestHandler[],
+    handler: Method<T>,
+    httpMethod: 'POST' | 'GET' = 'POST',
+  ): void {
+    this.getStrategy(strategyName).methods[method] = handler;
 
-    // Split handlers into [...middleware, handler]
-    const middleware = handlers.slice(0, -1);
-    const handler = handlers[handlers.length - 1];
-
-    const finalHandler = (req: Request, res: Response) => {
+    const finalHandler = async (req: Request, res: Response) => {
       try {
-        const result = handler(req, res);
-        if (result && result.catch) {
-          result.catch((e: Error) => {
-            return res.status(400).send({
-              status: 'error',
-              message: e.message,
-            });
-          });
+        const result = await this.getStrategy(strategyName).methods[method](req.body, req.user, (req as FullRequest).locale);
+        if (req.user) {
+          const user = await this.getUserById(req.user._id);
+          result.user = this.getProfile(user);
         }
+        res.send(result);
       } catch (e) {
         console.error(e);
         return res.status(400).send({
@@ -434,12 +421,11 @@ export class Ooth {
       }
     };
 
-    this.route.post(`/${strategyName}/${method}`, ...middleware, finalHandler);
-  }
-
-  public registerGetMethod(strategyName: string, method: string, ...handlers: any[]): void {
-    this.getStrategy(strategyName).methods.push(method);
-    this.route.get(`/${strategyName}/${method}`, ...handlers);
+    this.route[httpMethod === 'GET' ? 'get' : 'post'](
+      `/${strategyName}/${method}`,
+      ...(middleware as RequestHandler[]),
+      finalHandler,
+    );
   }
 
   public registerUniqueField(strategyName: string, id: string, fieldName: string): void {
@@ -527,19 +513,18 @@ export class Ooth {
     };
   };
 
-  public registerPassportMethod(strategyName: string, method: string, ...handlers: any[]): void {
-    this.getStrategy(strategyName).methods.push(method);
-
-    // Split handlers into [...middleware, handler]
-    const middleware = handlers.slice(0, -1);
-    const handler = handlers[handlers.length - 1];
-
+  public registerPassportMethod(
+    strategyName: string,
+    method: string,
+    middleware: MyRequestHandler[],
+    strategy: passport.Strategy,
+  ): void {
     const methodName = strategyName !== 'root' ? `${strategyName}-${method}` : method;
     const routeName = strategyName !== 'root' ? `/${strategyName}/${method}` : `/${method}`;
 
-    passport.use(methodName, handler);
-    post(this.route, routeName, ...middleware, async (req: FullRequest, res: Response) => {
-      const user: User = await authenticate(methodName, req, res);
+    passport.use(methodName, strategy);
+    post(this.route, routeName, middleware, async (req: FullRequest, res: Response) => {
+      const user: User = (await authenticate(methodName, req, res)) as User;
 
       await login(req, user);
 
@@ -567,21 +552,16 @@ export class Ooth {
   }
 
   public registerPassportConnectMethod(
-    strategy: string,
+    strategyName: string,
     method: string,
-    ...handlers: (MyRequestHandler | passport.Strategy)[]
+    middleware: MyRequestHandler[],
+    handler: passport.Strategy,
   ): void {
-    this.getStrategy(strategy).methods.push(method);
-
-    // Split handlers into [...middleware, handler]
-    const middleware = handlers.slice(0, -1) as MyRequestHandler[];
-    const handler = handlers[handlers.length - 1] as passport.Strategy;
-
-    const methodName = strategy !== 'root' ? `${strategy}-${method}` : method;
-    const routeName = strategy !== 'root' ? `/${strategy}/${method}` : `/${method}`;
+    const methodName = `${strategyName}-${method}`;
+    const routeName = `/${strategyName}/${method}`;
 
     passport.use(methodName, handler);
-    post(this.route, routeName, ...middleware, async (req: FullRequest, res: Response) => {
+    post(this.route, routeName, middleware, async (req: FullRequest, res: Response) => {
       const userPart: StrategyValues = await authenticate(methodName, req, res);
 
       if (!userPart) {
@@ -589,11 +569,11 @@ export class Ooth {
       }
 
       let user: User | null = null;
-      for (const field of Object.keys(this.getStrategy(strategy).uniqueFields)) {
+      for (const field of Object.keys(this.getStrategy(strategyName).uniqueFields)) {
         const value = userPart[field];
         if (value) {
           const userCandidate = await this.backend!.getUser({
-            [`${strategy}.${field}`]: value,
+            [`${strategyName}.${field}`]: value,
           });
           if (!user || user._id === userCandidate._id) {
             user = userCandidate;
@@ -603,8 +583,8 @@ export class Ooth {
         }
       }
       for (const field of Object.keys(this.uniqueFields)) {
-        if (this.uniqueFields[field][strategy]) {
-          const value = userPart[this.uniqueFields[field][strategy]];
+        if (this.uniqueFields[field][strategyName]) {
+          const value = userPart[this.uniqueFields[field][strategyName]];
           if (value) {
             const userCandidate = await this.getUserByUniqueField(field, value);
             if (!user || user._id === userCandidate._id) {
@@ -625,18 +605,18 @@ export class Ooth {
         }
 
         // Update user
-        await this.updateUser(strategy, req.user._id, userPart);
+        await this.updateUser(strategyName, req.user._id, userPart);
         user = await this.backend!.getUserById(req.user._id);
       } else {
         // User hasn't logged in
 
         if (user) {
           // User exists already, update
-          await this.updateUser(strategy, user._id, userPart);
+          await this.updateUser(strategyName, user._id, userPart);
           user = await this.backend!.getUserById(user._id);
         } else {
           // Need to create a new user
-          const _id = await this.insertUser(strategy, userPart);
+          const _id = await this.insertUser(strategyName, userPart);
           user = await this.backend!.getUserById(_id);
           registered = true;
         }
@@ -749,7 +729,7 @@ export class Ooth {
   private getStrategy(strategyName: string): Strategy {
     if (!this.strategies[strategyName]) {
       this.strategies[strategyName] = {
-        methods: [],
+        methods: {},
         profileFields: {},
         uniqueFields: {},
       };

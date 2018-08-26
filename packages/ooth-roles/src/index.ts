@@ -1,5 +1,4 @@
-import { Response } from 'express';
-import { FullRequest, Ooth } from 'ooth';
+import { Ooth, User, StrategyValues } from 'ooth';
 import { getI18n, Translations } from 'ooth-i18n';
 
 const DEFAULT_TRANSLATIONS = {
@@ -21,22 +20,22 @@ export default function({ ooth, name = 'roles', language, translations }: Config
   ooth.registerMethod(
     name,
     'set',
-    ooth.requireLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { userId, roles } = req.body;
-
-      if (!req.user[name] || !req.user[name].roles || req.user[name].roles.indexOf('admin') === -1) {
-        throw new Error(__('no_admin', null, req.locale));
+    [ooth.requireLogged],
+    async ({ userId, roles }: any, user: User | null, locale: string): Promise<{ message: string }> => {
+      if (
+        !user![name] ||
+        !(user![name] as StrategyValues).roles ||
+        (user![name] as StrategyValues).roles.indexOf('admin') === -1
+      ) {
+        throw new Error(__('no_admin', null, locale));
       }
 
       await ooth.updateUser(name, userId, {
         roles,
       });
-      const user = await ooth.getUserById(req.user._id);
-      return res.send({
-        message: __('roles_set', null, req.locale),
-        user: ooth.getProfile(user),
-      });
+      return {
+        message: __('roles_set', null, locale),
+      };
     },
   );
 }

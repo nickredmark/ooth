@@ -22,6 +22,7 @@ export default function({ name = 'facebook', ooth, clientID, clientSecret }: Con
   ooth.registerPassportConnectMethod(
     name,
     'login',
+    [],
     new FacebookStrategy(
       {
         clientID,

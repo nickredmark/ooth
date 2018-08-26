@@ -71,7 +71,6 @@ describe('ooth-facebook', () => {
     if (db) {
       await db.dropDatabase();
     }
-    cookies = '';
   });
 
   test('fails to log in with valid token', async () => {

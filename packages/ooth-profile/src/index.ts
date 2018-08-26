@@ -1,6 +1,5 @@
 import { getI18n, Translations } from 'ooth-i18n';
-import { Ooth, FullRequest, User } from 'ooth';
-import { Response } from 'express';
+import { Ooth, User } from 'ooth';
 
 const DEFAULT_TRANSLATIONS = {
   en: require('../i18n/en.json'),
@@ -26,26 +25,23 @@ export default function({ name = 'profile', ooth, fields, defaultLanguage, trans
   ooth.registerMethod(
     name,
     'update',
-    ooth.requireLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const body = req.body;
+    [ooth.requireLogged],
+    async (body: any, user: User | null, locale: string): Promise<{ message: string }> => {
       for (const name of Object.keys(body)) {
         if (!fields[name]) {
-          throw new Error(__('invalid_field', { name }, req.locale));
+          throw new Error(__('invalid_field', { name }, locale));
         }
 
         const field = fields[name];
         if (field.validate) {
-          field.validate(body[name], req.user);
+          field.validate(body[name], user!);
         }
       }
 
-      await ooth.updateUser(name, req.user._id, body);
-      const user = await ooth.getUserById(req.user._id);
-      return res.send({
-        message: __('profile_updated', null, req.locale),
-        user: ooth.getProfile(user),
-      });
+      await ooth.updateUser(name, user!._id, body);
+      return {
+        message: __('profile_updated', null, locale),
+      };
     },
   );
 }

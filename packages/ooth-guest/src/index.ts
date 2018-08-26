@@ -6,7 +6,7 @@ export default function({ ooth, name = 'guest' }: { ooth: Ooth; name?: string })
   ooth.registerPassportConnectMethod(
     name,
     'register',
-    ooth.requireNotLogged,
+    [ooth.requireNotLogged],
     new Strategy((_req: FullRequest, done: (e: Error | null, v: StrategyValues) => void) => done(null, {})),
   );
 }

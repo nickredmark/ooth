@@ -100,11 +100,9 @@ describe('ooth', () => {
 
   describe('methods', () => {
     test('handle method', async () => {
-      ooth.registerMethod('test', 'foo', (req, res) =>
-        res.send({
-          message: 'hi',
-        }),
-      );
+      ooth.registerMethod<{ message: string }>('test', 'foo', [], async () => ({
+        message: 'hi',
+      }));
 
       await startServer();
       const res = await request({
@@ -116,11 +114,9 @@ describe('ooth', () => {
     });
 
     test('fails with requireLogged', async () => {
-      ooth.registerMethod('test', 'foo', ooth.requireLogged, (req, res) =>
-        res.send({
-          message: 'hi',
-        }),
-      );
+      ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
+        message: 'hi',
+      }));
 
       await startServer();
       try {
@@ -137,11 +133,9 @@ describe('ooth', () => {
     });
 
     test('translates error', async () => {
-      ooth.registerMethod('test', 'foo', ooth.requireLogged, (req, res) =>
-        res.send({
-          message: 'hi',
-        }),
-      );
+      ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
+        message: 'hi',
+      }));
 
       await startServer();
       try {
@@ -161,7 +155,7 @@ describe('ooth', () => {
     });
 
     test('handle errors', async () => {
-      ooth.registerMethod('test', 'foo', () => {
+      ooth.registerMethod('test', 'foo', [], () => {
         throw new Error('Error message.');
       });
 
@@ -179,11 +173,11 @@ describe('ooth', () => {
     });
 
     test('handle async errors', async () => {
-      ooth.registerMethod('test', 'foo', () => {
-        return Promise.resolve().then(() => {
+      ooth.registerMethod('test', 'foo', [], async () =>
+        Promise.resolve().then(() => {
           throw new Error('Error message.');
-        });
-      });
+        }),
+      );
 
       await startServer();
       try {
@@ -203,10 +197,10 @@ describe('ooth', () => {
     beforeEach(async () => {
       ooth.registerProfileFields('test', 'foo');
       ooth.registerUniqueField('test', 'bar', 'bar');
-      ooth.registerPassportConnectMethod('test', 'login', new CustomStrategy((req, done) => done(null, req.body)));
+      ooth.registerPassportConnectMethod('test', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
       ooth.registerProfileFields('test2', 'baz');
       ooth.registerUniqueField('test2', 'bar', 'bar');
-      ooth.registerPassportConnectMethod('test2', 'login', new CustomStrategy((req, done) => done(null, req.body)));
+      ooth.registerPassportConnectMethod('test2', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
       await startServer();
     });
 

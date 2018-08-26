@@ -11,11 +11,9 @@ import oothLocal from '../src';
 
 let mongoServer;
 let con;
-let config;
 let app;
 let server;
 let ooth: Ooth;
-let oothLocalConfig;
 let db;
 let cookies = '';
 let oothMongo: OothMongo;

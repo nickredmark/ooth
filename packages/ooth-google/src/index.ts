@@ -16,6 +16,7 @@ export default function({ name = 'google', ooth, clientID, clientSecret }: Confi
   ooth.registerPassportConnectMethod(
     name,
     'login',
+    [],
     new GoogleStrategy(
       {
         clientID,

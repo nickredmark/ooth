@@ -1,10 +1,9 @@
 import { compareSync, genSaltSync, hashSync } from 'bcrypt-nodejs';
 import { randomBytes } from 'crypto';
-import { FullRequest, Ooth, StrategyValues } from 'ooth';
+import { FullRequest, Ooth, StrategyValues, User } from 'ooth';
 import { getI18n, Translations } from 'ooth-i18n';
 import { Strategy as LocalStrategy, VerifyFunctionWithRequest } from 'passport-local';
 import { callbackify } from 'util';
-import { Response } from 'express';
 
 const SALT_ROUNDS = 12;
 const HOUR = 1000 * 60 * 60;
@@ -44,6 +43,10 @@ function randomToken(): string {
 function hash(pass: string): string {
   return hashSync(pass, genSaltSync(SALT_ROUNDS));
 }
+
+type Result = {
+  message: string;
+};
 
 export type Options = {
   name?: string;
@@ -97,7 +100,7 @@ export default function({
   ooth.registerPassportMethod(
     name,
     'login',
-    ooth.requireNotLogged,
+    [ooth.requireNotLogged],
     new LocalStrategy(
       {
         usernameField: 'username',
@@ -131,56 +134,49 @@ export default function({
   ooth.registerMethod(
     name,
     'set-username',
-    ooth.requireLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { username } = req.body;
-
+    [ooth.requireLogged],
+    async ({ username }: any, user: User | null, locale: string): Promise<Result> => {
       if (typeof username !== 'string') {
-        throw new Error(__('set_username.invalid_username', null, req.locale));
+        throw new Error(__('set_username.invalid_username', null, locale));
       }
 
-      testValue('username', username, req.locale);
+      testValue('username', username, locale);
 
       const existingUser = await ooth.getUserByUniqueField('username', username);
 
       if (existingUser) {
-        throw new Error(__('username_taken.invalid_username', null, req.locale));
+        throw new Error(__('username_taken.invalid_username', null, locale));
       }
 
-      await ooth.updateUser(name, req.user._id, {
+      await ooth.updateUser(name, user!._id, {
         username,
       });
 
-      const user = await ooth.getUserById(req.user._id);
-
-      res.send({
-        message: __('set_username.username_updated', null, req.locale),
-        user: ooth.getProfile(user),
-      });
+      return {
+        message: __('set_username.username_updated', null, locale),
+      };
     },
   );
 
   ooth.registerMethod(
     name,
     'set-email',
-    ooth.requireLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { email } = req.body;
-
+    [ooth.requireLogged],
+    async ({ email }: any, user: User | null, locale: string): Promise<Result> => {
       if (typeof email !== 'string') {
-        throw new Error(__('set_email.invalid_email', null, req.locale));
+        throw new Error(__('set_email.invalid_email', null, locale));
       }
 
-      testValue('email', email, req.locale);
+      testValue('email', email, locale);
 
       const existingUser = await ooth.getUserByUniqueField('email', email);
-      if (existingUser && existingUser._id !== req.user._id) {
-        throw new Error(__('set_email.email_already_registered', null, req.locale));
+      if (existingUser && existingUser._id !== user!._id) {
+        throw new Error(__('set_email.email_already_registered', null, locale));
       }
 
       const verificationToken = randomToken();
 
-      await ooth.updateUser(name, req.user._id, {
+      await ooth.updateUser(name, user!._id, {
         email,
         verificationToken: hash(verificationToken),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
@@ -190,41 +186,36 @@ export default function({
         onSetEmail({
           email,
           verificationToken,
-          _id: req.user._id,
+          _id: user!._id,
         });
       }
 
-      const user = await ooth.getUserById(req.user._id);
-
-      res.send({
-        message: __('set_email.email_updated', null, req.locale),
-        user: ooth.getProfile(user),
-      });
+      return {
+        message: __('set_email.email_updated', null, locale),
+      };
     },
   );
 
   ooth.registerMethod(
     name,
     'register',
-    ooth.requireNotLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { email, password } = req.body;
-
+    [ooth.requireNotLogged],
+    async ({ email, password }: any, user: User | null, locale: string): Promise<Result> => {
       if (typeof email !== 'string') {
-        throw new Error(__('register.invalid_email', null, req.locale));
+        throw new Error(__('register.invalid_email', null, locale));
       }
       if (typeof password !== 'string') {
-        throw new Error(__('register.invalid_password', null, req.locale));
+        throw new Error(__('register.invalid_password', null, locale));
       }
 
-      testValue('password', password, req.locale);
+      testValue('password', password, locale);
 
       let verificationToken;
 
       const existingUser = await ooth.getUserByUniqueField('email', email);
 
       if (existingUser) {
-        throw new Error(__('register.email_already_registered', null, req.locale));
+        throw new Error(__('register.email_already_registered', null, locale));
       }
 
       verificationToken = randomToken();
@@ -244,79 +235,76 @@ export default function({
         });
       }
 
-      res.send({
-        message: __('register.registered', null, req.locale),
-      });
+      return {
+        message: __('register.registered', null, locale),
+      };
     },
   );
 
   ooth.registerMethod(
     name,
     'generate-verification-token',
-    ooth.requireRegisteredWith(name),
-    async (req: FullRequest, res: Response): Promise<void> => {
+    [ooth.requireRegisteredWith(name)],
+    async (_: any, user: User | null, locale: string): Promise<Result> => {
       const verificationToken = randomToken();
 
-      const user = req.user;
-
-      if (!user[name] || !user[name].email) {
-        throw new Error(__('generate_verification_token.no_email', null, req.locale));
+      if (!user![name] || !(user![name] as StrategyValues).email) {
+        throw new Error(__('generate_verification_token.no_email', null, locale));
       }
 
-      await ooth.updateUser(name, req.user._id, {
+      await ooth.updateUser(name, user!._id, {
         verificationToken: hash(verificationToken),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
       if (onGenerateVerificationToken) {
         onGenerateVerificationToken({
           verificationToken,
-          _id: user._id,
-          email: user[name].email,
+          _id: user!._id,
+          email: (user![name] as StrategyValues).email,
         });
       }
 
-      res.send({
-        message: __('generate_verification_token.token_generated', null, req.locale),
-      });
+      return {
+        message: __('generate_verification_token.token_generated', null, locale),
+      };
     },
   );
 
   ooth.registerMethod(
     name,
     'verify',
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { userId, token } = req.body;
-
+    [],
+    async ({ userId, token }: any, _user: User | null, locale: string): Promise<Result> => {
       if (!userId) {
-        throw new Error(__('verify.no_user_id', null, req.locale));
+        throw new Error(__('verify.no_user_id', null, locale));
       }
 
       if (!token) {
-        throw new Error(__('verify.token_generated', null, req.locale));
+        throw new Error(__('verify.token_generated', null, locale));
       }
 
       const user = await ooth.getUserById(userId);
       if (!user) {
-        throw new Error(__('verify.no_user', null, req.locale));
+        throw new Error(__('verify.no_user', null, locale));
       }
 
       const strategyValues: StrategyValues = user[name] as StrategyValues;
 
       if (!strategyValues || !strategyValues.email) {
         // No email to verify, but let's not leak this information
-        throw new Error(__('verify.no_email', null, req.locale));
+        throw new Error(__('verify.no_email', null, locale));
       }
 
       if (!compareSync(token, strategyValues.verificationToken)) {
-        throw new Error(__('verify.invalid_token', null, req.locale));
+        throw new Error(__('verify.invalid_token', null, locale));
       }
 
       if (!strategyValues.verificationTokenExpiresAt) {
-        throw new Error(__('verify.no_expiry', null, req.locale));
+        throw new Error(__('verify.no_expiry', null, locale));
       }
 
       if (new Date() >= strategyValues.verificationTokenExpiresAt) {
-        throw new Error(__('verify.expired_token', null, req.locale));
+        throw new Error(__('verify.expired_token', null, locale));
       }
 
       await ooth.updateUser(name, user._id, {
@@ -333,22 +321,19 @@ export default function({
         });
       }
 
-      res.send({
-        message: __('verify.verified', null, req.locale),
-        user: ooth.getProfile(newUser),
-      });
+      return {
+        message: __('verify.verified', null, locale),
+      };
     },
   );
 
   ooth.registerMethod(
     name,
     'forgot-password',
-    ooth.requireNotLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { username } = req.body;
-
+    [ooth.requireNotLogged],
+    async ({ username }: any, _user: User | null, locale: string): Promise<Result> => {
       if (!username || typeof username !== 'string') {
-        throw new Error(__('forgot_password.invalid_username', null, req.locale));
+        throw new Error(__('forgot_password.invalid_username', null, locale));
       }
 
       let user = await ooth.getUserByUniqueField('username', username);
@@ -357,7 +342,7 @@ export default function({
       }
 
       if (!user) {
-        throw new Error(__('forgot_password.no_user', null, req.locale));
+        throw new Error(__('forgot_password.no_user', null, locale));
       }
 
       const email = ooth.getUniqueField(user, 'email');
@@ -378,32 +363,30 @@ export default function({
         });
       }
 
-      res.send({
-        message: __('forgot_password.token_generated', null, req.locale),
-      });
+      return {
+        message: __('forgot_password.token_generated', null, locale),
+      };
     },
   );
 
   ooth.registerMethod(
     name,
     'reset-password',
-    ooth.requireNotLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { userId, token, newPassword } = req.body;
-
+    [ooth.requireNotLogged],
+    async ({ userId, token, newPassword }: any, _user: User | null, locale: string): Promise<Result> => {
       if (!userId) {
-        throw new Error(__('reset_password.no_user_id', null, req.locale));
+        throw new Error(__('reset_password.no_user_id', null, locale));
       }
 
       if (!token) {
-        throw new Error(__('reset_password.no_token', null, req.locale));
+        throw new Error(__('reset_password.no_token', null, locale));
       }
 
       if (!newPassword || typeof newPassword !== 'string') {
-        throw new Error(__('reset_password.invalid_password', null, req.locale));
+        throw new Error(__('reset_password.invalid_password', null, locale));
       }
 
-      testValue('password', newPassword, req.locale);
+      testValue('password', newPassword, locale);
 
       const user = await ooth.getUserById(userId);
 
@@ -414,19 +397,19 @@ export default function({
       const strategyValues = user[name] as StrategyValues;
 
       if (!strategyValues || !strategyValues.passwordResetToken) {
-        throw new Error(__('reset_password.no_reset_token', null, req.locale));
+        throw new Error(__('reset_password.no_reset_token', null, locale));
       }
 
       if (!compareSync(token, strategyValues.passwordResetToken)) {
-        throw new Error(__('reset_password.invalid_token', null, req.locale));
+        throw new Error(__('reset_password.invalid_token', null, locale));
       }
 
       if (!strategyValues.passwordResetTokenExpiresAt) {
-        throw new Error(__('reset_password.no_expiry', null, req.locale));
+        throw new Error(__('reset_password.no_expiry', null, locale));
       }
 
       if (new Date() >= strategyValues.passwordResetTokenExpiresAt) {
-        throw new Error(__('reset_password.expired_token', null, req.locale));
+        throw new Error(__('reset_password.expired_token', null, locale));
       }
 
       await ooth.updateUser(name, user._id, {
@@ -440,46 +423,44 @@ export default function({
           email: strategyValues.email,
         });
       }
-      res.send({
-        message: __('reset_password.password_reset', null, req.locale),
-      });
+
+      return {
+        message: __('reset_password.password_reset', null, locale),
+      };
     },
   );
 
   ooth.registerMethod(
     name,
     'change-password',
-    ooth.requireLogged,
-    async (req: FullRequest, res: Response): Promise<void> => {
-      const { password, newPassword } = req.body;
-
+    [ooth.requireLogged],
+    async ({ password, newPassword }: any, user: User | null, locale: string): Promise<Result> => {
       if (typeof password !== 'string') {
-        throw new Error(__('change_password.invalid_password', null, req.locale));
+        throw new Error(__('change_password.invalid_password', null, locale));
       }
 
-      testValue('password', newPassword, req.locale);
+      testValue('password', newPassword, locale);
 
-      const user = await ooth.getUserById(req.user._id);
-
-      const strategyValues = user[name] as StrategyValues;
+      const strategyValues = user![name] as StrategyValues;
 
       if ((password || (strategyValues && strategyValues.password)) && !compareSync(password, strategyValues.password)) {
-        throw new Error(__('change_password.invalid_password', null, req.locale));
+        throw new Error(__('change_password.invalid_password', null, locale));
       }
 
-      await ooth.updateUser(name, user._id, {
+      await ooth.updateUser(name, user!._id, {
         passwordResetToken: null,
         password: hash(newPassword),
       });
       if (onChangePassword) {
         onChangePassword({
-          _id: user._id,
+          _id: user!._id,
           email: strategyValues && strategyValues.email,
         });
       }
-      res.send({
-        message: __('change_password.password_changed', null, req.locale),
-      });
+
+      return {
+        message: __('change_password.password_changed', null, locale),
+      };
     },
   );
 }
