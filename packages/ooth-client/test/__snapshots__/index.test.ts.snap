@@ -3,7 +3,8 @@
 exports[`OothClient can construct 1`] = `
 OothClient {
   "oothUrl": "http://localhost:3000/auth",
-  "standalone": undefined,
+  "standalone": false,
+  "started": false,
 }
 `;
 
@@ -13,5 +14,6 @@ OothClient {
   "apiLogoutUrl": "http://localhost:3000/logout",
   "oothUrl": "http://localhost:3000/auth",
   "standalone": true,
+  "started": false,
 }
 `;
