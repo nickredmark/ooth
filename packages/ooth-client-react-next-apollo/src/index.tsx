@@ -1,0 +1,129 @@
+import 'isomorphic-unfetch';
+
+import { ApolloReducerConfig, InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient } from 'apollo-client';
+import { ApolloLink } from 'apollo-link';
+import { HttpLink } from 'apollo-link-http';
+import * as React from 'react';
+import { ApolloProvider, getDataFromTree } from 'react-apollo';
+
+let client: ApolloClient<any> | null = null;
+
+const getBrowserClient = (uri: string, cacheOpts?: ApolloReducerConfig, initialData?: any) => {
+  const link = new HttpLink({
+    uri,
+    credentials: 'include',
+  });
+  const cache = new InMemoryCache(cacheOpts);
+  if (initialData) {
+    cache.restore(initialData);
+  }
+  return new ApolloClient({
+    link,
+    cache,
+  });
+};
+
+const getServerClient = (
+  uri: string,
+  cookies: { [key: string]: string },
+  cacheOpts?: ApolloReducerConfig,
+  initialData?: any,
+) => {
+  let link: ApolloLink = new HttpLink({
+    uri,
+  });
+  if (cookies && Object.keys(cookies).length) {
+    const middlewareLink = new ApolloLink((operation, forward) => {
+      operation.setContext({
+        headers: {
+          Cookie: Object.keys(cookies)
+            .map((key) => `${key}=${cookies[key]}`)
+            .join('; '),
+        },
+      });
+      return forward!(operation);
+    });
+    link = middlewareLink.concat(link);
+  }
+
+  const cache = new InMemoryCache(cacheOpts);
+  if (initialData) {
+    cache.restore(initialData);
+  }
+
+  return new ApolloClient({
+    link,
+    cache,
+    ssrMode: true,
+  });
+};
+
+const getClient = (uri: string, cookies: { [key: string]: string }, cacheOpts?: ApolloReducerConfig, initialData?: any) => {
+  if (!(process as any).browser) {
+    // on server, create a new client for each request
+    return getServerClient(uri, cookies, cacheOpts, initialData);
+  }
+  // on client, create singleton
+  if (!client) {
+    client = getBrowserClient(uri, cacheOpts, initialData);
+  }
+  return client;
+};
+
+export type Options = {
+  url: string;
+  opts?: ApolloReducerConfig;
+};
+
+type Props = { initialData?: any; childProps?: any };
+
+export default ({ url, opts }: Options) => {
+  // tslint:disable-next-line variable-name
+  return (Component: React.ComponentType<any> & { getInitialProps?: (ctx: any) => Promise<any> }) =>
+    class extends React.Component<Props> {
+      private client: ApolloClient<any>;
+
+      constructor(props: Props) {
+        super(props);
+        // On server, this client won't be doing any work, because all work has been done in getInitialProps
+        this.client = getClient(url, {}, opts, props.initialData);
+      }
+
+      public static async getInitialProps(ctx: any): Promise<{ initialData: any; childProps: any }> {
+        const cookies = ctx.req && ctx.req.cookies;
+        const client = getClient(url, cookies, opts);
+
+        const childProps = Component.getInitialProps ? await Component.getInitialProps(ctx) : {};
+
+        if (!(process as any).browser) {
+          const url = {
+            query: ctx.query,
+            pathname: ctx.pathname,
+            asPath: ctx.asPath,
+          };
+          const app = (
+            <ApolloProvider client={client}>
+              <Component url={url} {...childProps} />
+            </ApolloProvider>
+          );
+          return getDataFromTree(app);
+        }
+
+        return {
+          childProps,
+          initialData: client.cache.extract(),
+        };
+      }
+
+      public render(): JSX.Element {
+        return (
+          <ApolloProvider client={this.client}>
+            <Component {...this.props} {...this.props.childProps} />
+          </ApolloProvider>
+        );
+      }
+    };
+};
+
+export const clear = () => (client = null);

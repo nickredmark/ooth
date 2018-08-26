@@ -13,7 +13,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "jsx": "react",
-    "lib": ["es2016"]
+    "lib": ["es2016", "esnext", "dom"]
   },
   "include": ["../src/**/*"],
   "exclude": []
