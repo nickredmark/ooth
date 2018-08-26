@@ -8,11 +8,10 @@
     "rootDir": "../src",
     "declaration": true,
     "sourceMap": false,
-    "importHelpers": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "lib": ["es2015", "dom"]
+    "lib": ["es2016", "dom"]
   },
   "include": ["../src/**/*"],
   "exclude": []
