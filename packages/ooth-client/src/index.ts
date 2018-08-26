@@ -5,14 +5,14 @@ const url = require('url');
 
 declare var require: any;
 
-type Options = {
+export type Options = {
   oothUrl: string;
   standalone?: boolean;
   apiLoginUrl?: string;
   apiLogoutUrl?: string;
 };
 
-type User = {
+export type User = {
   _id: string;
 };
 
