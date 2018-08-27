@@ -1,6 +1,7 @@
 import { compareSync, genSaltSync, hashSync } from 'bcrypt-nodejs';
 import { randomBytes } from 'crypto';
-import { FullRequest, Ooth, StrategyValues, User } from 'ooth';
+import { Request } from 'express';
+import { FullRequest, Ooth, StrategyValues } from 'ooth';
 import { getI18n, Translations } from 'ooth-i18n';
 import { Strategy as LocalStrategy, VerifyFunctionWithRequest } from 'passport-local';
 import { callbackify } from 'util';
@@ -51,32 +52,12 @@ type Result = {
 export type Options = {
   name?: string;
   ooth: Ooth;
-  onRegister?: (args: { _id: string; email: string; verificationToken: string }) => void;
-  onGenerateVerificationToken?: (args: { _id: string; email: string; verificationToken: string }) => void;
-  onSetEmail?: (args: { _id: string; email: string; verificationToken: string }) => void;
-  onVerify?: (args: { _id: string; email: string }) => void;
-  onForgotPassword?: (args: { _id: string; email: string; passwordResetToken: string }) => void;
-  onResetPassword?: (args: { _id: string; email: string }) => void;
-  onChangePassword?: (args: { _id: string; email: string }) => void;
   defaultLanguage?: string;
   translations?: Translations;
   validators?: Validators;
 };
 
-export default function({
-  name = 'local',
-  ooth,
-  onRegister,
-  onGenerateVerificationToken,
-  onSetEmail,
-  onVerify,
-  onForgotPassword,
-  onResetPassword,
-  onChangePassword,
-  defaultLanguage,
-  translations,
-  validators,
-}: Options): void {
+export default function({ name = 'local', ooth, defaultLanguage, translations, validators }: Options): void {
   const __ = getI18n(translations || DEFAULT_TRANSLATIONS, defaultLanguage || DEFAULT_LANGUAGE);
   const actualValidators: Validators = { ...DEFAULT_VALIDATORS, ...validators };
 
@@ -97,7 +78,7 @@ export default function({
   ooth.registerUniqueField(name, 'email', 'email');
   ooth.registerProfileFields(name, 'username', 'email', 'verified');
 
-  ooth.registerPassportMethod(
+  ooth.registerPrimaryAuth(
     name,
     'login',
     [ooth.requireNotLogged],
@@ -107,7 +88,8 @@ export default function({
         passwordField: 'password',
         passReqToCallback: true,
       },
-      callbackify(async (req: FullRequest, username: string, password: string) => {
+      callbackify(async (req: Request, username: string, password: string) => {
+        const fullRequest: FullRequest = req as any;
         let user = await ooth.getUserByUniqueField('username', username);
 
         if (!user) {
@@ -115,18 +97,18 @@ export default function({
         }
 
         if (!user) {
-          throw new Error(__('login.no_user', null, req.locale));
+          throw new Error(__('login.no_user', null, fullRequest.locale));
         }
 
         if (!user[name]) {
-          throw new Error(__('login.no_password', null, req.locale));
+          throw new Error(__('login.no_password', null, fullRequest.locale));
         }
 
         if (!compareSync(password, (user[name]! as StrategyValues).password)) {
-          throw new Error(__('login.invalid_password', null, req.locale));
+          throw new Error(__('login.invalid_password', null, fullRequest.locale));
         }
 
-        return user;
+        return user._id;
       }) as VerifyFunctionWithRequest,
     ),
   );
@@ -135,7 +117,7 @@ export default function({
     name,
     'set-username',
     [ooth.requireLogged],
-    async ({ username }: any, user: User | null, locale: string): Promise<Result> => {
+    async ({ username }: any, userId: string | undefined, locale: string): Promise<Result> => {
       if (typeof username !== 'string') {
         throw new Error(__('set_username.invalid_username', null, locale));
       }
@@ -148,7 +130,7 @@ export default function({
         throw new Error(__('username_taken.invalid_username', null, locale));
       }
 
-      await ooth.updateUser(name, user!._id, {
+      await ooth.updateUser(name, userId!, {
         username,
       });
 
@@ -162,7 +144,7 @@ export default function({
     name,
     'set-email',
     [ooth.requireLogged],
-    async ({ email }: any, user: User | null, locale: string): Promise<Result> => {
+    async ({ email }: any, userId: string | undefined, locale: string): Promise<Result> => {
       if (typeof email !== 'string') {
         throw new Error(__('set_email.invalid_email', null, locale));
       }
@@ -170,25 +152,23 @@ export default function({
       testValue('email', email, locale);
 
       const existingUser = await ooth.getUserByUniqueField('email', email);
-      if (existingUser && existingUser._id !== user!._id) {
+      if (existingUser && existingUser._id !== userId!) {
         throw new Error(__('set_email.email_already_registered', null, locale));
       }
 
       const verificationToken = randomToken();
 
-      await ooth.updateUser(name, user!._id, {
+      await ooth.updateUser(name, userId!, {
         email,
         verificationToken: hash(verificationToken),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
-      if (onSetEmail) {
-        onSetEmail({
-          email,
-          verificationToken,
-          _id: user!._id,
-        });
-      }
+      await ooth.emit(name, 'set-email', {
+        email,
+        verificationToken,
+        _id: userId!,
+      });
 
       return {
         message: __('set_email.email_updated', null, locale),
@@ -200,7 +180,7 @@ export default function({
     name,
     'register',
     [ooth.requireNotLogged],
-    async ({ email, password }: any, user: User | null, locale: string): Promise<Result> => {
+    async ({ email, password }: any, _userId: string | undefined, locale: string): Promise<Result> => {
       if (typeof email !== 'string') {
         throw new Error(__('register.invalid_email', null, locale));
       }
@@ -227,13 +207,11 @@ export default function({
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
-      if (onRegister) {
-        onRegister({
-          _id,
-          email,
-          verificationToken,
-        });
-      }
+      await ooth.emit(name, 'register', {
+        _id,
+        email,
+        verificationToken,
+      });
 
       return {
         message: __('register.registered', null, locale),
@@ -245,24 +223,25 @@ export default function({
     name,
     'generate-verification-token',
     [ooth.requireRegisteredWith(name)],
-    async (_: any, user: User | null, locale: string): Promise<Result> => {
+    async (_: any, userId: string | undefined, locale: string): Promise<Result> => {
       const verificationToken = randomToken();
+
+      const user = await ooth.getUserById(userId!);
 
       if (!user![name] || !(user![name] as StrategyValues).email) {
         throw new Error(__('generate_verification_token.no_email', null, locale));
       }
 
-      await ooth.updateUser(name, user!._id, {
+      await ooth.updateUser(name, userId!, {
         verificationToken: hash(verificationToken),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
-      if (onGenerateVerificationToken) {
-        onGenerateVerificationToken({
-          verificationToken,
-          _id: user!._id,
-          email: (user![name] as StrategyValues).email,
-        });
-      }
+
+      await ooth.emit(name, 'generate-verification-token', {
+        verificationToken,
+        _id: userId!,
+        email: (user![name] as StrategyValues).email,
+      });
 
       return {
         message: __('generate_verification_token.token_generated', null, locale),
@@ -274,7 +253,7 @@ export default function({
     name,
     'verify',
     [],
-    async ({ userId, token }: any, _user: User | null, locale: string): Promise<Result> => {
+    async ({ userId, token }: any, _userId: string | undefined, locale: string): Promise<Result> => {
       if (!userId) {
         throw new Error(__('verify.no_user_id', null, locale));
       }
@@ -314,12 +293,10 @@ export default function({
 
       const newUser = await ooth.getUserById(user._id);
 
-      if (onVerify) {
-        onVerify({
-          _id: newUser._id,
-          email: (newUser[name] as StrategyValues).email,
-        });
-      }
+      await ooth.emit(name, 'verify', {
+        _id: newUser._id,
+        email: (newUser[name] as StrategyValues).email,
+      });
 
       return {
         message: __('verify.verified', null, locale),
@@ -331,7 +308,7 @@ export default function({
     name,
     'forgot-password',
     [ooth.requireNotLogged],
-    async ({ username }: any, _user: User | null, locale: string): Promise<Result> => {
+    async ({ username }: any, _userId: string | undefined, locale: string): Promise<Result> => {
       if (!username || typeof username !== 'string') {
         throw new Error(__('forgot_password.invalid_username', null, locale));
       }
@@ -355,13 +332,11 @@ export default function({
         passwordResetTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
-      if (onForgotPassword) {
-        onForgotPassword({
-          email,
-          passwordResetToken,
-          _id: user._id,
-        });
-      }
+      await ooth.emit(name, 'forgot-password', {
+        email,
+        passwordResetToken,
+        _id: user._id,
+      });
 
       return {
         message: __('forgot_password.token_generated', null, locale),
@@ -373,7 +348,7 @@ export default function({
     name,
     'reset-password',
     [ooth.requireNotLogged],
-    async ({ userId, token, newPassword }: any, _user: User | null, locale: string): Promise<Result> => {
+    async ({ userId, token, newPassword }: any, _userId: string | undefined, locale: string): Promise<Result> => {
       if (!userId) {
         throw new Error(__('reset_password.no_user_id', null, locale));
       }
@@ -417,12 +392,10 @@ export default function({
         password: hash(newPassword),
       });
 
-      if (onResetPassword) {
-        onResetPassword({
-          _id: user._id,
-          email: strategyValues.email,
-        });
-      }
+      await ooth.emit(name, 'reset-password', {
+        _id: user._id,
+        email: strategyValues.email,
+      });
 
       return {
         message: __('reset_password.password_reset', null, locale),
@@ -434,12 +407,14 @@ export default function({
     name,
     'change-password',
     [ooth.requireLogged],
-    async ({ password, newPassword }: any, user: User | null, locale: string): Promise<Result> => {
+    async ({ password, newPassword }: any, userId: string | undefined, locale: string): Promise<Result> => {
       if (typeof password !== 'string') {
         throw new Error(__('change_password.invalid_password', null, locale));
       }
 
       testValue('password', newPassword, locale);
+
+      const user = await ooth.getUserById(userId!);
 
       const strategyValues = user![name] as StrategyValues;
 
@@ -447,16 +422,15 @@ export default function({
         throw new Error(__('change_password.invalid_password', null, locale));
       }
 
-      await ooth.updateUser(name, user!._id, {
+      await ooth.updateUser(name, userId!, {
         passwordResetToken: null,
         password: hash(newPassword),
       });
-      if (onChangePassword) {
-        onChangePassword({
-          _id: user!._id,
-          email: strategyValues && strategyValues.email,
-        });
-      }
+
+      await ooth.emit(name, 'change-password', {
+        _id: userId!,
+        email: strategyValues && strategyValues.email,
+      });
 
       return {
         message: __('change_password.password_changed', null, locale),

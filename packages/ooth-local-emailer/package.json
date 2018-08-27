@@ -15,7 +15,9 @@
   "engines": {
     "node": ">= 10.9.0"
   },
+  "repository": "nmaro/ooth",
   "dependencies": {
+    "ooth": "^1.5.1",
     "ooth-i18n": "^1.5.0"
   },
   "devDependencies": {

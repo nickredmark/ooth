@@ -1,4 +1,4 @@
-import { Ooth, User, StrategyValues } from 'ooth';
+import { Ooth, StrategyValues } from 'ooth';
 import { getI18n, Translations } from 'ooth-i18n';
 
 const DEFAULT_TRANSLATIONS = {
@@ -9,7 +9,7 @@ const DEFAULT_LANGUAGE = 'en';
 type Config = {
   ooth: Ooth;
   language?: string;
-  translations: Translations;
+  translations?: Translations;
   name?: string;
 };
 
@@ -21,7 +21,9 @@ export default function({ ooth, name = 'roles', language, translations }: Config
     name,
     'set',
     [ooth.requireLogged],
-    async ({ userId, roles }: any, user: User | null, locale: string): Promise<{ message: string }> => {
+    async ({ userId, roles }: any, currentUserId: string | undefined, locale: string): Promise<{ message: string }> => {
+      const user = await ooth.getUserById(currentUserId!);
+
       if (
         !user![name] ||
         !(user![name] as StrategyValues).roles ||

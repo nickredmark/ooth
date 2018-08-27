@@ -13,7 +13,7 @@ type Config = {
 export default function({ name = 'google', ooth, clientID, clientSecret }: Config): void {
   ooth.registerUniqueField(name, 'email', 'email');
   ooth.registerProfileFields(name, 'email');
-  ooth.registerPassportConnectMethod(
+  ooth.registerPrimaryConnect(
     name,
     'login',
     [],

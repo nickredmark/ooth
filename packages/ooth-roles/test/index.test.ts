@@ -1,12 +1,11 @@
 import { Ooth } from 'ooth';
 import * as express from 'express';
-import * as session from 'express-session';
 import * as request from 'request-promise';
 import oothRoles from '../src';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { MongoClient, ObjectId } from 'mongodb';
 import { OothMongo } from 'ooth-mongo';
-import oothGuest from 'ooth-guest';
+import { Strategy } from 'passport-custom';
 
 let mongoServer;
 let con;
@@ -16,9 +15,7 @@ let ooth;
 let oothMongo;
 let db;
 let admin;
-let adminCookies = '';
 let user;
-let userCookies = '';
 
 const startServer = () => {
   return new Promise((resolve) => {
@@ -55,35 +52,29 @@ describe('ooth-roles', () => {
 
   beforeEach(async () => {
     app = express();
-    app.use(
-      session({
-        name: 'api-session-id',
-        secret: 'x',
-        resave: false,
-        saveUninitialized: true,
-      }),
-    );
     oothMongo = new OothMongo(db);
     ooth = new Ooth({
       app,
       backend: oothMongo,
-      sharedSecret: '',
-      standalone: false,
       path: '',
       onLogin: () => null,
-      onLogout: () => null,
     });
-    oothGuest({ ooth });
     oothRoles({ ooth });
+    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((req, done) => done(null, {})));
+    ooth.registerAfterware(async (res, userId) => {
+      if (userId) {
+        res.user = await ooth.getUserById(userId);
+      }
+
+      return res;
+    });
     await startServer();
     let res = await request({
       method: 'POST',
       uri: 'http://localhost:8080/guest/register',
-      resolveWithFullResponse: true,
       json: true,
     });
-    adminCookies = res.headers['set-cookie'];
-    admin = res.body.user;
+    admin = res.user;
 
     db.collection('users').update(
       {
@@ -101,11 +92,9 @@ describe('ooth-roles', () => {
     res = await request({
       method: 'POST',
       uri: 'http://localhost:8080/guest/register',
-      resolveWithFullResponse: true,
       json: true,
     });
-    userCookies = res.headers['set-cookie'];
-    user = res.body.user;
+    user = res.user;
   });
 
   afterEach(async () => {
@@ -115,19 +104,16 @@ describe('ooth-roles', () => {
     if (db) {
       await db.dropDatabase();
     }
-    adminCookies = '';
   });
 
   test('admin can set roles', async () => {
+    ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, admin._id)));
     const res = await request({
       method: 'POST',
       uri: 'http://localhost:8080/roles/set',
       body: {
         userId: admin._id,
         roles: ['admin', 'editor'],
-      },
-      headers: {
-        Cookie: adminCookies,
       },
       json: true,
     });
@@ -137,15 +123,13 @@ describe('ooth-roles', () => {
 
   test("nonadmin can't set roles", async () => {
     try {
+      ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, user._id)));
       const res = await request({
         method: 'POST',
         uri: 'http://localhost:8080/roles/set',
         body: {
           userId: user._id,
           roles: ['admin', 'editor'],
-        },
-        headers: {
-          Cookie: userCookies,
         },
         json: true,
       });

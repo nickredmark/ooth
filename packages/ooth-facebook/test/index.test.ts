@@ -50,11 +50,7 @@ describe('ooth-facebook', () => {
     ooth = new Ooth({
       app,
       backend: oothMongo,
-      sharedSecret: '',
-      standalone: false,
       path: '',
-      onLogin: () => null,
-      onLogout: () => null,
     });
     oothFacebook({
       ooth,

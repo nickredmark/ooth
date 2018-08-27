@@ -17,6 +17,7 @@
   "engines": {
     "node": ">= 10.9.0"
   },
+  "repository": "nmaro/ooth",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "ooth-i18n": "^1.5.0",
@@ -35,7 +36,9 @@
     "mongodb": "^2.2.30",
     "mongodb-memory-server": "^2.0.1",
     "ooth": "^1.5.1",
+    "ooth-local-emailer": "^1.5.0",
     "ooth-mongo": "^1.2.1",
+    "passport-custom": "^1.0.5",
     "request-promise": "^4.2.1",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",

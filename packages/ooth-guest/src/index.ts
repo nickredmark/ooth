@@ -3,7 +3,7 @@ import { Ooth, FullRequest, StrategyValues } from 'ooth';
 const { Strategy } = require('passport-custom');
 
 export default function({ ooth, name = 'guest' }: { ooth: Ooth; name?: string }): void {
-  ooth.registerPassportConnectMethod(
+  ooth.registerPrimaryConnect(
     name,
     'register',
     [ooth.requireNotLogged],

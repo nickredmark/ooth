@@ -17,26 +17,23 @@
   "engines": {
     "node": ">= 10.9.0"
   },
+  "repository": "nmaro/ooth",
   "dependencies": {
     "body-parser": "^1.16.0",
     "cookie-parser": "^1.4.3",
     "express": "^4.14.1",
-    "express-session": "^1.15.0",
-    "express-ws": "^4.0.0",
-    "jsonwebtoken": "^8.3.0",
+    "express-session": "^1.15.6",
     "locale": "^0.1.0",
-    "morgan": "^1.7.0",
     "ooth-i18n": "^1.5.0",
     "passport": "^0.3.2",
-    "passport-jwt": "^4.0.0"
+    "passport-custom": "^1.0.5"
   },
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
     "@types/body-parser": "^1.17.0",
     "@types/cookie-parser": "^1.4.1",
-    "@types/express-ws": "^3.0.0",
+    "@types/express-session": "^1.15.10",
     "@types/jest": "^23.3.1",
-    "@types/jsonwebtoken": "^7.2.8",
     "@types/mongodb": "^3.1.4",
     "@types/passport": "^0.4.6",
     "@types/passport-jwt": "^3.0.1",
@@ -47,7 +44,6 @@
     "mongodb-memory-server": "^2.0.1",
     "ms": "^2.1.1",
     "ooth-mongo": "^1.2.1",
-    "passport-custom": "^1.0.5",
     "passport-strategy": "^1.0.0",
     "request-promise": "^4.2.1",
     "ts-jest": "^23.1.4",

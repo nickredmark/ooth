@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-user attaches user object to response 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "guest": Object {
+    "x": 1,
+  },
+}
+`;

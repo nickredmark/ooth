@@ -3,6 +3,7 @@
 exports[`ooth-profile can set values 1`] = `
 Object {
   "_id": "<obfuscated>",
+  "guest": Object {},
   "profile": Object {
     "age": 20,
     "firstName": "John",

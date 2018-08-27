@@ -8,7 +8,6 @@
     "rootDir": "../src",
     "declaration": true,
     "sourceMap": false,
-    "importHelpers": true,
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

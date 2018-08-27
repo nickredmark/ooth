@@ -1,16 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ooth connect method after login can connect another strategy 1`] = `
+exports[`ooth no session connect method after login can connect another strategy 1`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
     "foo": 1,
   },
-  "test2": Object {},
+  "test2": Object {
+    "baz": 45,
+  },
 }
 `;
 
-exports[`ooth connect method after login can log in again 1`] = `
+exports[`ooth no session connect method after login can log in again 1`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
@@ -19,7 +21,7 @@ Object {
 }
 `;
 
-exports[`ooth connect method after login can log in with other strategy 1`] = `
+exports[`ooth no session connect method after login can log in with other strategy 1`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
@@ -29,23 +31,7 @@ Object {
 }
 `;
 
-exports[`ooth connect method after login can log in with other strategy 2`] = `
-Object {
-  "_id": "<obfuscated>",
-  "test": Object {
-    "foo": 1,
-  },
-  "test2": Object {},
-}
-`;
-
-exports[`ooth connect method after login can log out 1`] = `
-Object {
-  "message": "Logged out",
-}
-`;
-
-exports[`ooth connect method can log in 1`] = `
+exports[`ooth no session connect method can log in 1`] = `
 Object {
   "user": Object {
     "_id": "<obfuscated>",
@@ -56,7 +42,7 @@ Object {
 }
 `;
 
-exports[`ooth connect method can register 1`] = `
+exports[`ooth no session connect method can register 1`] = `
 Object {
   "_id": "<obfuscated>",
   "test": Object {
@@ -65,36 +51,79 @@ Object {
 }
 `;
 
-exports[`ooth methods fails with requireLogged 1`] = `
+exports[`ooth no session methods fails with requireLogged 1`] = `
 Object {
   "message": "Not logged in",
   "status": "error",
 }
 `;
 
-exports[`ooth methods handle async errors 1`] = `
+exports[`ooth no session methods handle async errors 1`] = `
 Object {
   "message": "Error message.",
   "status": "error",
 }
 `;
 
-exports[`ooth methods handle errors 1`] = `
+exports[`ooth no session methods handle errors 1`] = `
 Object {
   "message": "Error message.",
   "status": "error",
 }
 `;
 
-exports[`ooth methods handle method 1`] = `
+exports[`ooth no session methods handle method 1`] = `
 Object {
   "message": "hi",
 }
 `;
 
-exports[`ooth methods translates error 1`] = `
+exports[`ooth no session methods translates error 1`] = `
 Object {
   "message": "French not logged",
+  "status": "error",
+}
+`;
+
+exports[`ooth session methods can do secondary auth with cookies 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "x": 1,
+  },
+}
+`;
+
+exports[`ooth session methods can do secondary auth with cookies 2`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "x": 1,
+  },
+}
+`;
+
+exports[`ooth session methods can log out 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "x": 1,
+  },
+}
+`;
+
+exports[`ooth session methods can log out 2`] = `Object {}`;
+
+exports[`ooth session methods can log out 3`] = `
+Object {
+  "message": "Not logged in",
+  "status": "error",
+}
+`;
+
+exports[`ooth session methods fails without cookies 1`] = `
+Object {
+  "message": "Not logged in",
   "status": "error",
 }
 `;

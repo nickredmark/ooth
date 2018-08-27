@@ -1,15 +1,11 @@
 import * as bodyParser from 'body-parser';
-import * as cookieParser from 'cookie-parser';
-import { randomBytes } from 'crypto';
 import { Application, Request, RequestHandler, Response, Router } from 'express';
-import * as expressWs from 'express-ws';
-import { sign } from 'jsonwebtoken';
 import { getI18n, Translations, Values } from 'ooth-i18n';
 import * as passport from 'passport';
-import { Strategy as JwtStrategy } from 'passport-jwt';
-import * as WebSocket from 'ws';
-import { callbackify } from 'util';
+import * as session from 'express-session';
+import * as cookieParser from 'cookie-parser';
 
+const { Strategy } = require('passport-custom');
 const locale = require('locale');
 
 export interface Backend {
@@ -23,22 +19,10 @@ export interface Backend {
 export type Options = {
   app: Application;
   backend: Backend;
-  sharedSecret: string;
-  standalone?: boolean;
   path?: string;
-  tokenExpires?: number;
-  onLogin?: (user: User) => any;
-  onRegister?: (user: User) => any;
-  onLogout?: () => any;
   specJwt?: boolean;
-  onRefreshRequest?: (args: { refreshToken: string }) => any;
-  onRefreshRequestUser?: (
-    args: {
-      user: User;
-      refreshToken: string;
-    },
-  ) => any;
-  refreshTokenExpiry?: number;
+  sessionSecret?: string;
+
   defaultLanguage?: string;
   translations?: Translations;
 };
@@ -49,11 +33,12 @@ export type StrategyValues = {
 
 export type User = {
   _id: string;
-  refreshTokenExpiresAt?: Date;
   [strategyName: string]: undefined | string | Date | StrategyValues;
 };
 
-type Method<T> = (params: any, user: User | null, locale: string) => Promise<T>;
+type Condition = (req: FullRequest) => boolean;
+
+type Method<T> = (params: any, user: string | undefined, locale: string) => Promise<T>;
 
 type Strategy = {
   profileFields: {
@@ -65,121 +50,74 @@ type Strategy = {
   uniqueFields: {
     [key: string]: true;
   };
+  secondaryAuth: {
+    [key: string]: Condition;
+  };
 };
 
 type Strategies = {
   [key: string]: Strategy;
 };
 
-type RouterWithWs = Router & {
-  ws: any;
-};
+type Omit<T, K> = Pick<T, Exclude<keyof T, K>>;
 
-export type FullRequest = Request & {
-  session: {
-    id: string;
-  };
-  locale: string;
-};
+type Override<T, K> = Omit<T, keyof K> & K;
+
+export type FullRequest = Override<
+  Request,
+  {
+    locale: string;
+    user?: string | undefined;
+    session?: {
+      id: string;
+    };
+  }
+>;
 
 type MyRequestHandler = (req: FullRequest, res: Response, next: () => any) => any;
 
-type FinalRequestHandler = (req: FullRequest, res: Response) => any;
+type UserIdResolver<T> = (req: FullRequest, authResult: T) => Promise<string | undefined>;
 
-type Token = {
-  iat: number;
-  exp?: number;
-  _id?: string;
-};
+type Result = { [key: string]: any };
+
+type Afterware = ((res: Result, userId: string | undefined) => Promise<Result>);
 
 const DEFAULT_LANGUAGE = 'en';
 const DEFAULT_TRANSLATIONS = {
   en: require('../i18n/en.json'),
 };
 
-function randomToken(): string {
-  return randomBytes(43).toString('hex');
-}
+const authenticate = <T>(methodName: string, session: boolean, req: FullRequest, res: Response): Promise<T> =>
+  new Promise((resolve, reject) =>
+    passport.authenticate(
+      methodName,
+      {
+        session,
+      },
+      (err: Error, user: any, info: any) =>
+        err ? reject(err) : !user && info && info.message ? reject(info.message) : resolve(user),
+    )(req, res),
+  );
 
-function post(route: Router, routeName: string, middleware: MyRequestHandler[], handler: FinalRequestHandler): void {
-  route.post(routeName, ...(middleware as RequestHandler[]), async (req: Request, res: Response) => {
-    try {
-      const data = await handler(req as FullRequest, res);
-
-      return res.send(data);
-    } catch (e) {
-      console.error(e);
-      return res.status(400).send({
-        status: 'error',
-        message: e.message || e,
-      });
-    }
-  });
-}
-
-function authenticate(methodName: string, req: Request, res: Response): Promise<User | StrategyValues> {
-  return new Promise((resolve, reject) => {
-    passport.authenticate(methodName, (err: Error, user: any, info: any) => {
-      if (err) {
-        reject(err);
-      }
-
-      if (!user) {
-        reject(new Error((info && info.message) || 'Unknown error.'));
-      }
-
-      resolve(user);
-    })(req, res);
-  });
-}
-
-const login = (req: Request, user: User) =>
-  new Promise((resolve, reject) => req.login(user, (err) => (err ? reject(err) : resolve())));
+type EventListener = (payload: any) => Promise<void>;
 
 export class Ooth {
-  private sharedSecret: string;
-  private standalone: boolean;
   private path: string;
-  private tokenExpires: number | false;
-  private onLogin?: (user: User) => any;
-  private onRegister?: (user: User) => any;
-  private onLogout?: (user: User) => any;
-  private specJwt?: boolean;
-  private onRefreshRequest?: (args: { refreshToken: string }) => any;
-  private onRefreshRequestUser?: (
-    args: {
-      user: User;
-      refreshToken: string;
-    },
-  ) => any;
-  private refreshTokenExpiry: number;
   private uniqueFields: { [key: string]: { [key: string]: string } } = {};
   private strategies: Strategies = {};
-  private connections: { [key: string]: WebSocket[] } = {};
-  private route: RouterWithWs = Router();
+  private route: Router = Router();
   private translations: Translations;
   private defaultLanguage: string;
   private __: (s: string, values: Values | null, language: string) => string;
   private backend: Backend;
   private app: Application;
+  private middleware: RequestHandler[] = [];
+  private afterware: Afterware[] = [];
+  private authAfterware: Afterware[] = [];
+  private sessionSecret?: string;
+  private listeners: { [name: string]: EventListener[] } = {};
 
-  constructor({
-    app,
-    backend,
-    sharedSecret,
-    standalone = false,
-    path,
-    tokenExpires, // TODO NEXT MAJOR: true
-    onLogin,
-    onRegister,
-    onLogout,
-    specJwt, // TODO NEXT MAJOR: true
-    onRefreshRequest,
-    onRefreshRequestUser,
-    refreshTokenExpiry = 60 * 60 * 24, // seconds, 1 day
-    defaultLanguage,
-    translations,
-  }: Options) {
+  constructor({ app, backend, path, defaultLanguage, translations, sessionSecret }: Options) {
     if (!app) {
       throw new Error('App is required.');
     }
@@ -189,243 +127,76 @@ export class Ooth {
       throw new Error('Backend is required.');
     }
     this.backend = backend;
-    this.sharedSecret = sharedSecret;
-    this.standalone = standalone;
     this.path = path || '/';
-    this.tokenExpires = tokenExpires || false;
-    this.onLogin = onLogin;
-    this.onRegister = onRegister;
-    this.onLogout = onLogout;
-    this.specJwt = specJwt;
-    this.onRefreshRequest = onRefreshRequest;
-    this.onRefreshRequestUser = onRefreshRequestUser;
-    this.refreshTokenExpiry = refreshTokenExpiry;
     this.translations = translations || DEFAULT_TRANSLATIONS;
     this.defaultLanguage = defaultLanguage || DEFAULT_LANGUAGE;
     this.__ = getI18n(this.translations, this.defaultLanguage);
+    this.sessionSecret = sessionSecret;
 
     // App-wide configuration
-    this.app.use(cookieParser());
     this.app.use(bodyParser.json());
-    this.app.use(passport.initialize());
-    this.app.use(passport.session());
     this.app.use(locale(Object.keys(this.translations), this.defaultLanguage));
-    expressWs(this.app);
-
-    this.app.use(this.path, this.route);
-
-    passport.serializeUser((user: User, done) => done(null, user._id));
-    passport.deserializeUser((id, done) => {
-      if (typeof id === 'string') {
-        this.backend!.getUserById(id)
-          .then((user) => done(null, user))
-          .catch(done);
-      } else {
-        done(null, false);
-      }
-    });
-
-    this.route.get('/status', (req, res) => {
-      if (req.user) {
-        const user: User = this.getProfile(req.user)!;
-        if (this.standalone) {
-          res.send({
-            user,
-            token: this.getToken(req.user),
-          });
-        } else {
-          res.send({
-            user,
-          });
-        }
-      } else {
-        res.send({
-          user: null,
-        });
-      }
-    });
-    post(this.route, '/logout', [this.requireLogged], async (req: FullRequest, _res: Response) => {
-      const user = req.user;
-      this.sendStatus(req, {});
-      req.logout();
-      if (this.onLogout) {
-        this.onLogout(user);
-      }
-      return {
-        message: 'Logged out',
-      };
-    });
-
-    if (this.standalone) {
-      const passportJwtStrategy = new JwtStrategy(
-        {
-          secretOrKey: this.sharedSecret,
-          jwtFromRequest: (req) => {
-            let token;
-            if (req.body && req.body.token) {
-              token = req.body.token;
-            }
-            const authorization = req.get('authorization');
-            if (authorization) {
-              token = authorization.split(' ').pop();
-            }
-
-            if (!token) {
-              throw new Error('No token found.');
-            }
-
-            return token;
-          },
-        },
-        callbackify(async (payload: any) => {
-          if (!payload._id && (!payload.user || !payload.user._id || typeof payload.user._id !== 'string')) {
-            throw new Error('Malformed token payload.');
-          }
-          return payload._id ? payload : payload.user;
+    if (this.sessionSecret) {
+      this.app.use(cookieParser());
+      this.app.use(
+        session({
+          secret: this.sessionSecret,
+          name: 'ooth-session-id',
+          resave: false,
+          saveUninitialized: true,
         }),
       );
-
-      // Login with JWT token
-      this.registerPassportMethod('root', 'login', [this.requireNotLogged], passportJwtStrategy);
-
-      // Refresh tokens
-      passport.use('refresh', passportJwtStrategy);
-      this.route.get('/refresh', async (req, res) => {
-        const tokenPayload = await authenticate('refresh', req, res);
-
-        if (!tokenPayload || !tokenPayload._id) {
-          throw new Error('No user for refresh');
-        }
-
-        return this.backend!.getUserById(tokenPayload._id).then((user) => {
-          if (!user) {
-            throw new Error('No user for refresh.');
-          }
-
-          const refreshToken = randomToken();
-          const now = new Date();
-          const refreshTokenExpiresAt = new Date(now.valueOf() + this.refreshTokenExpiry * 1000);
-          return this.backend!.updateUser(user._id, {
-            refreshToken,
-            refreshTokenExpiresAt,
-          })
-            .then(() => {
-              return this.backend!.getUserById(user._id);
-            })
-            .then((_user) => {
-              return res.send({
-                refreshToken,
-                refreshTokenExpiresAt,
-              });
-            });
-        });
-      });
-      this.route.post('/refresh', async (req, res) => {
-        if (!req.body.refreshToken) {
-          throw new Error('Must supply refreshToken.');
-        }
-
-        if (this.onRefreshRequest) {
-          this.onRefreshRequest({
-            refreshToken: req.body.refreshToken,
-          });
-        }
-
-        try {
-          const user = await this.backend!.getUserByValue(['refreshToken'], req.body.refreshToken).then((user) => {
-            if (!user) {
-              throw new Error('No user found for that refreshToken.');
-            }
-
-            if (!user || !user.refreshTokenExpiresAt) {
-              throw new Error('Bad refreshToken.');
-            }
-
-            const nowDate = new Date();
-            const tokenExpiryDate = new Date(user.refreshTokenExpiresAt);
-
-            if (nowDate.getTime() > tokenExpiryDate.getTime()) {
-              throw new Error('Refresh token expired.');
-            }
-            return user;
-          });
-          if (this.onRefreshRequestUser) {
-            this.onRefreshRequestUser({
-              user,
-              refreshToken: req.body.refreshToken,
-            });
-          }
-
-          return res.send({
-            token: this.getToken(user),
-          });
-        } catch (e) {
-          console.error(e);
-          return res.status(400).send({
-            status: 'error',
-            message: e.message || e,
-          });
-        }
-      });
     }
-
-    this.route.ws('/status', (ws: WebSocket, req: FullRequest) => {
-      if (!this.connections[req.session.id]) {
-        this.connections[req.session.id] = [];
-      }
-      this.connections[req.session.id].push(ws);
-
-      if (req.user) {
-        ws.send(
-          JSON.stringify({
-            user: this.getProfile(req.user),
-          }),
-        );
-      } else {
-        ws.send(
-          JSON.stringify({
-            user: null,
-          }),
-        );
-      }
-
-      ws.on('close', () => {
-        this.connections[req.session.id] = this.connections[req.session.id].filter((wss) => ws !== wss);
-      });
-    });
-  }
-
-  public registerMethod<T>(
-    strategyName: string,
-    method: string,
-    middleware: MyRequestHandler[],
-    handler: Method<T>,
-    httpMethod: 'POST' | 'GET' = 'POST',
-  ): void {
-    this.getStrategy(strategyName).methods[method] = handler;
-
-    const finalHandler = async (req: Request, res: Response) => {
+    this.app.use(passport.initialize());
+    if (this.sessionSecret) {
+      this.app.use(passport.session());
+      passport.serializeUser((id: string | undefined, done: (e: Error | null, id: string | undefined) => void) =>
+        done(null, id),
+      );
+      passport.deserializeUser((id: string | undefined, done: (e: Error | null, id: string | undefined) => void) =>
+        done(null, id),
+      );
+      this.registerPrimaryAuth(
+        'session',
+        'logout',
+        [this.requireLogged],
+        new Strategy((_req: FullRequest, done: (e: Error | null, v: null | User | StrategyValues) => void) =>
+          done(null, null),
+        ),
+      );
+    }
+    this.app.use(async (req, res, next) => {
       try {
-        const result = await this.getStrategy(strategyName).methods[method](req.body, req.user, (req as FullRequest).locale);
-        if (req.user) {
-          const user = await this.getUserById(req.user._id);
-          result.user = this.getProfile(user);
+        const fullRequest: FullRequest = req as any;
+        for (const strategyName of Object.keys(this.strategies)) {
+          for (const methodName of Object.keys(this.strategies[strategyName].secondaryAuth)) {
+            if (this.strategies[strategyName].secondaryAuth[methodName](fullRequest)) {
+              const userId = await authenticate<string | undefined>(
+                `${strategyName}-${methodName}`,
+                !!this.sessionSecret,
+                fullRequest,
+                res,
+              );
+              await new Promise((res, rej) =>
+                fullRequest.login(userId, { session: !!this.sessionSecret }, (e) => (e ? rej(e) : res())),
+              );
+            }
+          }
         }
-        res.send(result);
+        next();
       } catch (e) {
         console.error(e);
         return res.status(400).send({
           status: 'error',
-          message: e.message,
+          message: typeof e === 'string' ? e : e.message,
         });
       }
-    };
+    });
+    this.app.use(this.path, this.route);
+  }
 
-    this.route[httpMethod === 'GET' ? 'get' : 'post'](
-      `/${strategyName}/${method}`,
-      ...(middleware as RequestHandler[]),
-      finalHandler,
-    );
+  public usesSession(): boolean {
+    return !!this.sessionSecret;
   }
 
   public registerUniqueField(strategyName: string, id: string, fieldName: string): void {
@@ -498,160 +269,199 @@ export class Ooth {
   };
 
   public requireRegisteredWith = (strategy: string) => {
-    return (req: FullRequest, res: Response, next: () => any) => {
-      return this.requireLogged(req, res, () => {
-        const user = req.user;
+    return (req: FullRequest, res: Response, next: () => any) =>
+      this.requireLogged(req, res, async () => {
+        const user = await this.getUserById(req.user!);
         if (!user[strategy]) {
           return res.status(400).send({
             status: 'error',
             message: this.__('not_registered_with', { strategy }, req.locale),
           });
         }
-        req.user[strategy] = user[strategy];
         next();
       });
-    };
   };
 
-  public registerPassportMethod(
+  public registerPrimaryAuth<T>(
+    strategyName: string,
+    method: string,
+    middleware: MyRequestHandler[],
+    strategy: passport.Strategy,
+    resolveUserId: UserIdResolver<T> = async (_req: FullRequest, userId: T) => userId as any,
+  ): void {
+    const methodName = `${strategyName}-${method}`;
+    const routeName = `/${strategyName}/${method}`;
+    passport.use(methodName, strategy);
+    this.route.post(routeName, ...((middleware as any) as RequestHandler[]), async (req: Request, res: Response) => {
+      const fullRequest: FullRequest = req as any;
+      try {
+        const authResult = await authenticate<T>(methodName, !!this.sessionSecret, fullRequest, res);
+        const userId = await resolveUserId(fullRequest, authResult);
+        if (req.user !== userId) {
+          if (userId) {
+            this.emit('ooth', 'login', { userId, sessionId: req.session && req.session.id });
+            await new Promise((res, rej) =>
+              fullRequest.login(userId, { session: !!this.sessionSecret }, (e) => (e ? rej(e) : res())),
+            );
+          } else {
+            this.emit('ooth', 'logout', { userId: req.user, sessionId: req.session && req.session.id });
+            req.logout();
+          }
+        }
+
+        let result = {};
+        for (const aw of [...this.authAfterware, ...this.afterware]) {
+          result = await aw(result, fullRequest.user);
+        }
+        return res.send(result);
+      } catch (e) {
+        console.error(e);
+        return res.status(400).send({
+          status: 'error',
+          message: e.message || e,
+        });
+      }
+    });
+  }
+
+  public registerPrimaryConnect(
     strategyName: string,
     method: string,
     middleware: MyRequestHandler[],
     strategy: passport.Strategy,
   ): void {
-    const methodName = strategyName !== 'root' ? `${strategyName}-${method}` : method;
-    const routeName = strategyName !== 'root' ? `/${strategyName}/${method}` : `/${method}`;
-
-    passport.use(methodName, strategy);
-    post(this.route, routeName, middleware, async (req: FullRequest, res: Response) => {
-      const user: User = (await authenticate(methodName, req, res)) as User;
-
-      await login(req, user);
-
-      const profile = this.getProfile(user)!;
-
-      this.sendStatus(req, {
-        user: profile,
-      });
-
-      if (this.onLogin) {
-        this.onLogin(profile);
-      }
-
-      if (this.standalone) {
-        return {
-          user: profile,
-          token: this.getToken(profile),
-        };
-      }
-
-      return {
-        user: profile,
-      };
-    });
-  }
-
-  public registerPassportConnectMethod(
-    strategyName: string,
-    method: string,
-    middleware: MyRequestHandler[],
-    handler: passport.Strategy,
-  ): void {
-    const methodName = `${strategyName}-${method}`;
-    const routeName = `/${strategyName}/${method}`;
-
-    passport.use(methodName, handler);
-    post(this.route, routeName, middleware, async (req: FullRequest, res: Response) => {
-      const userPart: StrategyValues = await authenticate(methodName, req, res);
-
-      if (!userPart) {
-        throw new Error('Strategy should return an object.');
-      }
-
-      let user: User | null = null;
-      for (const field of Object.keys(this.getStrategy(strategyName).uniqueFields)) {
-        const value = userPart[field];
-        if (value) {
-          const userCandidate = await this.backend!.getUser({
-            [`${strategyName}.${field}`]: value,
-          });
-          if (!user || user._id === userCandidate._id) {
-            user = userCandidate;
-          } else {
-            throw new Error(this.__('register.ambiguous_authentication_strategy', null, req.locale));
-          }
+    this.registerPrimaryAuth<StrategyValues | null>(
+      strategyName,
+      method,
+      middleware,
+      strategy,
+      async (req: FullRequest, userPart: StrategyValues | null) => {
+        if (!userPart) {
+          return;
         }
-      }
-      for (const field of Object.keys(this.uniqueFields)) {
-        if (this.uniqueFields[field][strategyName]) {
-          const value = userPart[this.uniqueFields[field][strategyName]];
+
+        let userId: string | undefined;
+        for (const field of Object.keys(this.getStrategy(strategyName).uniqueFields)) {
+          const value = userPart[field];
           if (value) {
-            const userCandidate = await this.getUserByUniqueField(field, value);
-            if (!user || user._id === userCandidate._id) {
-              user = userCandidate;
-            } else {
-              throw new Error(this.__('register.ambiguous_authentication_strategy', null, req.locale));
+            const userCandidate = await this.backend!.getUser({
+              [`${strategyName}.${field}`]: value,
+            });
+            if (userCandidate) {
+              if (!userId || userId === userCandidate._id) {
+                userId = userCandidate._id;
+              } else {
+                throw new Error(this.__('register.ambiguous_authentication_strategy', null, req.locale));
+              }
             }
           }
         }
-      }
-
-      let registered = false;
-      if (req.user) {
-        // User is already logged in
-
-        if (user && user._id !== req.user._id) {
-          throw new Error(this.__('register.foreign_authentication_strategy', null, req.locale));
+        for (const field of Object.keys(this.uniqueFields)) {
+          if (this.uniqueFields[field][strategyName]) {
+            const value = userPart[this.uniqueFields[field][strategyName]];
+            if (value) {
+              const userCandidate = await this.getUserByUniqueField(field, value);
+              if (userCandidate) {
+                if (!userId || userId === userCandidate._id) {
+                  userId = userCandidate._id;
+                } else {
+                  throw new Error(this.__('register.ambiguous_authentication_strategy', null, req.locale));
+                }
+              }
+            }
+          }
         }
 
-        // Update user
-        await this.updateUser(strategyName, req.user._id, userPart);
-        user = await this.backend!.getUserById(req.user._id);
-      } else {
-        // User hasn't logged in
+        let registered = false;
+        if (req.user) {
+          // User is already logged in
 
-        if (user) {
-          // User exists already, update
-          await this.updateUser(strategyName, user._id, userPart);
-          user = await this.backend!.getUserById(user._id);
+          if (userId && userId !== req.user) {
+            throw new Error(this.__('register.foreign_authentication_strategy', null, req.locale));
+          }
+
+          userId = req.user;
+
+          // Update user
+          await this.updateUser(strategyName, userId, userPart);
         } else {
-          // Need to create a new user
-          const _id = await this.insertUser(strategyName, userPart);
-          user = await this.backend!.getUserById(_id);
-          registered = true;
+          // User hasn't logged in
+
+          if (userId) {
+            // User exists already, update
+            await this.updateUser(strategyName, userId, userPart);
+          } else {
+            // Need to create a new user
+            userId = await this.insertUser(strategyName, userPart);
+            registered = true;
+          }
         }
+
+        if (registered) {
+          this.emit('ooth', 'register', { userId });
+        }
+
+        return userId;
+      },
+    );
+  }
+
+  public registerSecondaryAuth(
+    strategyName: string,
+    method: string,
+    condition: Condition,
+    strategy: passport.Strategy,
+  ): void {
+    const methodName = `${strategyName}-${method}`;
+    if (this.getStrategy(strategyName).secondaryAuth[method]) {
+      throw new Error(`Secondary auth ${methodName} has already been registered.`);
+    }
+    passport.use(methodName, strategy);
+    this.getStrategy(strategyName).secondaryAuth[method] = condition;
+  }
+
+  public registerMethod<T>(
+    strategyName: string,
+    method: string,
+    middleware: MyRequestHandler[],
+    handler: Method<T>,
+    httpMethod: 'POST' | 'GET' = 'POST',
+  ): void {
+    this.getStrategy(strategyName).methods[method] = handler;
+
+    const finalHandler = async (req: FullRequest, res: Response) => {
+      try {
+        let result = await this.getStrategy(strategyName).methods[method](req.body, req.user, req.locale);
+        for (const aw of this.afterware) {
+          result = await aw(result, req.user);
+        }
+        res.send(result);
+      } catch (e) {
+        console.error(e);
+        return res.status(400).send({
+          status: 'error',
+          message: e.message,
+        });
       }
+    };
 
-      let loggedIn = false;
-      if (!req.user) {
-        await login(req, user);
-        loggedIn = true;
-      }
+    this.route[httpMethod === 'GET' ? 'get' : 'post'](
+      `/${strategyName}/${method}`,
+      ...((middleware as any) as RequestHandler[]),
+      (finalHandler as any) as RequestHandler,
+    );
+  }
 
-      const profile = this.getProfile(user)!;
+  public registerMiddleware(...middleware: RequestHandler[]): void {
+    this.middleware.push(...middleware);
+  }
 
-      this.sendStatus(req, {
-        user: profile,
-      });
+  public registerAfterware(...afterware: Afterware[]): void {
+    this.afterware.push(...afterware);
+  }
 
-      if (loggedIn && this.onLogin) {
-        this.onLogin(profile);
-      }
-      if (registered && this.onRegister) {
-        this.onRegister(profile);
-      }
-
-      if (this.standalone) {
-        return {
-          user: profile,
-          token: this.getToken(profile),
-        };
-      }
-
-      return {
-        user: profile,
-      };
-    });
+  public registerAuthAfterware(...afterware: Afterware[]): void {
+    this.authAfterware.push(...afterware);
   }
 
   public getUserById = async (id: string) => {
@@ -675,9 +485,9 @@ export class Ooth {
     return await this.backend!.updateUser(id, actualFields);
   };
 
-  public getProfile(user: User | null): User | null {
+  public getProfile(user: User | undefined): User | undefined {
     if (!user) {
-      return null;
+      return;
     }
     const profile: User = {
       _id: user._id,
@@ -705,25 +515,30 @@ export class Ooth {
     return await this.backend!.insertUser(query);
   };
 
-  private getToken(user: User): string {
-    let token: Token = {
-      iat: new Date().getTime() / 1000, // Unix timestamp
-    };
+  public getApp(): Application {
+    return this.app;
+  }
 
-    if (this.tokenExpires && this.tokenExpires > 0) {
-      token.exp = token.iat + this.tokenExpires;
+  public getRoute(): Router {
+    return this.route;
+  }
+
+  public on(strategyName: string, eventName: string, eventListener: EventListener): void {
+    const fullEventName = `${strategyName}--${eventName}`;
+    if (!this.listeners[fullEventName]) {
+      this.listeners[fullEventName] = [];
     }
 
-    if (this.specJwt) {
-      token._id = user._id;
-    } else {
-      // Deprecated token
-      token = {
-        ...token,
-        ...user,
-      } as any;
+    this.listeners[fullEventName].push(eventListener);
+  }
+
+  public async emit(strategyName: string, eventName: string, payload: any): Promise<void> {
+    const fullEventName = `${strategyName}--${eventName}`;
+    if (this.listeners[fullEventName]) {
+      for (const listener of this.listeners[fullEventName]) {
+        await listener(payload);
+      }
     }
-    return sign(token, this.sharedSecret);
   }
 
   private getStrategy(strategyName: string): Strategy {
@@ -732,17 +547,10 @@ export class Ooth {
         methods: {},
         profileFields: {},
         uniqueFields: {},
+        secondaryAuth: {},
       };
     }
 
     return this.strategies[strategyName];
-  }
-
-  private sendStatus(req: FullRequest, status: any): void {
-    if (req.session && this.connections[req.session.id]) {
-      this.connections[req.session.id].forEach((ws) => {
-        ws.send(JSON.stringify(status));
-      });
-    }
   }
 }

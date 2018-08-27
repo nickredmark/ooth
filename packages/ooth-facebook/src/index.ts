@@ -19,7 +19,7 @@ export default function({ name = 'facebook', ooth, clientID, clientSecret }: Con
   ooth.registerUniqueField(name, 'email', 'email');
   ooth.registerProfileFields(name, 'email');
   ooth.registerStrategyUniqueField(name, 'id');
-  ooth.registerPassportConnectMethod(
+  ooth.registerPrimaryConnect(
     name,
     'login',
     [],

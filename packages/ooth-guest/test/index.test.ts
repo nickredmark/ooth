@@ -12,7 +12,7 @@ let mongoServer;
 let con;
 let app;
 let server;
-let ooth;
+let ooth: Ooth;
 let oothMongo;
 let db;
 
@@ -62,15 +62,13 @@ describe('ooth-guest', () => {
     ooth = new Ooth({
       app,
       backend: oothMongo,
-      sharedSecret: '',
-      standalone: false,
       path: '',
       onLogin: () => null,
-      onLogout: () => null,
     });
     oothGuest({
       ooth,
     });
+    ooth.registerAfterware(async (res, user) => ((res.user = await ooth.getUserById(user)), res));
     await startServer();
   });
 

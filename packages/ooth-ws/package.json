@@ -1,0 +1,42 @@
+{
+  "name": "ooth-ws",
+  "version": "1.5.2",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "postinstall": "lerna link",
+    "clean": "del-cli ./lib ./coverage",
+    "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
+    "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
+    "test": "npm run lint && npm run clean && jest -c ./jest.json",
+    "test:watch": "npm run clean && jest -c ./jest.json --watch"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10.9.0"
+  },
+  "repository": "nmaro/ooth",
+  "dependencies": {
+    "express": "^4.16.3",
+    "express-ws": "^4.0.0",
+    "ooth": "^1.5.1",
+    "ws": "^6.0.0"
+  },
+  "devDependencies": {
+    "@smartive/tslint-config": "^4.0.0",
+    "@types/express": "^4.16.0",
+    "@types/express-ws": "^3.0.0",
+    "@types/jest": "^23.3.1",
+    "@types/ws": "^6.0.0",
+    "babel-jest": "^20.0.3",
+    "del-cli": "^1.1.0",
+    "jest": "^23.5.0",
+    "request-promise": "^4.2.2",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "tsutils": "^3.0.0",
+    "typescript": "^3.0.1"
+  }
+}

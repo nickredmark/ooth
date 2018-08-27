@@ -16,20 +16,23 @@
   "engines": {
     "node": ">= 10.9.0"
   },
+  "repository": "nmaro/ooth",
   "dependencies": {
     "ooth": "^1.5.1",
     "ooth-i18n": "^1.5.0"
   },
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
+    "@types/express": "^4.16.0",
     "@types/jest": "^23.3.1",
     "babel-jest": "^20.0.3",
     "del-cli": "^1.1.0",
+    "express": "^4.16.3",
     "jest": "^23.5.0",
     "mongodb": "^3.0.2",
     "mongodb-memory-server": "^2.0.1",
-    "ooth-guest": "^1.5.2",
     "ooth-mongo": "^1.2.1",
+    "passport-custom": "^1.0.5",
     "request-promise": "^4.2.2",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",

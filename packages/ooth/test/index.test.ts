@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as session from 'express-session';
 import { cloneDeep } from 'lodash';
 import { MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
@@ -12,7 +11,6 @@ import { Ooth } from '../src';
 let mongoServer;
 let con;
 let db;
-let config;
 let app;
 let server;
 let ooth: Ooth;
@@ -42,10 +40,6 @@ const obfuscate = (obj, ...paths) => {
 };
 
 describe('ooth', () => {
-  let onRegister = () => null;
-  let onLogin = () => null;
-  let onLogout = () => null;
-
   beforeAll(async () => {
     mongoServer = new MongodbMemoryServer();
     const connectionString = await mongoServer.getConnectionString();
@@ -59,182 +53,146 @@ describe('ooth', () => {
     await mongoServer.stop();
   });
 
-  beforeEach(() => {
-    app = express();
-    app.use(
-      session({
-        name: 'api-session-id',
-        secret: 'x',
-        resave: false,
-        saveUninitialized: true,
-      }),
-    );
-    oothMongo = new OothMongo(db);
-    config = {
-      app,
-      backend: oothMongo,
-      sharedSecret: '',
-      standalone: false,
-      path: '',
-      onLogin: () => onLogin(),
-      onLogout: () => onLogout(),
-      onRegister: () => onRegister(),
-      translations: {
-        en: require('../i18n/en.json'),
-        fr: {
-          not_logged: 'French not logged',
-        },
-      },
-    };
-    ooth = new Ooth(config);
-  });
-
-  afterEach(async () => {
-    if (server) {
-      await server.close();
-    }
-    if (db) {
-      await db.dropDatabase();
-    }
-  });
-
-  describe('methods', () => {
-    test('handle method', async () => {
-      ooth.registerMethod<{ message: string }>('test', 'foo', [], async () => ({
-        message: 'hi',
-      }));
-
-      await startServer();
-      const res = await request({
-        method: 'POST',
-        uri: 'http://localhost:8080/test/foo',
-        json: true,
-      });
-      expect(res).toMatchSnapshot();
-    });
-
-    test('fails with requireLogged', async () => {
-      ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
-        message: 'hi',
-      }));
-
-      await startServer();
-      try {
-        await request({
-          method: 'POST',
-          uri: 'http://localhost:8080/test/foo',
-          json: true,
-        });
-      } catch (e) {
-        expect(e.response.body).toMatchSnapshot();
-        return;
-      }
-      throw new Error("Didn't fail");
-    });
-
-    test('translates error', async () => {
-      ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
-        message: 'hi',
-      }));
-
-      await startServer();
-      try {
-        await request({
-          method: 'POST',
-          uri: 'http://localhost:8080/test/foo',
-          headers: {
-            'Accept-Language': 'fr',
+  describe('no session', () => {
+    beforeEach(() => {
+      app = express();
+      oothMongo = new OothMongo(db);
+      ooth = new Ooth({
+        app,
+        backend: oothMongo,
+        path: '',
+        translations: {
+          en: require('../i18n/en.json'),
+          fr: {
+            not_logged: 'French not logged',
           },
-          json: true,
-        });
-      } catch (e) {
-        expect(e.response.body).toMatchSnapshot();
-        return;
-      }
-      throw new Error("Didn't fail");
+        },
+      });
+      ooth.registerAfterware(async (result: { [key: string]: any }, userId: string | undefined) => {
+        if (userId) {
+          result.user = ooth.getProfile(await ooth.getUserById(userId));
+        }
+
+        return result;
+      });
     });
 
-    test('handle errors', async () => {
-      ooth.registerMethod('test', 'foo', [], () => {
-        throw new Error('Error message.');
-      });
+    afterEach(async () => {
+      if (server) {
+        await server.close();
+      }
+      if (db) {
+        await db.dropDatabase();
+      }
+    });
 
-      await startServer();
-      try {
+    describe('methods', () => {
+      test('handle method', async () => {
+        ooth.registerMethod<{ message: string }>('test', 'foo', [], async () => ({
+          message: 'hi',
+        }));
+
+        await startServer();
         const res = await request({
           method: 'POST',
           uri: 'http://localhost:8080/test/foo',
           json: true,
         });
-        expect(false);
-      } catch (e) {
-        expect(e.response.body).toMatchSnapshot();
-      }
-    });
+        expect(res).toMatchSnapshot();
+      });
 
-    test('handle async errors', async () => {
-      ooth.registerMethod('test', 'foo', [], async () =>
-        Promise.resolve().then(() => {
+      test('fails with requireLogged', async () => {
+        ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
+          message: 'hi',
+        }));
+
+        await startServer();
+        try {
+          await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test/foo',
+            json: true,
+          });
+        } catch (e) {
+          expect(e.response.body).toMatchSnapshot();
+          return;
+        }
+        throw new Error("Didn't fail");
+      });
+
+      test('translates error', async () => {
+        ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
+          message: 'hi',
+        }));
+
+        await startServer();
+        try {
+          await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test/foo',
+            headers: {
+              'Accept-Language': 'fr',
+            },
+            json: true,
+          });
+        } catch (e) {
+          expect(e.response.body).toMatchSnapshot();
+          return;
+        }
+        throw new Error("Didn't fail");
+      });
+
+      test('handle errors', async () => {
+        ooth.registerMethod('test', 'foo', [], () => {
           throw new Error('Error message.');
-        }),
-      );
-
-      await startServer();
-      try {
-        const res = await request({
-          method: 'POST',
-          uri: 'http://localhost:8080/test/foo',
-          json: true,
         });
-        expect(false);
-      } catch (e) {
-        expect(e.response.body).toMatchSnapshot();
-      }
-    });
-  });
 
-  describe('connect method', () => {
-    beforeEach(async () => {
-      ooth.registerProfileFields('test', 'foo');
-      ooth.registerUniqueField('test', 'bar', 'bar');
-      ooth.registerPassportConnectMethod('test', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
-      ooth.registerProfileFields('test2', 'baz');
-      ooth.registerUniqueField('test2', 'bar', 'bar');
-      ooth.registerPassportConnectMethod('test2', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
-      await startServer();
-    });
-
-    test('can register', async () => {
-      const res = await request({
-        method: 'POST',
-        uri: 'http://localhost:8080/test/login',
-        body: {
-          foo: 1,
-          bar: 2,
-        },
-        json: true,
+        await startServer();
+        try {
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test/foo',
+            json: true,
+          });
+          expect(false);
+        } catch (e) {
+          expect(e.response.body).toMatchSnapshot();
+        }
       });
-      expect(obfuscate(res.user, '_id')).toMatchSnapshot();
-    });
 
-    test('can log in', async () => {
-      const res = await request({
-        method: 'POST',
-        uri: 'http://localhost:8080/test/login',
-        body: {
-          foo: 1,
-          bar: 2,
-        },
-        json: true,
+      test('handle async errors', async () => {
+        ooth.registerMethod('test', 'foo', [], async () =>
+          Promise.resolve().then(() => {
+            throw new Error('Error message.');
+          }),
+        );
+
+        await startServer();
+        try {
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test/foo',
+            json: true,
+          });
+          expect(false);
+        } catch (e) {
+          expect(e.response.body).toMatchSnapshot();
+        }
       });
-      expect(obfuscate(res, 'user._id')).toMatchSnapshot();
     });
 
-    describe('after login', () => {
-      let cookies;
-      let user;
-
+    describe('connect method', () => {
       beforeEach(async () => {
+        ooth.registerProfileFields('test', 'foo');
+        ooth.registerUniqueField('test', 'bar', 'bar');
+        ooth.registerPrimaryConnect('test', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
+        ooth.registerProfileFields('test2', 'baz');
+        ooth.registerUniqueField('test2', 'bar', 'bar');
+        ooth.registerPrimaryConnect('test2', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
+        await startServer();
+      });
+
+      test('can register', async () => {
         const res = await request({
           method: 'POST',
           uri: 'http://localhost:8080/test/login',
@@ -243,80 +201,190 @@ describe('ooth', () => {
             bar: 2,
           },
           json: true,
-          resolveWithFullResponse: true,
         });
-        cookies = res.headers['set-cookie'];
-        user = res.body.user;
+        expect(obfuscate(res.user, '_id')).toMatchSnapshot();
       });
 
-      test('can log out', async () => {
-        const res = await request({
-          method: 'POST',
-          uri: 'http://localhost:8080/logout',
-          json: true,
-          headers: {
-            Cookie: cookies,
-          },
-        });
-        expect(res).toMatchSnapshot();
-      });
-
-      test('can log in again', async () => {
+      test('can log in', async () => {
         const res = await request({
           method: 'POST',
           uri: 'http://localhost:8080/test/login',
           body: {
-            foo: 2,
+            foo: 1,
             bar: 2,
           },
           json: true,
         });
-        expect(res.user._id).toBe(user._id);
-        expect(obfuscate(res.user, '_id')).toMatchSnapshot();
+        expect(obfuscate(res, 'user._id')).toMatchSnapshot();
       });
 
-      test('can log in with other strategy', async () => {
-        const res = await request({
-          method: 'POST',
-          uri: 'http://localhost:8080/test2/login',
-          body: {
-            foo: 2,
-            bar: 2,
-          },
-          json: true,
+      describe('after login', () => {
+        let user;
+
+        beforeEach(async () => {
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test/login',
+            body: {
+              foo: 1,
+              bar: 2,
+            },
+            json: true,
+            resolveWithFullResponse: true,
+          });
+          user = res.body.user;
         });
-        expect(res.user._id).toBe(user._id);
-        expect(obfuscate(res.user, '_id')).toMatchSnapshot();
-      });
 
-      test('can log in with other strategy', async () => {
-        const res = await request({
-          method: 'POST',
-          uri: 'http://localhost:8080/test2/login',
-          body: {
-            foo: 2,
-            bar: 2,
-          },
-          json: true,
+        test('can log in again', async () => {
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test/login',
+            body: {
+              foo: 2,
+              bar: 2,
+            },
+            json: true,
+          });
+          expect(res.user._id).toBe(user._id);
+          expect(obfuscate(res.user, '_id')).toMatchSnapshot();
         });
-        expect(res.user._id).toBe(user._id);
-        expect(obfuscate(res.user, '_id')).toMatchSnapshot();
+
+        test('can log in with other strategy', async () => {
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test2/login',
+            body: {
+              foo: 2,
+              bar: 2,
+            },
+            json: true,
+          });
+          expect(res.user._id).toBe(user._id);
+          expect(obfuscate(res.user, '_id')).toMatchSnapshot();
+        });
+
+        test('can connect another strategy', async () => {
+          ooth.registerSecondaryAuth('bla', 'bla', () => true, new CustomStrategy((req, done) => done(null, user._id)));
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/test2/login',
+            body: {
+              bar: 3,
+              baz: 45,
+            },
+            json: true,
+          });
+          expect(res.user._id).toBe(user._id);
+          expect(obfuscate(res.user, '_id')).toMatchSnapshot();
+        });
+      });
+    });
+  });
+
+  describe('session', () => {
+    beforeEach(async () => {
+      app = express();
+      oothMongo = new OothMongo(db);
+      ooth = new Ooth({
+        app,
+        backend: oothMongo,
+        path: '',
+        sessionSecret: 'secret',
+      });
+      ooth.registerProfileFields('foo', 'x');
+      ooth.registerPrimaryConnect('foo', 'login', [], new CustomStrategy((req, done) => done(null, { x: 1 })));
+      ooth.registerMethod('foo', 'bar', [ooth.requireLogged], async () => ({ x: 1 }));
+      ooth.registerAfterware(async (result: { [key: string]: any }, userId: string | undefined) => {
+        if (userId) {
+          result.user = ooth.getProfile(await ooth.getUserById(userId));
+        }
+
+        return result;
+      });
+      await startServer();
+    });
+
+    afterEach(async () => {
+      if (server) {
+        await server.close();
+      }
+      if (db) {
+        await db.dropDatabase();
+      }
+    });
+
+    describe('methods', () => {
+      test('fails without cookies', async () => {
+        try {
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/foo/bar',
+            json: true,
+          });
+        } catch (e) {
+          expect(e.response.body).toMatchSnapshot();
+          return;
+        }
+        throw new Error("Didn't throw");
       });
 
-      test('can connect another strategy', async () => {
+      test('can do secondary auth with cookies', async () => {
+        const lres = await request({
+          method: 'POST',
+          uri: 'http://localhost:8080/foo/login',
+          json: true,
+          resolveWithFullResponse: true,
+        });
+
+        expect(obfuscate(lres.body.user, '_id')).toMatchSnapshot();
+
         const res = await request({
           method: 'POST',
-          uri: 'http://localhost:8080/test2/login',
-          body: {
-            bar: 3,
-          },
-          json: true,
+          uri: 'http://localhost:8080/foo/bar',
           headers: {
-            Cookie: cookies,
+            Cookie: lres.headers['set-cookie'],
           },
+          json: true,
         });
-        expect(res.user._id).toBe(user._id);
+
         expect(obfuscate(res.user, '_id')).toMatchSnapshot();
+      });
+
+      test('can log out', async () => {
+        const lres = await request({
+          method: 'POST',
+          uri: 'http://localhost:8080/foo/login',
+          json: true,
+          resolveWithFullResponse: true,
+        });
+
+        expect(obfuscate(lres.body.user, '_id')).toMatchSnapshot();
+
+        const reslogout = await request({
+          method: 'POST',
+          uri: 'http://localhost:8080/session/logout',
+          headers: {
+            Cookie: lres.headers['set-cookie'],
+          },
+          json: true,
+        });
+
+        expect(reslogout).toMatchSnapshot();
+
+        try {
+          const res = await request({
+            method: 'POST',
+            uri: 'http://localhost:8080/foo/bar',
+            headers: {
+              Cookie: lres.headers['set-cookie'],
+            },
+            json: true,
+          });
+        } catch (e) {
+          expect(e.response.body).toMatchSnapshot();
+          return;
+        }
+        throw new Error("Didn't throw");
       });
     });
   });

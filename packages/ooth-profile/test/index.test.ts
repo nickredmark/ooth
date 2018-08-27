@@ -3,9 +3,9 @@ import * as session from 'express-session';
 import { MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
-import oothGuest from 'ooth-guest';
 import { OothMongo } from 'ooth-mongo';
 import * as request from 'request-promise';
+import { Strategy } from 'passport-custom';
 
 import oothProfile from '../src';
 
@@ -13,10 +13,9 @@ let mongoServer;
 let con;
 let app;
 let server;
-let ooth;
+let ooth: Ooth;
 let oothMongo;
 let db;
-let cookies = '';
 
 const startServer = () =>
   new Promise((resolve) => {
@@ -64,13 +63,9 @@ describe('ooth-profile', () => {
     ooth = new Ooth({
       app,
       backend: oothMongo,
-      sharedSecret: '',
-      standalone: false,
       path: '',
       onLogin: () => null,
-      onLogout: () => null,
     });
-    oothGuest({ ooth });
     oothProfile({
       ooth,
       fields: {
@@ -88,13 +83,21 @@ describe('ooth-profile', () => {
         },
       },
     });
+    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((req, done) => done(null, {})));
+    ooth.registerAfterware(async (res, userId) => {
+      if (userId) {
+        res.user = await ooth.getUserById(userId);
+      }
+
+      return res;
+    });
     await startServer();
     const res = await request({
       method: 'POST',
       uri: 'http://localhost:8080/guest/register',
-      resolveWithFullResponse: true,
+      json: true,
     });
-    cookies = res.headers['set-cookie'];
+    ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, res.user._id)));
   });
 
   afterEach(async () => {
@@ -104,7 +107,6 @@ describe('ooth-profile', () => {
     if (db) {
       await db.dropDatabase();
     }
-    cookies = '';
   });
 
   test('can set values', async () => {
@@ -115,9 +117,6 @@ describe('ooth-profile', () => {
         firstName: 'John',
         lastName: 'Smith',
         age: 20,
-      },
-      headers: {
-        Cookie: cookies,
       },
       json: true,
     });
@@ -131,9 +130,6 @@ describe('ooth-profile', () => {
         uri: 'http://localhost:8080/profile/update',
         body: {
           foo: 'bar',
-        },
-        headers: {
-          Cookie: cookies,
         },
         json: true,
       });
@@ -151,9 +147,6 @@ describe('ooth-profile', () => {
         uri: 'http://localhost:8080/profile/update',
         body: {
           age: -1,
-        },
-        headers: {
-          Cookie: cookies,
         },
         json: true,
       });

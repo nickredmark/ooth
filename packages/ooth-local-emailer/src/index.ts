@@ -1,4 +1,5 @@
 import { getI18n, interpolate, Translations, Values } from 'ooth-i18n';
+import { Ooth } from 'ooth';
 
 type Urls = {
   [name: string]: string;
@@ -15,58 +16,26 @@ const DEFAULT_TRANSLATIONS = {
 };
 
 type Options = {
+  name?: string;
+  ooth: Ooth;
   from: string;
   siteName: string;
   sendMail: (args: { from: string; to: string; subject: string; body: string; html: string }) => Promise<void>;
-  translations: Translations;
-  urls: Urls;
-  defaultLanguage: string;
+  translations?: Translations;
+  urls?: Urls;
+  defaultLanguage?: string;
 };
 
 export default function({
+  name = 'local',
+  ooth,
   from,
   siteName,
   sendMail,
   translations,
   urls,
   defaultLanguage,
-}: Options): {
-  onRegister: (
-    args: {
-      email: string;
-      verificationToken: string;
-      _id: string;
-      language: string;
-    },
-  ) => Promise<void>;
-  onGenerateVerificationToken: (
-    args: {
-      email: string;
-      verificationToken: string;
-      _id: string;
-      language: string;
-    },
-  ) => Promise<void>;
-  onSetEmail: (
-    args: {
-      email: string;
-      verificationToken: string;
-      _id: string;
-      language: string;
-    },
-  ) => Promise<void>;
-  onVerify: (args: { email: string; language: string }) => Promise<void>;
-  onForgotPassword: (
-    args: {
-      email: string;
-      passwordResetToken: string;
-      _id: string;
-      language: string;
-    },
-  ) => Promise<void>;
-  onResetPassword: (args: { email: string; language: string }) => Promise<void>;
-  onChangePassword: (args: { email: string; language: string }) => Promise<void>;
-} {
+}: Options): void {
   const actualUrls = urls || DEFAULT_URLS;
 
   const actualTranslations = translations || DEFAULT_TRANSLATIONS;
@@ -82,8 +51,10 @@ export default function({
       html: __(`${name}.html`, values, language),
     });
 
-  return {
-    async onRegister({
+  ooth.on(
+    name,
+    'register',
+    async ({
       email,
       verificationToken,
       _id,
@@ -93,7 +64,7 @@ export default function({
       verificationToken: string;
       _id: string;
       language: string;
-    }): Promise<void> {
+    }): Promise<void> => {
       await sendI18nMail(email, language, 'welcome', {
         'site-name': siteName,
       });
@@ -105,7 +76,12 @@ export default function({
         }),
       });
     },
-    async onGenerateVerificationToken({
+  );
+
+  ooth.on(
+    name,
+    'generate-verification-token',
+    async ({
       email,
       verificationToken,
       _id,
@@ -115,7 +91,7 @@ export default function({
       verificationToken: string;
       _id: string;
       language: string;
-    }): Promise<void> {
+    }): Promise<void> => {
       await sendI18nMail(email, language, 'verify-email', {
         'site-name': siteName,
         'verify-email-url': interpolate(actualUrls.verifyEmail, {
@@ -124,7 +100,12 @@ export default function({
         }),
       });
     },
-    async onSetEmail({
+  );
+
+  ooth.on(
+    name,
+    'set-email',
+    async ({
       email,
       verificationToken,
       _id,
@@ -134,7 +115,7 @@ export default function({
       verificationToken: string;
       _id: string;
       language: string;
-    }): Promise<void> {
+    }): Promise<void> => {
       await sendI18nMail(email, language, 'verify-email', {
         'site-name': siteName,
         'verify-email-url': interpolate(actualUrls.verifyEmail, {
@@ -143,12 +124,22 @@ export default function({
         }),
       });
     },
-    async onVerify({ email, language }: { email: string; language: string }): Promise<void> {
+  );
+
+  ooth.on(
+    name,
+    'verify',
+    async ({ email, language }: { email: string; language: string }): Promise<void> => {
       await sendI18nMail(email, language, 'email-verified', {
         'site-name': siteName,
       });
     },
-    async onForgotPassword({
+  );
+
+  ooth.on(
+    name,
+    'forgot-password',
+    async ({
       email,
       passwordResetToken,
       _id,
@@ -158,7 +149,7 @@ export default function({
       passwordResetToken: string;
       _id: string;
       language: string;
-    }): Promise<void> {
+    }): Promise<void> => {
       await sendI18nMail(email, language, 'reset-password', {
         'site-name': siteName,
         'reset-password-url': interpolate(actualUrls.resetPassword, {
@@ -167,15 +158,25 @@ export default function({
         }),
       });
     },
-    async onResetPassword({ email, language }: { email: string; language: string }): Promise<void> {
+  );
+
+  ooth.on(
+    name,
+    'reset-password',
+    async ({ email, language }: { email: string; language: string }): Promise<void> => {
       await sendI18nMail(email, language, 'password-reset', {
         'site-name': siteName,
       });
     },
-    async onChangePassword({ email, language }: { email: string; language: string }): Promise<void> {
+  );
+
+  ooth.on(
+    name,
+    'change-password',
+    async ({ email, language }: { email: string; language: string }): Promise<void> => {
       await sendI18nMail(email, language, 'password-changed', {
         'site-name': siteName,
       });
     },
-  };
+  );
 }

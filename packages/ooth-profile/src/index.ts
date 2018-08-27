@@ -26,7 +26,9 @@ export default function({ name = 'profile', ooth, fields, defaultLanguage, trans
     name,
     'update',
     [ooth.requireLogged],
-    async (body: any, user: User | null, locale: string): Promise<{ message: string }> => {
+    async (body: any, userId: string | undefined, locale: string): Promise<{ message: string }> => {
+      const user = await ooth.getUserById(userId!);
+
       for (const name of Object.keys(body)) {
         if (!fields[name]) {
           throw new Error(__('invalid_field', { name }, locale));
@@ -34,11 +36,12 @@ export default function({ name = 'profile', ooth, fields, defaultLanguage, trans
 
         const field = fields[name];
         if (field.validate) {
-          field.validate(body[name], user!);
+          field.validate(body[name], user);
         }
       }
 
-      await ooth.updateUser(name, user!._id, body);
+      await ooth.updateUser(name, userId!, body);
+
       return {
         message: __('profile_updated', null, locale),
       };

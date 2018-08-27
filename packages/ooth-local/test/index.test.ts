@@ -6,6 +6,8 @@ import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
 import { OothMongo } from 'ooth-mongo';
 import * as request from 'request-promise';
+import { Strategy } from 'passport-custom';
+import emailer from 'ooth-local-emailer';
 
 import oothLocal from '../src';
 
@@ -38,6 +40,26 @@ const obfuscate = (obj, ...paths) => {
   return res;
 };
 
+const obfuscatePatterns = (obj, ...patterns) => {
+  if (typeof obj === 'object') {
+    const res = {};
+    for (const key of Object.keys(obj)) {
+      res[key] = obfuscatePatterns(obj[key], ...patterns);
+    }
+    return res;
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map((i) => obfuscatePatterns(i, ...patterns));
+  }
+
+  if (typeof obj === 'string') {
+    return patterns.reduce((s, pattern) => s.replace(pattern, '<obfuscated>'), obj);
+  }
+
+  return obj;
+};
+
 describe('ooth-local', () => {
   let onForgotPasswordListener;
   let onRequestVerifyListener;
@@ -45,6 +67,7 @@ describe('ooth-local', () => {
   let userId;
   let resetToken;
   let verificationToken;
+  let sendMail: any = () => null;
 
   beforeAll(async () => {
     mongoServer = new MongodbMemoryServer();
@@ -73,35 +96,10 @@ describe('ooth-local', () => {
     ooth = new Ooth({
       app,
       backend: oothMongo,
-      sharedSecret: '',
-      standalone: false,
       path: '',
-      onLogin: () => null,
-      onLogout: () => null,
     });
     oothLocal({
       ooth,
-      onRegister(...args) {
-        if (onRegisterListener) {
-          onRegisterListener(...args);
-        }
-      },
-      onForgotPassword(data) {
-        if (onForgotPasswordListener) {
-          //Store user id and reset token for follow on test
-          userId = data._id;
-          resetToken = data.passwordResetToken;
-          onForgotPasswordListener(data);
-        }
-      },
-      onGenerateVerificationToken(data) {
-        if (onRequestVerifyListener) {
-          //Store user id and  verification token for follow on test
-          userId = data._id;
-          verificationToken = data.verificationToken;
-          onRequestVerifyListener(data);
-        }
-      },
       translations: {
         en: require('../i18n/en.json'),
         fr: {
@@ -110,6 +108,41 @@ describe('ooth-local', () => {
           },
         },
       },
+    });
+    sendMail = jest.fn();
+    emailer({
+      ooth,
+      from: 'noreply@example.com',
+      siteName: 'Example Site',
+      sendMail: (...args) => sendMail(...args),
+    });
+    ooth.on('local', 'register', async (...args) => {
+      if (onRegisterListener) {
+        onRegisterListener(...args);
+      }
+    });
+    ooth.on('local', 'forgot-password', async (data) => {
+      if (onForgotPasswordListener) {
+        //Store user id and reset token for follow on test
+        userId = data._id;
+        resetToken = data.passwordResetToken;
+        onForgotPasswordListener(data);
+      }
+    });
+    ooth.on('local', 'generate-verification-token', async (data) => {
+      if (onRequestVerifyListener) {
+        //Store user id and  verification token for follow on test
+        userId = data._id;
+        verificationToken = data.verificationToken;
+        onRequestVerifyListener(data);
+      }
+    });
+    ooth.registerAfterware(async (res, userId) => {
+      if (userId) {
+        res.user = ooth.getProfile(await ooth.getUserById(userId));
+      }
+
+      return res;
     });
     await startServer();
   });
@@ -122,14 +155,6 @@ describe('ooth-local', () => {
       await db.dropDatabase();
     }
     cookies = '';
-  });
-
-  test('can check status', async () => {
-    const res = await request({
-      uri: 'http://localhost:8080/status',
-      json: true,
-    });
-    expect(res).toMatchSnapshot();
   });
 
   test('fails without email', async () => {
@@ -211,6 +236,7 @@ describe('ooth-local', () => {
     });
     expect(res).toMatchSnapshot();
     expect(obfuscate(onRegisterListener.mock.calls[0][0], '_id', 'verificationToken')).toMatchSnapshot();
+    expect(obfuscatePatterns(sendMail.mock.calls, /token=[\w\d]+/g, /userId=[\w\d]+/g)).toMatchSnapshot();
   });
 
   describe('after registration', () => {
@@ -224,6 +250,7 @@ describe('ooth-local', () => {
         },
         json: true,
       });
+      sendMail = jest.fn();
     });
 
     test('login fails with wrong password', async () => {
@@ -269,6 +296,7 @@ describe('ooth-local', () => {
         json: true,
       });
       expect(obfuscate(onForgotPasswordListener.mock.calls[0][0], '_id', 'passwordResetToken')).toMatchSnapshot();
+      expect(obfuscatePatterns(sendMail.mock.calls, /token=[\w\d]+/g, /userId=[\w\d]+/g)).toMatchSnapshot();
     });
 
     test('can reset password', async () => {
@@ -283,6 +311,7 @@ describe('ooth-local', () => {
         },
         json: true,
       });
+      sendMail = jest.fn();
       const res = await request({
         method: 'POST',
         uri: 'http://localhost:8080/local/reset-password',
@@ -294,6 +323,7 @@ describe('ooth-local', () => {
         json: true,
       });
       expect(res).toMatchSnapshot();
+      expect(obfuscatePatterns(sendMail.mock.calls, /token=[\w\d]+/g, /userId=[\w\d]+/g)).toMatchSnapshot();
     });
 
     test("can't reset password with invalid token", async () => {
@@ -328,6 +358,7 @@ describe('ooth-local', () => {
 
     describe('after login', () => {
       beforeEach(async () => {
+        sendMail = jest.fn();
         const res = await request({
           method: 'POST',
           uri: 'http://localhost:8080/local/login',
@@ -336,9 +367,8 @@ describe('ooth-local', () => {
             password: 'Asdflba09',
           },
           json: true,
-          resolveWithFullResponse: true,
         });
-        cookies = res.headers['set-cookie'];
+        ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, res.user._id)));
       });
 
       test('can generate verification token', async () => {
@@ -352,6 +382,7 @@ describe('ooth-local', () => {
           },
         });
         expect(obfuscate(onRequestVerifyListener.mock.calls[0][0], '_id', 'verificationToken')).toMatchSnapshot();
+        expect(obfuscatePatterns(sendMail.mock.calls, /token=[\w\d]+/g, /userId=[\w\d]+/g)).toMatchSnapshot();
       });
 
       test('can verify user with token', async () => {
@@ -365,6 +396,7 @@ describe('ooth-local', () => {
             Cookie: cookies,
           },
         });
+        sendMail = jest.fn();
         const res = await request({
           method: 'POST',
           uri: 'http://localhost:8080/local/verify',
@@ -378,6 +410,7 @@ describe('ooth-local', () => {
           },
         });
         expect(obfuscate(res, 'user._id')).toMatchSnapshot();
+        expect(obfuscatePatterns(sendMail.mock.calls, /token=[\w\d]+/g, /userId=[\w\d]+/g)).toMatchSnapshot();
       });
 
       test("can't verify user with invalid token", async () => {
@@ -411,18 +444,6 @@ describe('ooth-local', () => {
         throw new Error("Didn't fail");
       });
 
-      test('can check status', async () => {
-        const res = await request({
-          uri: 'http://localhost:8080/status',
-          json: true,
-          headers: {
-            Cookie: cookies,
-          },
-        });
-        delete res.user._id;
-        expect(res).toMatchSnapshot();
-      });
-
       test('can set username', async () => {
         const res = await request({
           method: 'POST',
@@ -453,6 +474,25 @@ describe('ooth-local', () => {
         });
         delete res.user._id;
         expect(res).toMatchSnapshot();
+        expect(obfuscatePatterns(sendMail.mock.calls, /token=[\w\d]+/g, /userId=[\w\d]+/g)).toMatchSnapshot();
+      });
+
+      test('can change password', async () => {
+        const res = await request({
+          method: 'POST',
+          uri: 'http://localhost:8080/local/change-password',
+          body: {
+            password: 'Asdflba09',
+            newPassword: 'XXAsdflba09',
+          },
+          json: true,
+          headers: {
+            Cookie: cookies,
+          },
+        });
+        delete res.user._id;
+        expect(res).toMatchSnapshot();
+        expect(obfuscatePatterns(sendMail.mock.calls, /token=[\w\d]+/g, /userId=[\w\d]+/g)).toMatchSnapshot();
       });
 
       test("can't set invalid username", async () => {

@@ -1,0 +1,64 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-user after getting jwt can log in with jwt 1`] = `
+Array [
+  "_id",
+  "foo",
+  "jwt",
+]
+`;
+
+exports[`ooth-user after getting jwt can reauth with refresh token 1`] = `
+Array [
+  "token",
+  "refreshToken",
+  "refreshTokenExpiresAt",
+]
+`;
+
+exports[`ooth-user after getting jwt can reauth with refresh token 2`] = `
+Array [
+  "iat",
+  "exp",
+  "_id",
+]
+`;
+
+exports[`ooth-user after getting jwt cannot bypass primary auth returning error with secondary auth 1`] = `
+Object {
+  "message": "nope",
+  "status": "error",
+}
+`;
+
+exports[`ooth-user after getting jwt cannot bypass primary auth returning undefined user with secondary auth 1`] = `Object {}`;
+
+exports[`ooth-user after getting jwt cannot log in with expired jwt 1`] = `
+Object {
+  "message": "jwt expired",
+  "status": "error",
+}
+`;
+
+exports[`ooth-user after getting jwt refreshtoken expires 1`] = `
+Object {
+  "message": "Refresh token expired.",
+  "status": "error",
+}
+`;
+
+exports[`ooth-user attaches jwt and refresh token to auth response 1`] = `
+Array [
+  "token",
+  "refreshToken",
+  "refreshTokenExpiresAt",
+]
+`;
+
+exports[`ooth-user attaches jwt and refresh token to auth response 2`] = `
+Array [
+  "iat",
+  "exp",
+  "_id",
+]
+`;

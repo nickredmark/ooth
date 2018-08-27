@@ -3,5 +3,6 @@
 exports[`ooth-guest can register 1`] = `
 Object {
   "_id": "<obfuscated>",
+  "guest": Object {},
 }
 `;

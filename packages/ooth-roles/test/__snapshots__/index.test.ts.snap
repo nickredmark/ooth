@@ -3,6 +3,7 @@
 exports[`ooth-roles admin can set roles 1`] = `
 Object {
   "_id": "<obfuscated>",
+  "guest": Object {},
   "roles": Object {
     "roles": Array [
       "admin",

@@ -1,10 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ooth-local after registration after login can check status 1`] = `
+exports[`ooth-local after registration after login can change password 1`] = `
 Object {
+  "message": "Password has been changed.",
   "user": Object {
     "local": Object {
       "email": "test@example.com",
+    },
+  },
+}
+`;
+
+exports[`ooth-local after registration after login can change password 2`] = `
+Object {
+  "0": Object {
+    "0": Object {
+      "body": "Your password for Example Site has been changed.",
+      "from": "noreply@example.com",
+      "html": "Your password for Example Site has been changed.",
+      "subject": "Example Site password changed",
+      "to": "test@example.com",
     },
   },
 }
@@ -18,12 +33,40 @@ Object {
 }
 `;
 
+exports[`ooth-local after registration after login can generate verification token 2`] = `
+Object {
+  "0": Object {
+    "0": Object {
+      "body": "Please verify your Example Site email by opening the following url: /verify-email?<obfuscated>&<obfuscated>.",
+      "from": "noreply@example.com",
+      "html": "Please verify your Example Site email by opening the following url: /verify-email?<obfuscated>&<obfuscated>.",
+      "subject": "Verify your Example Site address",
+      "to": "test@example.com",
+    },
+  },
+}
+`;
+
 exports[`ooth-local after registration after login can set email 1`] = `
 Object {
   "message": "Email updated.",
   "user": Object {
     "local": Object {
       "email": "test@example.com",
+    },
+  },
+}
+`;
+
+exports[`ooth-local after registration after login can set email 2`] = `
+Object {
+  "0": Object {
+    "0": Object {
+      "body": "Please verify your Example Site email by opening the following url: /verify-email?<obfuscated>&<obfuscated>.",
+      "from": "noreply@example.com",
+      "html": "Please verify your Example Site email by opening the following url: /verify-email?<obfuscated>&<obfuscated>.",
+      "subject": "Verify your Example Site address",
+      "to": "test@example.com",
     },
   },
 }
@@ -54,6 +97,20 @@ Object {
 }
 `;
 
+exports[`ooth-local after registration after login can verify user with token 2`] = `
+Object {
+  "0": Object {
+    "0": Object {
+      "body": "Your Example Site address has been verified.",
+      "from": "noreply@example.com",
+      "html": "Your Example Site address has been verified.",
+      "subject": "Example Site address verified",
+      "to": "test@example.com",
+    },
+  },
+}
+`;
+
 exports[`ooth-local after registration after login can't set invalid username 1`] = `
 Object {
   "message": "Username must be all lowercase, contain only letters, numbers and _ (starting with a letter), and be between 4 and 20 characters long.",
@@ -76,6 +133,20 @@ Object {
 }
 `;
 
+exports[`ooth-local after registration can forget password 2`] = `
+Object {
+  "0": Object {
+    "0": Object {
+      "body": "Reset your password for Example Site on the following page: /reset-password?<obfuscated>&<obfuscated>",
+      "from": "noreply@example.com",
+      "html": "Reset your password for Example Site on the following page: /reset-password?<obfuscated>&<obfuscated>",
+      "subject": "Reset Example Site password",
+      "to": "test@example.com",
+    },
+  },
+}
+`;
+
 exports[`ooth-local after registration can login 1`] = `
 Object {
   "user": Object {
@@ -89,6 +160,20 @@ Object {
 exports[`ooth-local after registration can reset password 1`] = `
 Object {
   "message": "Password has been reset.",
+}
+`;
+
+exports[`ooth-local after registration can reset password 2`] = `
+Object {
+  "0": Object {
+    "0": Object {
+      "body": "Your password for Example Site has been reset.",
+      "from": "noreply@example.com",
+      "html": "Your password for Example Site has been reset.",
+      "subject": "Example Site password reset",
+      "to": "test@example.com",
+    },
+  },
 }
 `;
 
@@ -106,12 +191,6 @@ Object {
 }
 `;
 
-exports[`ooth-local can check status 1`] = `
-Object {
-  "user": null,
-}
-`;
-
 exports[`ooth-local can register 1`] = `
 Object {
   "message": "User registered successfully.",
@@ -123,6 +202,29 @@ Object {
   "_id": "<obfuscated>",
   "email": "test@example.com",
   "verificationToken": "<obfuscated>",
+}
+`;
+
+exports[`ooth-local can register 3`] = `
+Object {
+  "0": Object {
+    "0": Object {
+      "body": "Thank you for joining Example Site!",
+      "from": "noreply@example.com",
+      "html": "Thank you for joining Example Site!",
+      "subject": "Welcome to Example Site",
+      "to": "test@example.com",
+    },
+  },
+  "1": Object {
+    "0": Object {
+      "body": "Please verify your Example Site email by opening the following url: /verify-email?<obfuscated>&<obfuscated>.",
+      "from": "noreply@example.com",
+      "html": "Please verify your Example Site email by opening the following url: /verify-email?<obfuscated>&<obfuscated>.",
+      "subject": "Verify your Example Site address",
+      "to": "test@example.com",
+    },
+  },
 }
 `;
 
