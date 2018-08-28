@@ -1,4 +1,4 @@
-import { compareSync, genSaltSync, hashSync } from 'bcrypt-nodejs';
+import { compareSync, hashSync } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { Request } from 'express';
 import { FullRequest, Ooth, StrategyValues } from 'ooth';
@@ -39,10 +39,6 @@ const DEFAULT_VALIDATORS: Validators = {
 
 function randomToken(): string {
   return randomBytes(43).toString('hex');
-}
-
-function hash(pass: string): string {
-  return hashSync(pass, genSaltSync(SALT_ROUNDS));
 }
 
 type Result = {
@@ -160,7 +156,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       await ooth.updateUser(name, userId!, {
         email,
-        verificationToken: hash(verificationToken),
+        verificationToken: hashSync(verificationToken, SALT_ROUNDS),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -202,8 +198,8 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       const _id = await ooth.insertUser(name, {
         email,
-        password: hash(password),
-        verificationToken: hash(verificationToken),
+        password: hashSync(password, SALT_ROUNDS),
+        verificationToken: hashSync(verificationToken, SALT_ROUNDS),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -233,7 +229,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
       }
 
       await ooth.updateUser(name, userId!, {
-        verificationToken: hash(verificationToken),
+        verificationToken: hashSync(verificationToken, SALT_ROUNDS),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -328,7 +324,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       await ooth.updateUser(name, user._id, {
         email,
-        passwordResetToken: hash(passwordResetToken),
+        passwordResetToken: hashSync(passwordResetToken, SALT_ROUNDS),
         passwordResetTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -389,7 +385,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       await ooth.updateUser(name, user._id, {
         passwordResetToken: null,
-        password: hash(newPassword),
+        password: hashSync(newPassword, SALT_ROUNDS),
       });
 
       await ooth.emit(name, 'reset-password', {
@@ -424,7 +420,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       await ooth.updateUser(name, userId!, {
         passwordResetToken: null,
-        password: hash(newPassword),
+        password: hashSync(newPassword, SALT_ROUNDS),
       });
 
       await ooth.emit(name, 'change-password', {

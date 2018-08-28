@@ -1,4 +1,4 @@
-import { compareSync, genSaltSync, hashSync } from 'bcrypt-nodejs';
+import { compareSync, hashSync } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { Request } from 'express';
 import { sign } from 'jsonwebtoken';
@@ -9,10 +9,6 @@ import { callbackify } from 'util';
 const { Strategy } = require('passport-custom');
 
 const SALT_ROUNDS = 12;
-
-function hash(pass: string): string {
-  return hashSync(pass, genSaltSync(SALT_ROUNDS));
-}
 
 type Options = {
   name?: string;
@@ -55,7 +51,7 @@ export default function({
 
       ooth.updateUser(name, userId, {
         refreshTokenExpiresAt,
-        refreshToken: hash(refreshToken),
+        refreshToken: hashSync(refreshToken, SALT_ROUNDS),
       });
 
       result.refreshToken = refreshToken;
@@ -112,7 +108,7 @@ export default function({
 
     ooth.updateUser(name, userId!, {
       refreshTokenExpiresAt,
-      refreshToken: hash(refreshToken),
+      refreshToken: await hash(refreshToken, SALT_ROUNDS),
     });
 
     return {
@@ -154,7 +150,7 @@ export default function({
           throw new Error("User didn't log in with jwt");
         }
 
-        if (!compareSync(refreshToken, strategyValues.refreshToken)) {
+        if (!(await compareSync(refreshToken, strategyValues.refreshToken))) {
           throw new Error('Bad refreshToken.');
         }
 
