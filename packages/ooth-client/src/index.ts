@@ -149,7 +149,7 @@ export class OothClient {
   }
 
   public async logout(): Promise<void> {
-    await fetch(`${this.oothUrl}/logout`, {
+    await fetch(`${this.oothUrl}/session/logout`, {
       method: 'POST',
       credentials: 'include',
     });
