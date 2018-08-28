@@ -31,7 +31,7 @@ export default function({ ooth }: Options): void {
 
   ooth.on('ooth', 'logout', async ({ sessionId }) => {
     if (sessionId && connections[sessionId]) {
-      connections[sessionId].forEach((ws) => ws.send(undefined));
+      connections[sessionId].forEach((ws) => ws.send(JSON.stringify({})));
     }
   });
 
