@@ -1,8 +1,10 @@
-import OothClient from 'ooth-client'
+import { OothClient } from "ooth-client";
 
 const ooth = new OothClient({
-    oothUrl: 'http://localhost:3002/auth',
-    standalone: false,
-})
+  url: "http://localhost:3002/auth",
+  secondaryAuthMode: "session",
+  standalone: false,
+  ws: true
+});
 
-export default ooth
+export default ooth;

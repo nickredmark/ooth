@@ -286,9 +286,9 @@ on-headers@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/on-headers/-/on-headers-1.0.1.tgz#928f5d0f470d49342651ea6794b0857c100693f7"
 
-ooth-i18n@^2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/ooth-i18n/-/ooth-i18n-2.0.0-alpha.0.tgz#26b150c3fde8666b736068cdbb907d3dc7965469"
+ooth-i18n@^2.0.0-alpha.0, ooth-i18n@^2.0.0-alpha.1:
+  version "2.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/ooth-i18n/-/ooth-i18n-2.0.0-alpha.1.tgz#7b757c179b59082a36ecace124b25b2a6b093217"
 
 ooth-local@2.0.0-alpha.0:
   version "2.0.0-alpha.0"
@@ -305,12 +305,12 @@ ooth-mongo@2.0.0-alpha.0:
     mongodb "^3.1.3"
 
 ooth-user@^2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/ooth-user/-/ooth-user-2.0.0-alpha.0.tgz#4d0765c722d4bcbb9c9f4465dadbd08d7edc8eb6"
+  version "2.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/ooth-user/-/ooth-user-2.0.0-alpha.1.tgz#83f717caa2f6d446a3cb8052bf031c03adcda8a4"
   dependencies:
-    ooth "^2.0.0-alpha.0"
+    ooth "^2.0.0-alpha.1"
 
-ooth@2.0.0-alpha.0, ooth@^2.0.0-alpha.0:
+ooth@2.0.0-alpha.0:
   version "2.0.0-alpha.0"
   resolved "https://registry.yarnpkg.com/ooth/-/ooth-2.0.0-alpha.0.tgz#5f9cc6a504ad67f83b9d2ebfb76c02bc89f92adf"
   dependencies:
@@ -320,6 +320,19 @@ ooth@2.0.0-alpha.0, ooth@^2.0.0-alpha.0:
     express-session "^1.15.6"
     locale "^0.1.0"
     ooth-i18n "^2.0.0-alpha.0"
+    passport "^0.3.2"
+    passport-custom "^1.0.5"
+
+ooth@^2.0.0-alpha.1:
+  version "2.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/ooth/-/ooth-2.0.0-alpha.1.tgz#8f24ef6854de77002132fed5e76bb363d5cd446a"
+  dependencies:
+    body-parser "^1.16.0"
+    cookie-parser "^1.4.3"
+    express "^4.14.1"
+    express-session "^1.15.6"
+    locale "^0.1.0"
+    ooth-i18n "^2.0.0-alpha.1"
     passport "^0.3.2"
     passport-custom "^1.0.5"
 

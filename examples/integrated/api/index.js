@@ -1,37 +1,38 @@
-const {MongoClient, ObjectId} = require('mongodb')
-const express = require('express')
-const bodyParser = require('body-parser')
-const session = require('express-session')
-const cookieParser = require('cookie-parser')
-const {graphqlExpress, graphiqlExpress} = require('graphql-server-express')
-const {makeExecutableSchema} = require('graphql-tools')
-const morgan = require('morgan')
-const cors = require('cors')
-const settings = require('config')
-const nodeify = require('nodeify')
-const ooth = require('./ooth')
+const { MongoClient, ObjectId } = require("mongodb");
+const express = require("express");
+const bodyParser = require("body-parser");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const { graphqlExpress, graphiqlExpress } = require("graphql-server-express");
+const { makeExecutableSchema } = require("graphql-tools");
+const morgan = require("morgan");
+const cors = require("cors");
+const settings = require("config");
+const nodeify = require("nodeify");
+const ooth = require("./ooth");
 
-const prepare = (o) => {
-    if (o) {
-        o._id = o._id.toString()
-    }
-    return o
-}
+const prepare = o => {
+  if (o) {
+    o._id = o._id.toString();
+  }
+  return o;
+};
 
 function nodeifyAsync(asyncFunction) {
-    return function(...args) {
-        return nodeify(asyncFunction(...args.slice(0, -1)), args[args.length-1])
-    }
+  return function(...args) {
+    return nodeify(asyncFunction(...args.slice(0, -1)), args[args.length - 1]);
+  };
 }
 
 const start = async () => {
-    try {
-        const db = await MongoClient.connect(settings.mongoUrl)
+  try {
+    const db = await MongoClient.connect(settings.mongoUrl);
 
-        const Posts = db.collection('posts')
-        const Comments = db.collection('comments')
+    const Posts = db.collection("posts");
+    const Comments = db.collection("comments");
 
-        const typeDefs = [`
+    const typeDefs = [
+      `
             type Query {
                 me: User
                 post(_id: ID!): Post
@@ -67,101 +68,101 @@ const start = async () => {
                 query: Query
                 mutation: Mutation
             }
-        `];        
+        `
+    ];
 
-
-        const resolvers = {
-            Query: {
-                me: async (root, args, {userId}) => {
-                    if (!userId) {
-                        return null
-                    }
-                    return {
-                        _id: userId
-                    }
-                },
-                post: async (root, {_id}) => {
-                    return prepare(await Posts.findOne(ObjectId(_id)))
-                },
-                posts: async (root, args, context) => {
-                    return (await Posts.find({}).toArray()).map(prepare)
-                },
-                comment: async (root, {_id}) => {
-                    return prepare(await Comments.findOne(ObjectId(_id)))
-                },
-            },
-            Post: {
-                comments: async ({_id}) => {
-                    return (await Comments.find({postId: _id}).toArray()).map(prepare)
-                }
-            },
-            Comment: {
-                post: async ({postId}) => {
-                    return prepare(await Posts.findOne(ObjectId(postId)))
-                }
-            },
-            Mutation: {
-                createPost: async (root, args, {userId}, info) => {
-                    if (!userId) {
-                        throw new Error('User not logged in.')
-                    }
-                    args.authorId = userId
-                    const {insertedId} = await Posts.insertOne(args)
-                    return prepare(await Posts.findOne(ObjectId(insertedId)))
-                },
-                createComment: async (root, args, {userId}) => {
-                    if (!userId) {
-                        throw new Error('User not logged in.')
-                    }
-                    args.authorId = userId
-                    const {insertedId} = await Comments.insertOne(args)
-                    return prepare(await Comments.findOne(ObjectId(insertedId)))
-                },
-            },
+    const resolvers = {
+      Query: {
+        me: async (root, args, { userId }) => {
+          if (!userId) {
+            return null;
+          }
+          return {
+            _id: userId
+          };
+        },
+        post: async (root, { _id }) => {
+          return prepare(await Posts.findOne(ObjectId(_id)));
+        },
+        posts: async (root, args, context) => {
+          return (await Posts.find({}).toArray()).map(prepare);
+        },
+        comment: async (root, { _id }) => {
+          return prepare(await Comments.findOne(ObjectId(_id)));
         }
+      },
+      Post: {
+        comments: async ({ _id }) => {
+          return (await Comments.find({ postId: _id }).toArray()).map(prepare);
+        }
+      },
+      Comment: {
+        post: async ({ postId }) => {
+          return prepare(await Posts.findOne(ObjectId(postId)));
+        }
+      },
+      Mutation: {
+        createPost: async (root, args, { userId }, info) => {
+          if (!userId) {
+            throw new Error("User not logged in.");
+          }
+          args.authorId = userId;
+          const { insertedId } = await Posts.insertOne(args);
+          return prepare(await Posts.findOne(ObjectId(insertedId)));
+        },
+        createComment: async (root, args, { userId }) => {
+          if (!userId) {
+            throw new Error("User not logged in.");
+          }
+          args.authorId = userId;
+          const { insertedId } = await Comments.insertOne(args);
+          return prepare(await Comments.findOne(ObjectId(insertedId)));
+        }
+      }
+    };
 
-        const schema = makeExecutableSchema({
-            typeDefs,
-            resolvers
-        })
+    const schema = makeExecutableSchema({
+      typeDefs,
+      resolvers
+    });
 
-        const app = express()
-        app.use(morgan('dev'))
+    const app = express();
+    app.use(morgan("dev"));
 
-        const corsMiddleware = cors({
-            origin: settings.originUrl,
-            credentials: true,
-            preflightContinue: false
-        })
-        app.use(corsMiddleware)
-        app.options(corsMiddleware)
+    const corsMiddleware = cors({
+      origin: settings.originUrl,
+      credentials: true,
+      preflightContinue: false
+    });
+    app.use(corsMiddleware);
+    app.options(corsMiddleware);
 
-        app.use(session({
-            name: 'api-session-id',
-            secret: settings.sessionSecret,
-            resave: false,
-            saveUninitialized: true,
-        }))
-        await ooth(app, settings)
+    await ooth(app, settings);
 
-        app.use('/graphql', bodyParser.json(), graphqlExpress((req, res) => {
-            return {
-                schema,
-                context: { userId: req.user && req.user._id }
-            }
-        }))
+    app.use(
+      "/graphql",
+      bodyParser.json(),
+      graphqlExpress((req, res) => {
+        return {
+          schema,
+          context: { userId: req.user }
+        };
+      })
+    );
 
-        app.use('/graphiql', graphiqlExpress({
-            endpointURL: '/graphql',
-        }))
+    app.use(
+      "/graphiql",
+      graphiqlExpress({
+        endpointURL: "/graphql"
+      })
+    );
 
-        app.listen(settings.port, () => {
-            console.info(`Online at ${settings.url}:${settings.port}`)
-        })
+    app.listen(settings.port, () => {
+      console.info(`Online at ${settings.url}:${settings.port}`);
+    });
+  } catch (e) {
+    console.error(e);
+  }
+};
 
-    } catch (e) {
-        console.error(e)
-    }
-}
-
-start()
+start();
