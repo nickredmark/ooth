@@ -1,7 +1,4 @@
 {
-  "devDependencies": {
-    "lerna": "2.0.0-beta.36"
-  },
   "scripts": {
     "check-clean-repo": "test -z \"$(git status --porcelain)\"",
     "bootstrap": "lerna exec \"npm ci\" --concurrency=1",
