@@ -20,7 +20,6 @@ export type Options = {
   app: Application;
   backend: Backend;
   path?: string;
-  specJwt?: boolean;
   sessionSecret?: string;
 
   defaultLanguage?: string;
