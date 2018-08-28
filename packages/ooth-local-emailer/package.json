@@ -1,6 +1,6 @@
 {
   "name": "ooth-local-emailer",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -16,8 +16,8 @@
   },
   "repository": "nmaro/ooth",
   "dependencies": {
-    "ooth": "^2.0.0-alpha.0",
-    "ooth-i18n": "^2.0.0-alpha.0"
+    "ooth": "^2.0.0-alpha.1",
+    "ooth-i18n": "^2.0.0-alpha.1"
   },
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
