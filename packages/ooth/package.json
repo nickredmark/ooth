@@ -1,6 +1,6 @@
 {
   "name": "ooth",
-  "version": "2.0.0-alpha.1",
+  "version": "2.0.0-alpha.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "express": "^4.14.1",
     "express-session": "^1.15.6",
     "locale": "^0.1.0",
-    "ooth-i18n": "^2.0.0-alpha.1",
+    "ooth-i18n": "^2.0.0-alpha.2",
     "passport": "^0.3.2",
     "passport-custom": "^1.0.5"
   },
@@ -42,7 +42,7 @@
     "mongodb": "^3.1.3",
     "mongodb-memory-server": "^2.0.1",
     "ms": "^2.1.1",
-    "ooth-mongo": "^2.0.0-alpha.1",
+    "ooth-mongo": "^2.0.0-alpha.2",
     "passport-strategy": "^1.0.0",
     "request-promise": "^4.2.1",
     "ts-jest": "^23.1.4",
