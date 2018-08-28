@@ -452,7 +452,7 @@ export class Ooth {
   }
 
   public async callMethod<T>(strategyName: string, method: string, params: any, user: any, locale: string): Promise<T> {
-    return await this.getStrategy(strategyName).methods[method]<T>(params, user, locale);
+    return await this.getStrategy(strategyName).methods[method](params, user, locale);
   }
 
   public registerMiddleware(...middleware: RequestHandler[]): void {
