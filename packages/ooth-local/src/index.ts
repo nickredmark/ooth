@@ -1,4 +1,4 @@
-import { compareSync, hashSync } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { Request } from 'express';
 import { FullRequest, Ooth, StrategyValues } from 'ooth';
@@ -100,7 +100,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
           throw new Error(__('login.no_password', null, fullRequest.locale));
         }
 
-        if (!compareSync(password, (user[name]! as StrategyValues).password)) {
+        if (!(await compare(password, (user[name]! as StrategyValues).password))) {
           throw new Error(__('login.invalid_password', null, fullRequest.locale));
         }
 
@@ -156,7 +156,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       await ooth.updateUser(name, userId!, {
         email,
-        verificationToken: hashSync(verificationToken, SALT_ROUNDS),
+        verificationToken: await hash(verificationToken, SALT_ROUNDS),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -198,8 +198,8 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       const _id = await ooth.insertUser(name, {
         email,
-        password: hashSync(password, SALT_ROUNDS),
-        verificationToken: hashSync(verificationToken, SALT_ROUNDS),
+        password: await hash(password, SALT_ROUNDS),
+        verificationToken: await hash(verificationToken, SALT_ROUNDS),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -229,7 +229,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
       }
 
       await ooth.updateUser(name, userId!, {
-        verificationToken: hashSync(verificationToken, SALT_ROUNDS),
+        verificationToken: await hash(verificationToken, SALT_ROUNDS),
         verificationTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -270,7 +270,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
         throw new Error(__('verify.no_email', null, locale));
       }
 
-      if (!compareSync(token, strategyValues.verificationToken)) {
+      if (!(await compare(token, strategyValues.verificationToken))) {
         throw new Error(__('verify.invalid_token', null, locale));
       }
 
@@ -324,7 +324,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       await ooth.updateUser(name, user._id, {
         email,
-        passwordResetToken: hashSync(passwordResetToken, SALT_ROUNDS),
+        passwordResetToken: await hash(passwordResetToken, SALT_ROUNDS),
         passwordResetTokenExpiresAt: new Date(Date.now() + HOUR),
       });
 
@@ -371,7 +371,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
         throw new Error(__('reset_password.no_reset_token', null, locale));
       }
 
-      if (!compareSync(token, strategyValues.passwordResetToken)) {
+      if (!(await compare(token, strategyValues.passwordResetToken))) {
         throw new Error(__('reset_password.invalid_token', null, locale));
       }
 
@@ -385,7 +385,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       await ooth.updateUser(name, user._id, {
         passwordResetToken: null,
-        password: hashSync(newPassword, SALT_ROUNDS),
+        password: await hash(newPassword, SALT_ROUNDS),
       });
 
       await ooth.emit(name, 'reset-password', {
@@ -414,13 +414,13 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
 
       const strategyValues = user![name] as StrategyValues;
 
-      if ((password || (strategyValues && strategyValues.password)) && !compareSync(password, strategyValues.password)) {
+      if ((password || (strategyValues && strategyValues.password)) && !(await compare(password, strategyValues.password))) {
         throw new Error(__('change_password.invalid_password', null, locale));
       }
 
       await ooth.updateUser(name, userId!, {
         passwordResetToken: null,
-        password: hashSync(newPassword, SALT_ROUNDS),
+        password: await hash(newPassword, SALT_ROUNDS),
       });
 
       await ooth.emit(name, 'change-password', {

@@ -1,4 +1,4 @@
-import { compareSync, hashSync } from 'bcrypt';
+import { compare, hash } from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { Request } from 'express';
 import { sign } from 'jsonwebtoken';
@@ -51,7 +51,7 @@ export default function({
 
       ooth.updateUser(name, userId, {
         refreshTokenExpiresAt,
-        refreshToken: hashSync(refreshToken, SALT_ROUNDS),
+        refreshToken: await hash(refreshToken, SALT_ROUNDS),
       });
 
       result.refreshToken = refreshToken;
@@ -150,7 +150,7 @@ export default function({
           throw new Error("User didn't log in with jwt");
         }
 
-        if (!(await compareSync(refreshToken, strategyValues.refreshToken))) {
+        if (!(await compare(refreshToken, strategyValues.refreshToken))) {
           throw new Error('Bad refreshToken.');
         }
 
