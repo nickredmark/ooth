@@ -7,6 +7,7 @@
     "bootstrap": "lerna exec \"npm ci\" --concurrency=1",
     "build": "lerna run build --concurrency=1",
     "test-build": "lerna exec \"npm run test && npm run build\" --concurrency=1",
-    "safe-publish": "npm run check-clean-repo && npm run bootstrap && lerna link && npm run build && npm run test-build && lerna publish"
+    "fix-lock-files": "lerna exec \"npm i\"",
+    "safe-publish": "npm run check-clean-repo && npm run bootstrap && lerna link && npm run build && npm run test-build && lerna publish && npm run fix-lock-files && git commit \"lock files\" && git push"
   }
 }
