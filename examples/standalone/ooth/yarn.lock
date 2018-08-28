@@ -715,72 +715,73 @@ on-headers@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/on-headers/-/on-headers-1.0.1.tgz#928f5d0f470d49342651ea6794b0857c100693f7"
 
-ooth-guest@2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-guest/-/ooth-guest-2.0.0-alpha.3.tgz#89337d17f18a609187e0624f7311ab2ec396809d"
+ooth-guest@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-guest/-/ooth-guest-2.0.0.tgz#950cc1aebff5d1c98ed88ffa70674ecf20cd7a37"
   dependencies:
-    ooth "^2.0.0-alpha.3"
+    ooth "^2.0.0"
     passport-custom "^1.0.5"
 
-ooth-i18n@^2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-i18n/-/ooth-i18n-2.0.0-alpha.3.tgz#b05590298c597020f471f1b43900df49e0b83224"
+ooth-i18n@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-i18n/-/ooth-i18n-2.0.0.tgz#c9f8082259eebd00574c7e2aba4ab986354bbd80"
 
-ooth-jwt@2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-jwt/-/ooth-jwt-2.0.0-alpha.3.tgz#420b658510bba3b7122820a27e92488f2d3d1780"
+ooth-jwt@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-jwt/-/ooth-jwt-2.0.0.tgz#cfba41c2effe7b35929482bf2a3821060d7340c5"
   dependencies:
     bcrypt-nodejs "0.0.3"
+    express "^4.16.3"
     jsonwebtoken "^8.3.0"
-    ooth "^2.0.0-alpha.3"
+    ooth "^2.0.0"
     passport-jwt "^4.0.0"
 
-ooth-local-emailer@2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-local-emailer/-/ooth-local-emailer-2.0.0-alpha.3.tgz#8df07e1de155f46a1b3b4491156cf914e992ca61"
+ooth-local-emailer@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-local-emailer/-/ooth-local-emailer-2.0.0.tgz#21eaf0052481d6256ecdfc4359a316547ac638b4"
   dependencies:
-    ooth "^2.0.0-alpha.3"
-    ooth-i18n "^2.0.0-alpha.3"
+    ooth "^2.0.0"
+    ooth-i18n "^2.0.0"
 
-ooth-local@2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-local/-/ooth-local-2.0.0-alpha.3.tgz#6b4c9a1f57cca136911456bbd0dab8bea5b7aef0"
+ooth-local@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-local/-/ooth-local-2.0.0.tgz#10b72242e37587b20d09792ce1b9bd68ce077eda"
   dependencies:
     bcrypt-nodejs "0.0.3"
-    ooth-i18n "^2.0.0-alpha.3"
+    ooth-i18n "^2.0.0"
     passport-local "^1.0.0"
 
-ooth-mongo@2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-mongo/-/ooth-mongo-2.0.0-alpha.3.tgz#ffd4800f54fe95d9ade7f04e7c78c4409d681bcb"
+ooth-mongo@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-mongo/-/ooth-mongo-2.0.0.tgz#9aa4df221dd2fe3c87ff9c3da74ffd9c8ee5d931"
   dependencies:
     mongodb "^3.1.3"
 
-ooth-user@2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-user/-/ooth-user-2.0.0-alpha.3.tgz#3b686e6e8549c6a42a65d6b277e347307df65bad"
+ooth-user@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-user/-/ooth-user-2.0.0.tgz#fdc877de343c61abb064eca5a22e2a65915028d6"
   dependencies:
-    ooth "^2.0.0-alpha.3"
+    ooth "^2.0.0"
 
-ooth-ws@2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth-ws/-/ooth-ws-2.0.0-alpha.3.tgz#03c460e3be20a2213c94b765f7b705325d337705"
+ooth-ws@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-ws/-/ooth-ws-2.0.0.tgz#e2cb8563500bf58969e3b7a89beb35a83d2db182"
   dependencies:
     express "^4.16.3"
     express-ws "^4.0.0"
-    ooth "^2.0.0-alpha.3"
+    ooth "^2.0.0"
     ws "^6.0.0"
 
-ooth@2.0.0-alpha.3, ooth@^2.0.0-alpha.3:
-  version "2.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/ooth/-/ooth-2.0.0-alpha.3.tgz#42950000ca0d52466342a348f837ebe16744c4cf"
+ooth@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth/-/ooth-2.0.0.tgz#47afb0f99bdd618acf35f62e6b211392c8b9f5cc"
   dependencies:
     body-parser "^1.16.0"
     cookie-parser "^1.4.3"
     express "^4.14.1"
     express-session "^1.15.6"
     locale "^0.1.0"
-    ooth-i18n "^2.0.0-alpha.3"
+    ooth-i18n "^2.0.0"
     passport "^0.3.2"
     passport-custom "^1.0.5"
 

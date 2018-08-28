@@ -40,7 +40,7 @@ async function start() {
     emailer({ ooth, ...settings.mail, sendMail: mail(settings.mailgun) });
     oothUser({ ooth });
     oothJwt({ ooth, sharedSecret: settings.sharedSecret });
-    // oothWs({ ooth });
+    oothWs({ ooth });
 
     app.listen(settings.port, function() {
       console.info(`Ooth started on port ${settings.port}`);

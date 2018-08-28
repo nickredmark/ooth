@@ -9,8 +9,8 @@ const ooth = new OothClient({
     secondaryAuthMode: "session",
     loginPath: "/login",
     logoutPath: "/logout"
-  }
-  // ws: true
+  },
+  ws: true
 });
 
 export default ooth;

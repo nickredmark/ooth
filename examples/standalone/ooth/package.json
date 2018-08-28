@@ -18,14 +18,14 @@
     "mailgun-js": "^0.13.1",
     "mongodb": "^2.2.33",
     "morgan": "^1.8.0",
-    "ooth": "2.0.0-alpha.3",
-    "ooth-guest": "2.0.0-alpha.3",
-    "ooth-jwt": "2.0.0-alpha.3",
-    "ooth-local": "2.0.0-alpha.3",
-    "ooth-local-emailer": "2.0.0-alpha.3",
-    "ooth-mongo": "2.0.0-alpha.3",
-    "ooth-user": "2.0.0-alpha.3",
-    "ooth-ws": "2.0.0-alpha.3"
+    "ooth": "^2.0.0",
+    "ooth-guest": "^2.0.0",
+    "ooth-jwt": "^2.0.0",
+    "ooth-local": "^2.0.0",
+    "ooth-local-emailer": "^2.0.0",
+    "ooth-mongo": "^2.0.0",
+    "ooth-user": "^2.0.0",
+    "ooth-ws": "^2.0.0"
   },
   "engines": {
     "node": ">=8"

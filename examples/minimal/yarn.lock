@@ -286,53 +286,40 @@ on-headers@~1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/on-headers/-/on-headers-1.0.1.tgz#928f5d0f470d49342651ea6794b0857c100693f7"
 
-ooth-i18n@^2.0.0-alpha.0, ooth-i18n@^2.0.0-alpha.1:
-  version "2.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/ooth-i18n/-/ooth-i18n-2.0.0-alpha.1.tgz#7b757c179b59082a36ecace124b25b2a6b093217"
+ooth-i18n@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-i18n/-/ooth-i18n-2.0.0.tgz#c9f8082259eebd00574c7e2aba4ab986354bbd80"
 
-ooth-local@2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/ooth-local/-/ooth-local-2.0.0-alpha.0.tgz#f6565c1edd26a8a8becc49a2bcfb301a8f3fa350"
+ooth-local@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-local/-/ooth-local-2.0.0.tgz#10b72242e37587b20d09792ce1b9bd68ce077eda"
   dependencies:
     bcrypt-nodejs "0.0.3"
-    ooth-i18n "^2.0.0-alpha.0"
+    ooth-i18n "^2.0.0"
     passport-local "^1.0.0"
 
-ooth-mongo@2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/ooth-mongo/-/ooth-mongo-2.0.0-alpha.0.tgz#fdee18d325736de54f2683a0038f41fa2773bf18"
+ooth-mongo@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-mongo/-/ooth-mongo-2.0.0.tgz#9aa4df221dd2fe3c87ff9c3da74ffd9c8ee5d931"
   dependencies:
     mongodb "^3.1.3"
 
-ooth-user@^2.0.0-alpha.0:
-  version "2.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/ooth-user/-/ooth-user-2.0.0-alpha.1.tgz#83f717caa2f6d446a3cb8052bf031c03adcda8a4"
+ooth-user@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth-user/-/ooth-user-2.0.0.tgz#fdc877de343c61abb064eca5a22e2a65915028d6"
   dependencies:
-    ooth "^2.0.0-alpha.1"
+    ooth "^2.0.0"
 
-ooth@2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/ooth/-/ooth-2.0.0-alpha.0.tgz#5f9cc6a504ad67f83b9d2ebfb76c02bc89f92adf"
+ooth@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ooth/-/ooth-2.0.0.tgz#47afb0f99bdd618acf35f62e6b211392c8b9f5cc"
   dependencies:
     body-parser "^1.16.0"
     cookie-parser "^1.4.3"
     express "^4.14.1"
     express-session "^1.15.6"
     locale "^0.1.0"
-    ooth-i18n "^2.0.0-alpha.0"
-    passport "^0.3.2"
-    passport-custom "^1.0.5"
-
-ooth@^2.0.0-alpha.1:
-  version "2.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/ooth/-/ooth-2.0.0-alpha.1.tgz#8f24ef6854de77002132fed5e76bb363d5cd446a"
-  dependencies:
-    body-parser "^1.16.0"
-    cookie-parser "^1.4.3"
-    express "^4.14.1"
-    express-session "^1.15.6"
-    locale "^0.1.0"
-    ooth-i18n "^2.0.0-alpha.1"
+    ooth-i18n "^2.0.0"
     passport "^0.3.2"
     passport-custom "^1.0.5"
 
