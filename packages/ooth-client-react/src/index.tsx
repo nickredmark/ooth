@@ -1,22 +1,20 @@
 import * as React from 'react';
 import { getContext } from 'recompose';
 import { OothClient, User } from 'ooth-client';
-import { IDisposable } from 'rx';
 import * as PropTypes from 'prop-types';
 
 type Props = {
   client: OothClient;
-  initialUser: User | null;
+  initialUser: User | undefined;
 };
 
-type Status = { user: User | null };
+type Status = { user: User | undefined };
 
 export class OothProvider extends React.Component<Props, Status> {
   public static childContextTypes: any = {
     oothClient: PropTypes.object.isRequired,
     user: PropTypes.object,
   };
-  private subscription?: IDisposable;
 
   constructor(props: Props) {
     super(props);
@@ -30,18 +28,12 @@ export class OothProvider extends React.Component<Props, Status> {
       this.setState({
         user,
       });
-      this.subscription = this.props.client.user().subscribe((user) => {
-        this.setState({
-          user,
-        });
-      });
+      this.props.client.on('user', this.onUser);
     });
   }
 
   public componentWillUnmount(): void {
-    if (this.subscription) {
-      this.subscription.dispose();
-    }
+    this.props.client.unsubscribe('user', this.onUser);
   }
 
   public render(): JSX.Element | null {
@@ -59,6 +51,12 @@ export class OothProvider extends React.Component<Props, Status> {
       user,
     };
   }
+
+  private onUser = async (user: User) => {
+    this.setState({
+      user,
+    });
+  };
 }
 
 export const withOoth = getContext({

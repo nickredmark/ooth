@@ -18,15 +18,15 @@
   },
   "repository": "nmaro/ooth",
   "dependencies": {
-    "@types/isomorphic-fetch": "0.0.34",
     "isomorphic-fetch": "^2.2.1",
-    "rx": "^4.1.0",
+    "lodash": "^4.17.10",
     "url": "^0.11.0"
   },
   "devDependencies": {
     "@smartive/tslint-config": "^4.0.0",
+    "@types/isomorphic-fetch": "0.0.34",
     "@types/jest": "^23.3.1",
-    "@types/rx": "^4.1.1",
+    "@types/lodash": "^4.14.116",
     "del-cli": "^1.1.0",
     "jest": "^23.5.0",
     "ts-jest": "^23.1.4",

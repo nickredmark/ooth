@@ -7,6 +7,8 @@ class MockOothClient {
     return Promise.resolve({ _id: 'hi' });
   }
 
+  on() {}
+
   user() {
     return { _id: 'hi' };
   }

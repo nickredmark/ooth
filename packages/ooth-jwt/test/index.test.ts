@@ -122,7 +122,7 @@ describe('ooth-user', () => {
         method: 'POST',
         uri: 'http://localhost:8080/foo/restricted',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `JWT ${token}`,
         },
         json: true,
       });
@@ -137,7 +137,7 @@ describe('ooth-user', () => {
           method: 'POST',
           uri: 'http://localhost:8080/foo/restricted',
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `JWT ${token}`,
           },
           json: true,
         });
@@ -155,7 +155,7 @@ describe('ooth-user', () => {
           method: 'POST',
           uri: 'http://localhost:8080/foo/fail',
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `JWT ${token}`,
           },
           json: true,
         });
@@ -172,7 +172,7 @@ describe('ooth-user', () => {
         method: 'POST',
         uri: 'http://localhost:8080/foo/logout',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `JWT ${token}`,
         },
         json: true,
       });

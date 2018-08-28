@@ -1,5 +1,5 @@
 import * as fetch from 'isomorphic-fetch';
-import * as Rx from 'rx';
+import { isEqual } from 'lodash';
 
 const url = require('url');
 
@@ -7,51 +7,84 @@ declare var require: any;
 
 export type Options = {
   oothUrl: string;
-  standalone?: boolean;
-  apiLoginUrl?: string;
-  apiLogoutUrl?: string;
+  secondaryAuthMode: 'jwt' | 'session';
+  api?: ApiOptions;
+  ws?: boolean;
+};
+
+export type ApiOptions = {
+  apiUrl: string;
+  primaryAuthMode?: 'jwt';
+  secondaryAuthMode: 'jwt' | 'session';
+  apiLoginPath?: string;
+  apiLogoutPath?: string;
 };
 
 export type User = {
   _id: string;
 };
 
+export type Listener = (payload: any) => Promise<void>;
+export type RequestTransformer = (request: RequestInit) => RequestInit;
+
 export class OothClient {
   private oothUrl: string;
-  private standalone: boolean;
-  private apiLoginUrl?: string;
-  private apiLogoutUrl?: string;
+  private secondaryAuthMode: 'jwt' | 'session';
+  private api: ApiOptions | undefined;
+  private listeners: { [name: string]: Listener[] } = {};
+  private user: User | undefined;
+  private token: string | undefined;
+  private ws: boolean;
   private started: boolean = false;
-  private userSubject?: Rx.BehaviorSubject<User | null>;
 
-  constructor({ oothUrl, standalone, apiLoginUrl, apiLogoutUrl }: Options) {
+  constructor({ oothUrl, secondaryAuthMode, api, ws }: Options) {
     this.oothUrl = oothUrl;
-    this.standalone = !!standalone;
-    if (standalone) {
-      this.apiLoginUrl = apiLoginUrl;
-      this.apiLogoutUrl = apiLogoutUrl;
-    }
+    this.secondaryAuthMode = secondaryAuthMode;
+    this.api = api;
+    this.ws = !!ws;
   }
 
-  public async start(): Promise<User | null> {
+  public async start(): Promise<User | undefined> {
     if (!this.started) {
       this.started = true;
-      this.user();
-      this.subscribeStatus();
-      return await this.status();
+      await this.method('user', 'user');
+      if (this.ws && typeof WebSocket !== 'undefined') {
+        const urlParts = url.parse(this.oothUrl);
+        const protocol = urlParts.protocol === 'https:' ? 'wss' : 'ws';
+        const wsUrl = `${protocol}://${urlParts.host}${urlParts.path}/status`;
+        const socket = new WebSocket(wsUrl);
+        socket.onerror = (err: Event) => console.error(err);
+        socket.onopen = () => {};
+        socket.onclose = () => {};
+        socket.onmessage = ({ data }: any) => this.setUser(JSON.parse(data).user);
+      }
     }
 
-    return this.user().getValue();
+    return this.user;
   }
 
-  public user(): Rx.BehaviorSubject<User | null> {
-    if (!this.userSubject) {
-      this.userSubject = new Rx.BehaviorSubject<User | null>(null);
+  public on(eventName: string, listener: Listener): void {
+    if (!this.listeners[eventName]) {
+      this.listeners[eventName] = [];
     }
-    return this.userSubject;
+    this.listeners[eventName].push(listener);
   }
 
-  public async authenticate(strategy: string, method: string, body: any): Promise<User | null> {
+  public unsubscribe(eventName: string, listener: Listener): void {
+    if (this.listeners[eventName]) {
+      this.listeners[eventName] = this.listeners[eventName].filter((l) => l !== listener);
+    }
+  }
+
+  public async emit(eventName: string, payload: any): Promise<void> {
+    if (this.listeners[eventName]) {
+      for (const listener of this.listeners[eventName]) {
+        await listener(payload);
+      }
+    }
+  }
+
+  public async authenticate(strategy: string, method: string, body: any): Promise<User | undefined> {
     const raw = await fetch(`${this.oothUrl}/${strategy}/${method}`, {
       method: 'POST',
       headers: {
@@ -65,24 +98,43 @@ export class OothClient {
       throw new Error(response.message);
     }
     const { user, token } = response;
-    if (this.standalone) {
-      await fetch(this.apiLoginUrl, {
-        method: 'POST',
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
-        credentials: 'include',
-      });
+    if (token) {
+      if (this.api) {
+        if (this.api.primaryAuthMode === 'jwt') {
+          await fetch(`${this.api.apiUrl}${this.api.apiLoginPath}`, {
+            method: 'POST',
+            headers: {
+              Authorization: `JWT ${token}`,
+            },
+            credentials: 'include',
+          });
+        }
+      }
+      if (
+        this.secondaryAuthMode === 'jwt' ||
+        (this.api && (this.api.primaryAuthMode === 'jwt' || this.api.secondaryAuthMode === 'jwt'))
+      ) {
+        this.token = token;
+      }
     }
-    return this.next(user);
+    await this.setUser(user);
+
+    return user;
   }
 
-  public async method<T>(strategy: string, method: string, body: any): Promise<T> {
+  public async method<T>(strategy: string, method: string, body?: any, headers?: any): Promise<T> {
+    const actualHeaders = {
+      'Content-Type': 'application/json',
+    };
+    if (headers) {
+      Object.assign(actualHeaders, headers);
+    }
+    if (this.secondaryAuthMode && this.token) {
+      headers.Authorization = `JWT ${this.token}`;
+    }
     const raw = await fetch(`${this.oothUrl}/${strategy}/${method}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: actualHeaders,
       body: JSON.stringify(body),
       credentials: 'include',
     });
@@ -91,7 +143,7 @@ export class OothClient {
       throw new Error(response.message);
     }
     if (response.user) {
-      this.next(response.user);
+      await this.setUser(response.user);
     }
     return response;
   }
@@ -101,53 +153,46 @@ export class OothClient {
       method: 'POST',
       credentials: 'include',
     });
-    if (this.standalone) {
-      await fetch(this.apiLogoutUrl, {
+    if (this.api && this.api.primaryAuthMode === 'jwt') {
+      await fetch(this.api.apiLogoutPath, {
         method: 'POST',
         credentials: 'include',
       });
     }
-    this.next(null);
+    this.token = undefined;
+    this.setUser(undefined);
   }
 
-  public async status(cookies?: { [key: string]: string }): Promise<User | null> {
-    const opts: any = {
-      method: 'GET',
+  public async apiCall<T>(path: string, body: any, headers: any): Promise<T> {
+    if (!this.api) {
+      throw new Error('No api settings.');
+    }
+
+    const actualHeaders = {
+      'Content-Type': 'application/json',
     };
-    if (cookies) {
-      opts.headers = {
-        Cookie: Object.keys(cookies)
-          .map((key) => `${key}=${cookies[key]}`)
-          .join('; '),
-      };
-    } else {
-      opts.credentials = 'include';
+    if (headers) {
+      Object.assign(actualHeaders, headers);
     }
-    const raw = await fetch(`${this.oothUrl}/status`, opts);
-    const { user } = await raw.json();
-    return this.next(user);
+    if (this.api.secondaryAuthMode === 'jwt' && this.token) {
+      headers.Authorization = `JWT ${this.token}`;
+    }
+    const raw = await fetch(`${this.api.apiUrl}${path}`, {
+      method: 'POST',
+      headers: actualHeaders,
+      body: JSON.stringify(body),
+    });
+    const response = await raw.json();
+    if (response.status === 'error') {
+      throw new Error(response.message);
+    }
+    return response;
   }
 
-  private next(user: User | null): User | null {
-    if (this.userSubject) {
-      this.userSubject.onNext(user);
+  public async setUser(user: User | undefined): Promise<void> {
+    if (!isEqual(this.user, user)) {
+      this.user = user;
     }
-    return user;
-  }
-
-  private subscribeStatus(): void {
-    if (typeof WebSocket !== 'undefined') {
-      const urlParts = url.parse(this.oothUrl);
-      const protocol = urlParts.protocol === 'https:' ? 'wss' : 'ws';
-      const wsUrl = `${protocol}://${urlParts.host}${urlParts.path}/status`;
-      const socket = new WebSocket(wsUrl);
-      socket.onerror = (err: Event) => console.error(err);
-      socket.onopen = () => {};
-      socket.onclose = () => {};
-      socket.onmessage = ({ data }: any) => {
-        const { user } = JSON.parse(data);
-        return this.next(user);
-      };
-    }
+    await this.emit('user', user);
   }
 }

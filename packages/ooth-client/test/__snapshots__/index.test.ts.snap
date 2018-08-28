@@ -2,18 +2,11 @@
 
 exports[`OothClient can construct 1`] = `
 OothClient {
+  "api": undefined,
+  "listeners": Object {},
   "oothUrl": "http://localhost:3000/auth",
-  "standalone": false,
+  "secondaryAuthMode": "session",
   "started": false,
-}
-`;
-
-exports[`OothClient can construct standalone 1`] = `
-OothClient {
-  "apiLoginUrl": "http://localhost:3000/login",
-  "apiLogoutUrl": "http://localhost:3000/logout",
-  "oothUrl": "http://localhost:3000/auth",
-  "standalone": true,
-  "started": false,
+  "ws": false,
 }
 `;
