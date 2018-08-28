@@ -1,5 +1,4 @@
 import * as express from 'express';
-import * as session from 'express-session';
 import { MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
@@ -51,14 +50,6 @@ describe('ooth-profile', () => {
 
   beforeEach(async () => {
     app = express();
-    app.use(
-      session({
-        name: 'api-session-id',
-        secret: 'x',
-        resave: false,
-        saveUninitialized: true,
-      }),
-    );
     oothMongo = new OothMongo(db);
     ooth = new Ooth({
       app,
