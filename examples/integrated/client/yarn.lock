@@ -1493,12 +1493,12 @@ caniuse-api@^1.5.2:
     lodash.uniq "^4.5.0"
 
 caniuse-db@^1.0.30000529, caniuse-db@^1.0.30000634, caniuse-db@^1.0.30000639:
-  version "1.0.30000878"
-  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000878.tgz#0d0c6d8500c3aea21441fad059bce4b8f3f509df"
+  version "1.0.30000880"
+  resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000880.tgz#e6d7ba9a6602086f6fc124b91eeacbb70c55b2c4"
 
 caniuse-lite@^1.0.30000748, caniuse-lite@^1.0.30000792:
-  version "1.0.30000878"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000878.tgz#c644c39588dd42d3498e952234c372e5a40a4123"
+  version "1.0.30000880"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000880.tgz#b7b6ceaf739e17d0dda0d89426cba4be16d07bb0"
 
 capture-stack-trace@^1.0.0:
   version "1.0.0"
@@ -1675,16 +1675,12 @@ collection-visit@^1.0.0:
     object-visit "^1.0.0"
 
 color-convert@^1.3.0, color-convert@^1.9.0:
-  version "1.9.2"
-  resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.2.tgz#49881b8fba67df12a96bdf3f56c0aab9e7913147"
+  version "1.9.3"
+  resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.3.tgz#bb71850690e1f136567de629d2d5471deda4c1e8"
   dependencies:
-    color-name "1.1.1"
+    color-name "1.1.3"
 
-color-name@1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.1.tgz#4b1415304cf50028ea81643643bd82ea05803689"
-
-color-name@^1.0.0:
+color-name@1.1.3, color-name@^1.0.0:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/color-name/-/color-name-1.1.3.tgz#a7d0558bd89c42f795dd42328f740831ca53bc25"
 
@@ -5106,27 +5102,19 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-ooth-client-react@2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/ooth-client-react/-/ooth-client-react-2.0.0-alpha.0.tgz#2e489dad0fb9456ce95d86bcfe2432074f696aa7"
+ooth-client-react@2.0.0-alpha.3:
+  version "2.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/ooth-client-react/-/ooth-client-react-2.0.0-alpha.3.tgz#da6d289fead4a9f589fa21b8df49e7f125e96b9f"
   dependencies:
     create-react-class "^15.6.2"
-    ooth-client "^2.0.0-alpha.0"
+    ooth-client "^2.0.0-alpha.3"
     prop-types "^15.6.2"
     react "^16.1.1"
     recompose "^0.26.0"
 
-ooth-client@2.0.0-alpha.0:
-  version "2.0.0-alpha.0"
-  resolved "https://registry.yarnpkg.com/ooth-client/-/ooth-client-2.0.0-alpha.0.tgz#0e4663c9b08f01415dfa02fbe0772eda7685f047"
-  dependencies:
-    isomorphic-fetch "^2.2.1"
-    lodash "^4.17.10"
-    url "^0.11.0"
-
-ooth-client@^2.0.0-alpha.0:
-  version "2.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/ooth-client/-/ooth-client-2.0.0-alpha.1.tgz#c24955a966a37969150003c43cf668865a7e376d"
+ooth-client@2.0.0-alpha.3, ooth-client@^2.0.0-alpha.3:
+  version "2.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/ooth-client/-/ooth-client-2.0.0-alpha.3.tgz#e8921daf22abd34ccd128d9011fca60409091f8c"
   dependencies:
     isomorphic-fetch "^2.2.1"
     lodash "^4.17.10"

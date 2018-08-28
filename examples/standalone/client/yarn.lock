@@ -5106,19 +5106,19 @@ onetime@^2.0.0:
   dependencies:
     mimic-fn "^1.0.0"
 
-ooth-client-react@2.0.0-alpha.1:
-  version "2.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/ooth-client-react/-/ooth-client-react-2.0.0-alpha.1.tgz#287e0c3062a9bd65f1b60c14d5edc549acf49f14"
+ooth-client-react@2.0.0-alpha.3:
+  version "2.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/ooth-client-react/-/ooth-client-react-2.0.0-alpha.3.tgz#da6d289fead4a9f589fa21b8df49e7f125e96b9f"
   dependencies:
     create-react-class "^15.6.2"
-    ooth-client "^2.0.0-alpha.1"
+    ooth-client "^2.0.0-alpha.3"
     prop-types "^15.6.2"
     react "^16.1.1"
     recompose "^0.26.0"
 
-ooth-client@2.0.0-alpha.1, ooth-client@^2.0.0-alpha.1:
-  version "2.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/ooth-client/-/ooth-client-2.0.0-alpha.1.tgz#c24955a966a37969150003c43cf668865a7e376d"
+ooth-client@2.0.0-alpha.3, ooth-client@^2.0.0-alpha.3:
+  version "2.0.0-alpha.3"
+  resolved "https://registry.yarnpkg.com/ooth-client/-/ooth-client-2.0.0-alpha.3.tgz#e8921daf22abd34ccd128d9011fca60409091f8c"
   dependencies:
     isomorphic-fetch "^2.2.1"
     lodash "^4.17.10"
