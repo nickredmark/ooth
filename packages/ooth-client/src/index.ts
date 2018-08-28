@@ -6,18 +6,18 @@ const url = require('url');
 declare var require: any;
 
 export type Options = {
-  oothUrl: string;
+  url: string;
   secondaryAuthMode: 'jwt' | 'session';
   api?: ApiOptions;
   ws?: boolean;
 };
 
 export type ApiOptions = {
-  apiUrl: string;
+  url: string;
   primaryAuthMode?: 'jwt';
   secondaryAuthMode: 'jwt' | 'session';
-  apiLoginPath?: string;
-  apiLogoutPath?: string;
+  loginPath?: string;
+  logoutPath?: string;
 };
 
 export type User = {
@@ -37,8 +37,8 @@ export class OothClient {
   private ws: boolean;
   private started: boolean = false;
 
-  constructor({ oothUrl, secondaryAuthMode, api, ws }: Options) {
-    this.oothUrl = oothUrl;
+  constructor({ url, secondaryAuthMode, api, ws }: Options) {
+    this.oothUrl = url;
     this.secondaryAuthMode = secondaryAuthMode;
     this.api = api;
     this.ws = !!ws;
@@ -51,7 +51,7 @@ export class OothClient {
       if (this.ws && typeof WebSocket !== 'undefined') {
         const urlParts = url.parse(this.oothUrl);
         const protocol = urlParts.protocol === 'https:' ? 'wss' : 'ws';
-        const wsUrl = `${protocol}://${urlParts.host}${urlParts.path}/status`;
+        const wsUrl = `${protocol}://${urlParts.host}${urlParts.path}/ws/user`;
         const socket = new WebSocket(wsUrl);
         socket.onerror = (err: Event) => console.error(err);
         socket.onopen = () => {};
@@ -101,7 +101,7 @@ export class OothClient {
     if (token) {
       if (this.api) {
         if (this.api.primaryAuthMode === 'jwt') {
-          await fetch(`${this.api.apiUrl}${this.api.apiLoginPath}`, {
+          await fetch(`${this.api.url}${this.api.loginPath}`, {
             method: 'POST',
             headers: {
               Authorization: `JWT ${token}`,
@@ -154,7 +154,7 @@ export class OothClient {
       credentials: 'include',
     });
     if (this.api && this.api.primaryAuthMode === 'jwt') {
-      await fetch(this.api.apiLogoutPath, {
+      await fetch(`${this.api.url}${this.api.logoutPath}`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -177,7 +177,7 @@ export class OothClient {
     if (this.api.secondaryAuthMode === 'jwt' && this.token) {
       headers.Authorization = `JWT ${this.token}`;
     }
-    const raw = await fetch(`${this.api.apiUrl}${path}`, {
+    const raw = await fetch(`${this.api.url}${path}`, {
       method: 'POST',
       headers: actualHeaders,
       body: JSON.stringify(body),
