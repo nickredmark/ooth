@@ -101,6 +101,13 @@ describe('ooth', () => {
         expect(res).toMatchSnapshot();
       });
 
+      test('can call method', async () => {
+        ooth.registerMethod<{ message: string }>('test', 'foo', [], async (body) => (body));
+
+        const res = await ooth.callMethod('test', 'foo', 'hello world')
+        expect(res).toBe('hello world')
+      })
+
       test('fails with requireLogged', async () => {
         ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
           message: 'hi',

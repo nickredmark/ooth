@@ -430,7 +430,7 @@ export class Ooth {
 
     const finalHandler = async (req: FullRequest, res: Response) => {
       try {
-        let result = await this.getStrategy(strategyName).methods[method](req.body, req.user, req.locale);
+        let result = await this.callMethod(strategyName, method, req.body, req.user, req.locale);
         for (const aw of this.afterware) {
           result = await aw(result, req.user);
         }
@@ -449,6 +449,10 @@ export class Ooth {
       ...((middleware as any) as RequestHandler[]),
       (finalHandler as any) as RequestHandler,
     );
+  }
+
+  public async callMethod<T>(strategyName: string, method: string, params: any, user: any, locale: string): Promise<T> {
+    return await this.getStrategy(strategyName).methods[method]<T>(params, user, locale);
   }
 
   public registerMiddleware(...middleware: RequestHandler[]): void {
