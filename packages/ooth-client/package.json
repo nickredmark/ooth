@@ -4,7 +4,6 @@
   "description": "Ooth client library, wrapper around the ooth API.",
   "main": "lib/index.js",
   "scripts": {
-    "postinstall": "lerna link",
     "clean": "del-cli ./lib ./coverage",
     "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
     "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",

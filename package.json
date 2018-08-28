@@ -3,9 +3,10 @@
     "lerna": "2.0.0-beta.36"
   },
   "scripts": {
-    "test": "lerna run test --concurrency=1",
+    "check-clean-repo": "test -z \"$(git status --porcelain)\"",
     "bootstrap": "lerna exec \"npm ci\" --concurrency=1",
     "build": "lerna run build --concurrency=1",
-    "safe-publish": "npm run bootstrap && lerna link && npm run test && npm run build && lerna publish"
+    "test-build": "lerna exec \"npm run test && npm run build\" --concurrency=1",
+    "safe-publish": "npm run check-clean-repo && npm run bootstrap && lerna link && npm run build && npm run test-build && lerna publish"
   }
 }
