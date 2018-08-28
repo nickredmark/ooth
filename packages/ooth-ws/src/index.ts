@@ -35,8 +35,8 @@ export default function({ ooth }: Options): void {
     }
   });
 
-  const route: RouterWithWs = ws.applyTo(ooth.getRoute()) as any;
-
+  const route: RouterWithWs = ooth.getRoute() as any;
+  ws.applyTo(route);
   route.ws('/ws/user', async (ws: WebSocket, req: FullRequest) => {
     if (!connections[req.session!.id]) {
       connections[req.session!.id] = [];
