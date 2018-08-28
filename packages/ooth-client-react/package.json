@@ -1,6 +1,6 @@
 {
   "name": "ooth-client-react",
-  "version": "2.0.0-alpha.3",
+  "version": "2.0.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "repository": "nmaro/ooth",
   "dependencies": {
     "create-react-class": "^15.6.2",
-    "ooth-client": "^2.0.0-alpha.3",
+    "ooth-client": "^2.0.0",
     "prop-types": "^15.6.2",
     "react": "^16.1.1",
     "recompose": "^0.26.0"

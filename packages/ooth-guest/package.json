@@ -1,6 +1,6 @@
 {
   "name": "ooth-guest",
-  "version": "2.0.0-alpha.3",
+  "version": "2.0.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "repository": "nmaro/ooth",
   "dependencies": {
-    "ooth": "^2.0.0-alpha.3",
+    "ooth": "^2.0.0",
     "passport-custom": "^1.0.5"
   },
   "devDependencies": {
@@ -29,7 +29,7 @@
     "jest": "^23.5.0",
     "mongodb": "^2.2.31",
     "mongodb-memory-server": "^2.0.1",
-    "ooth-mongo": "^2.0.0-alpha.3",
+    "ooth-mongo": "^2.0.0",
     "request-promise": "^4.2.2",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
