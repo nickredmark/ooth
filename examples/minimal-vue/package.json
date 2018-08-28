@@ -13,9 +13,10 @@
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "mongodb": "^3.0.1",
-    "ooth": "^1.1.0",
-    "ooth-local": "^1.1.0",
-    "ooth-mongo": "^1.1.0",
+    "ooth": "2.0.0-alpha.0",
+    "ooth-local": "2.0.0-alpha.0",
+    "ooth-mongo": "2.0.0-alpha.0",
+    "ooth-user": "^2.0.0-alpha.0",
     "vue": "^2.5.13"
   }
 }

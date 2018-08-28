@@ -1,95 +1,97 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <script>
-            async function register(e) {
-                e.preventDefault()
-                const email = document.getElementById('register-email').value
-                const password = document.getElementById('register-password').value
-                const res = await fetch('/auth/local/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email,
-                        password,
-                    }),
-                    credentials: 'include',
-                })
-                const body = await res.json()
-                if (body.status === 'error') {
-                    alert(body.message)
-                    return
-                }
-                await loginWithEmailPassword(email, password)
-            }
 
-            async function loginWithEmailPassword(username, password) {
-                const res = await fetch('/auth/local/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username,
-                        password,
-                    }),
-                    credentials: 'include',
-                })
-                const body = await res.json()
-                if (body.status === 'error') {
-                    alert(body.message)
-                    return
-                }
-                user = body.user
-                render()
+<head>
+    <script>
+        async function register(e) {
+            e.preventDefault()
+            const email = document.getElementById('register-email').value
+            const password = document.getElementById('register-password').value
+            const res = await fetch('/auth/local/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+                credentials: 'include',
+            })
+            const body = await res.json()
+            if (body.status === 'error') {
+                alert(body.message)
+                return
             }
+            await loginWithEmailPassword(email, password)
+        }
 
-            function login(e) {
-                e.preventDefault()
-                loginWithEmailPassword(
-                    document.getElementById('login-email').value,
-                    document.getElementById('login-password').value,
-                )
+        async function loginWithEmailPassword(username, password) {
+            const res = await fetch('/auth/local/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    password,
+                }),
+                credentials: 'include',
+            })
+            const body = await res.json()
+            if (body.status === 'error') {
+                alert(body.message)
+                return
             }
+            user = body.user
+            render()
+        }
 
-            async function logout() {
-                const res = await fetch('/auth/logout', {
-                    method: 'POST',
-                    credentials: 'include',
-                })
-                const body = await res.json()
-                if (body.status === 'error') {
-                    alert(body.message)
-                    return
-                }
-                user = null
-                render()
+        function login(e) {
+            e.preventDefault()
+            loginWithEmailPassword(
+                document.getElementById('login-email').value,
+                document.getElementById('login-password').value,
+            )
+        }
+
+        async function logout() {
+            const res = await fetch('/auth/session/logout', {
+                method: 'POST',
+                credentials: 'include',
+            })
+            const body = await res.json()
+            if (body.status === 'error') {
+                alert(body.message)
+                return
             }
+            user = null
+            render()
+        }
 
-            async function checkUser() {
-                const res = await fetch('/auth/status', {
-                    credentials: 'include',
-                })
-                const body = await res.json()
-                if (body.status === 'error') {
-                    alert(body.message)
-                    return
-                }
-                user = body.user
-                render()
+        async function checkUser() {
+            const res = await fetch('/auth/user/user', {
+                method: 'POST',
+                credentials: 'include',
+            })
+            const body = await res.json()
+            if (body.status === 'error') {
+                alert(body.message)
+                return
             }
+            user = body.user
+            render()
+        }
 
-            function render() {
-                if (user) {
-                    document.getElementById('app').innerHTML = `
+        function render() {
+            if (user) {
+                document.getElementById('app').innerHTML = `
                         <h1>Minimal Ooth Example</h1>
                         <p>Hello, ${user._id}</p>
                         <button onclick="logout(event)">Log out</button>
                     `
-                } else {
-                    document.getElementById('app').innerHTML = `
+            } else {
+                document.getElementById('app').innerHTML = `
                         <h1>Minimal Ooth Example</h1>
                         <div>
                             <h2>Register</h2>
@@ -108,14 +110,16 @@
                             </form>
                         </div>
                     `
-                }
             }
+        }
 
-            let user = null
-        </script>
-    </head>
-    <body>
-        <div id="app"></div>
-        <script>checkUser()</script>
-    </body>
+        let user = null
+    </script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <script>checkUser()</script>
+</body>
+
 </html>
