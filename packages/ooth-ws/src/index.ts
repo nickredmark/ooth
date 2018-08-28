@@ -18,7 +18,7 @@ export default function({ ooth }: Options): void {
   }
   const connections: { [key: string]: WebSocket[] } = {};
   const app = ooth.getApp();
-  expressWs(app);
+  const ws = expressWs(app);
 
   ooth.on('ooth', 'login', async ({ userId, sessionId }) => {
     if (sessionId && connections[sessionId]) {
@@ -35,7 +35,9 @@ export default function({ ooth }: Options): void {
     }
   });
 
-  (ooth.getRoute() as RouterWithWs).ws('/ws/user', async (ws: WebSocket, req: FullRequest) => {
+  const route: RouterWithWs = ws.applyTo(ooth.getRoute()) as any;
+
+  route.ws('/ws/user', async (ws: WebSocket, req: FullRequest) => {
     if (!connections[req.session!.id]) {
       connections[req.session!.id] = [];
     }
