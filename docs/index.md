@@ -1,0 +1,636 @@
+Welcome to the ooth documentation.
+
+## What is Ooth
+
+Ooth is a series of javascript libraries to help you manage user accounts with node.js.
+
+## Architecture
+
+A typical scenario has 3 components:
+
+- The authentication server
+- A resource API (separate or same app as authentication server)
+- The client
+
+A typical usage flow would be:
+
+1. The client authenticates towards the authentication server (gets session cookies or jwt in return).
+2. The client can now perform authenticated requests towards the authentication server (with jwt or session cookies).
+3. The client authenticates towards the resource API (only needed if it is a separate app, to exchange a jwt for a session cookie)
+4. The client can now perform authenticated requests towards the API (using either jwt or session cookies).
+
+## Ooth Server
+
+### Server app
+
+To set up ooth server you need to create a server app, e.g. `express`:
+
+```js
+const express = require("express");
+const app = express();
+```
+
+If the client is going to run on another port than the ooth server, enable cors:
+
+```js
+const corsMiddleware = cors({
+  origin: "http://localhost",
+  credentials: true,
+  preflightContinue: false
+});
+app.use(corsMiddleware);
+app.options(corsMiddleware);
+```
+
+### Ooth backend
+
+You will need a backend to allow ooth to communicate with some form of storage, e.g. `ooth-mongo`.
+
+```js
+const { MongoClient } = require("mongodb");
+const { OothMongo } = require("ooth-mongo");
+
+const client = await MongoClient.connect(`${MONGO_HOST}/${MONGO_DB}`);
+const db = client.db(MONGO_DB);
+const backend = new OothMongo(db);
+```
+
+### Ooth
+
+```js
+const Ooth = require('ooth')
+const ooth = new Ooth({
+    app, // required,
+    backend, // required
+    path: '/auth', // optional, default '/'
+    sessionSecret: SESSION_SECRET, // optional, will set up cookie based express sessions, can be any long random string
+    defaultLanguage: 'en', // optional,
+    translations: {...}, // optional, use to override ooth texts
+})
+// <- Register all plugins here!
+```
+
+Further down we will discuss the plugins needed in different scenarios.
+
+### Start Application
+
+Then you can start the application:
+
+```js
+app.listen(3000, () => {
+  console.log("Online!");
+});
+```
+
+## Ooth client
+
+On the client side, you need `ooth-client`.
+
+```js
+const { OothClient } = require('ooth-client')
+
+const ooth = new OothClient({
+    url: 'http://localhost:3002/auth',
+    secondaryAuthMode: 'session' // for cookie-based session, or 'jwt' (vulnerable to XSS in browser, preferred solution on mobile apps)
+    api: { // Optional, use if you have an api with resources to make authenticated calls to
+      url: 'http://localhost:3003',
+      primaryAuthMode: 'jwt', // Optional, use *only if* you have to create a *new* cookie-based session
+      secondaryAuthMode: 'session', // for cookie-based session
+      loginPath: '/login', // Optional, use only if primaryAuthMode is 'jwt'
+      logoutPath: '/logout', // Optional, use only if primaryAuthMode is 'jwt'
+})
+
+const user = await ooth.start()
+```
+
+### Get the current user status
+
+```js
+const status = await ooth.user();
+```
+
+### Subscribe to the user object
+
+To react to changes in user status (login/logout/updates), subscribe to the user object like this:
+
+```js
+const sub = user => console.log("User is", user);
+ooth.on("user", sub);
+```
+
+To unsubscribe:
+
+```js
+ooth.unsubscribe("user", sub);
+```
+
+### Log out
+
+```js
+await ooth.logout();
+```
+
+## Securing a resources API
+
+If your API is provided by the same express app used by ooth, the user object will automatically be injected in the session. **Nothing to do here.**
+
+If, on the other hand, you are using ooth as a _standalone_ microservice, read along.
+
+### Ooth server
+
+You will need to register the `ooth-jwt` plugin:
+
+```js
+const oothJwt = require("ooth-jwt").default;
+
+oothJwt({
+  ooth, // Required
+  sharedSecret: SHARED_SECRET // Required, can be any long random string, needs to be shared with the API
+});
+```
+
+### API
+
+We'll assume the API is another express app. Here too, you need to enable cookie-based session:
+
+```js
+app.use(
+  session({
+    name: "api-session-id",
+    secret: API_SESSION_SECRET, // a long random string
+    resave: false,
+    saveUninitialized: true
+  })
+);
+```
+
+If the client runs on another host than the api, enable cors:
+
+```js
+const cors = require("cors");
+
+const corsMiddleware = cors({
+  origin: "http://localhost",
+  credentials: true,
+  preflightContinue: false
+});
+app.use(corsMiddleware);
+app.options(corsMiddleware);
+```
+
+Additionally, add the functionality to log in with a JWT (and log out):
+
+```js
+const passport = require('passport')
+const JwtStrategy = require('passport-jwt).Strategy
+const ExtractJwt = require('passport-jwt).ExtractJwt
+app.use(passport.initialize())
+app.use(passport.session())
+passport.serializeUser((userId, done) => done(null, userId))
+passport.deserializeUser((userId, done) => done(null, userId))
+passport.use('jwt', new JwtStrategy({
+    secretOrKey: SHARED_SECRET, // this should be the sharedKey you used in the ooth config
+    jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt'),
+}, (payload, next) => {
+    if (!payload.user || typeof payload.user !== 'string') {
+        console.error(payload)
+        return next('Malformed token payload.')
+    }
+    return next(null, payload.user)
+}))
+app.post('/login', passport.authenticate('jwt', (req, res) => {
+    res.send({
+        message: 'Logged in successfully.',
+    }),
+}))
+app.post('/logout', (req, res) => {
+    req.logout()
+    res.send({
+        message: 'Logged out successfully.',
+    }),
+})
+```
+
+### Express Routes
+
+The user object is added to the request by the session middleware:
+
+```js
+app.get("/data", (req, res) => {
+  if (req.user) {
+    // user is authenticated
+  } else {
+    // user is not authenticated
+  }
+});
+```
+
+### Apollo GraphQL server
+
+To have access to the user id in apollo server, inject it into the context:
+
+```js
+app.use(
+  "/graphql",
+  bodyParser.json(),
+  graphqlExpress((req, res) => {
+    return {
+      schema, // your graphql schema, see apollo documentation
+      context: { userId: req.user && req.user._id }
+    };
+  })
+);
+```
+
+You can then, in a resolver, react like this:
+
+```js
+const resolvers = {
+  Query: {
+    data: async (root, args, { userId }, info) => {
+      if (!userId) {
+        throw new Error("User not logged in.");
+      }
+
+      // return data
+    }
+  }
+};
+```
+
+### React
+
+`ooth-client-react` provides higher-order-component that takes care of subscribing to the user object and rerendering, and injecting the user into the context.
+
+#### Provider
+
+Add the provider somewhere close to the root of your app:
+
+```js
+const { OothProvider } = require("ooth-client-react");
+
+const App = () => <OothProvider client={ooth}>// your app</OothProvider>;
+```
+
+#### Getting user from context
+
+```js
+const { withUser } = require("ooth-client-react");
+const MyPureComponent = ({ user }) => <p>Your id is {user._id}</p>;
+const MyComponent = withUser(MyPureComponent);
+```
+
+#### Getting ooth client from context
+
+```js
+const { withOoth } = require("ooth-client-react");
+class RegisterComponent extends React.Component {
+  render() {
+    return (
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          return this.props.oothClient
+            .authenticate("local", "login", {
+              username: this.loginEmail.value,
+              password: this.loginPassword.value
+            })
+            .catch(e => {
+              alert(e.message);
+            });
+        }}
+      >
+        <div>
+          <label>
+            E-Mail{" "}
+            <input
+              ref={ref => (this.loginEmail = ref)}
+              id="register-email"
+              type="email"
+            />
+          </label>
+        </div>
+        <div>
+          <label>
+            Password{" "}
+            <input
+              ref={ref => (this.loginPassword = ref)}
+              id="register-password"
+              type="password"
+            />
+          </label>
+        </div>
+        <button>Register</button>
+      </form>
+    );
+  }
+}
+const Register = withOoth(RegisterComponent);
+```
+
+### Next.js
+
+The above pattern of embedding a `ooth-client-react` provider in your page components won't work with next.js server rendering. You need to handle that stuff in next.js genius function `getInitialProps`. Luckily there is a function that handles that for you: `ooth-client-react-next`.
+
+```
+// I recommend keeping these two lines along with the initialization of the ooth client in a separate file
+// You will need to wrap every page with this provider
+// If the wrapped child implements `getInitialProps` the wrapper will take care of calling it
+const withOothNext = require('ooth-client-react-next')
+const withOothNextProvider = withOothNext(ooth)
+
+const PageComponent = () => <p>Hello World</p>
+const Page = withOothNextProvider(PageComponent)
+export default Page
+```
+
+Note: Ooth can't be used standalone with next.js. In fact, client, api and next.js server need to run in the same process to work.
+
+## Guest
+
+### Server
+
+This is a very simple plugin that allows anyone to just create a guest session. Each time a new user is created.
+
+```js
+const oothGuest = require("ooth-guest");
+ooth.use("guest", oothGuest());
+```
+
+This will register route `<ooth>/guest/register` which you can call with OothClient to start a session (integrated) or get a JWT (standalone).
+
+### Client
+
+To create a guest session:
+
+```js
+const user = await ooth.authenticate("guest", "register");
+```
+
+## Local
+
+This one is a doozy. It handles all the details of local authentication, i.e. the creation of username/email/password accounts, the handling of email verification, forgotten passwords and so on.
+
+### Server
+
+```js
+const oothLocal = require('ooth-local')
+ooth.use('local', oothLocal({
+    onRegister({email, verificationToken, _id}) {
+        // handle registration
+    }
+    onGenerateVerificationToken({email, verificationToken, _id}) {
+        // handle when someone requested a verification token
+    }
+    // many more
+}))
+```
+
+#### Sending Emails
+
+`ooth-local` still requires you to deal with the handling of key events (i.e. the sending of emails). This is where `ooth-local-emailer` comes in that sends some minimal functional emails. You still need to define an actual method to send emails, for example:
+
+```js
+const mailcomposer = require("mailcomposer");
+const Mg = require("mailgun-js");
+const Mailgun = Mg({
+  apiKey: "XXX",
+  domain: "XXX"
+});
+function sendMail({ from, to, subject, body, html }) {
+  return new Promise((resolve, reject) => {
+    const mail = mailcomposer({
+      from,
+      to,
+      subject,
+      body,
+      html
+    });
+    mail.build((e, message) => {
+      if (e) {
+        return reject(e);
+      }
+      Mailgun.messages().sendMime(
+        {
+          to,
+          message: message.toString("ascii")
+        },
+        (e, r) => {
+          if (e) {
+            return reject(e);
+          }
+          resolve(e);
+        }
+      );
+    });
+  });
+}
+```
+
+you then register your local strategy like this:
+
+```js
+const oothLocal = require('ooth-local')
+const oothLocalEmailer = require('ooth-local-emailer')
+ooth.use('local', oothLocal(oothLocalEmailer({
+    from: 'info@example.com',
+    siteName: 'My Example Site', // will appear in emails
+    sendMail,
+}))
+```
+
+`oothLocalEmailer` also takes optional `urls` and `translations` objects that allows you to overwrite the structure of redirect urls (e.g. the password reset url) or of the whole emails.
+
+### Client
+
+#### Register
+
+```js
+await ooth.method("local", "register", {
+  email,
+  password
+});
+```
+
+#### Login
+
+```js
+const user = await ooth.authenticate("local", "login", {
+  username, // can also be an email
+  password
+});
+```
+
+#### Verify email
+
+```js
+await ooth.method("local", "verify", {
+  token, // verification token
+  userId
+});
+```
+
+#### Set email
+
+```js
+await ooth.method("local", "set-email", {
+  email
+});
+```
+
+#### Generate verification token (to send new verification email)
+
+```js
+await ooth.method("local", "generate-verification-token");
+```
+
+#### Set username
+
+```js
+await ooth.method("local", "set-username", {
+  username
+});
+```
+
+#### Change password
+
+```js
+await oothClient.method("local", "change-password", {
+  password,
+  newPassword
+});
+```
+
+#### Forgot password
+
+```js
+await oothClient.method("local", "forgot-password", {
+  username // can be email
+});
+```
+
+#### Reset password
+
+```js
+await oothClient.method("local", "reset-password", {
+  userId,
+  token,
+  newPassword
+});
+```
+
+## Facebook
+
+### Server
+
+```js
+const oothFacebook = require("ooth-facebook");
+ooth.use(
+  "facebook",
+  oothFacebook({
+    clientID,
+    clientSecret
+  })
+);
+```
+
+#### Client login
+
+See [this component](https://github.com/nmaro/staart/blob/master/packages/staart/src/components/login-facebook.js)
+
+## Google
+
+### Server
+
+```js
+const oothGoogle = require("ooth-google");
+ooth.use(
+  "google",
+  oothGoogle({
+    clientID,
+    clientSecret
+  })
+);
+```
+
+#### Client
+
+See [this component](https://github.com/nmaro/staart/blob/master/packages/staart/src/components/login-google.js)
+
+## Setting Profile Data
+
+### Server
+
+The `ooth-profile` package is not there to log in or register, but to simply define some user fields that the user can set.
+
+```js
+const oothProfile = require('ooth-profile')
+ooth.use('profile', oothProfile({
+  fields: {
+    firstName: {
+    },
+    lastName: {
+    },
+    age: {
+      validate(value, user) {
+        if (Number.isNaN(value)) {
+          throw new Error(`Age is not a number: ${value}.`)
+        }
+        if (value < 0 || value > 150) {
+          throw new Error(`Age out of bounds ${value}.`)
+        }
+      },
+    },
+}))
+```
+
+### Client
+
+With `ooth-profile` set up on the server.
+
+```js
+await oothClient.method('profile', 'update', {
+  firstName: 'John',
+  lastName: 'Smith',
+  age: 20,
+}
+```
+
+## Managing user roles
+
+### Server
+
+```js
+const oothRoles = require("ooth-roles");
+ooth.use("roles", oothRoles());
+```
+
+Only users with the role `admin` can set roles, so you need to bootstrap the system by setting a role manually, e.g. with mongodb:
+
+```js
+db.collection("users").update(
+  {
+    _id: ObjectId("XXX")
+  },
+  {
+    $set: {
+      roles: ["admin"]
+    }
+  }
+);
+```
+
+#### Client
+
+With `ooth-roles` set up on the server. You need to have the role 'admin' to be able to do it:
+
+```js
+await oothClient.method("roles", "set", {
+  userId: "XXX",
+  roles: ["editor", "author"] // will overwrite all previous roles the user had
+});
+```
+
+## Staart
+
+Do you need readymade UI components, or even a whole starter boilerplate that integrates all of the above? Check out [staart](https://github.com/nmaro/staart).
