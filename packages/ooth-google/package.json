@@ -1,6 +1,6 @@
 {
   "name": "ooth-google",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "mongodb": "^2.2.33",
     "mongodb-memory-server": "^2.0.1",
     "ms": "^2.1.1",
-    "ooth-mongo": "^2.0.0",
+    "ooth-mongo": "^2.3.0",
     "request-promise": "^4.2.2",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
@@ -34,7 +34,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-    "ooth": "^2.2.0",
+    "ooth": "^2.3.0",
     "passport-google-id-token": "^0.4.2"
   }
 }

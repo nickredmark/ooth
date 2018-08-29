@@ -1,6 +1,6 @@
 {
   "name": "ooth-local-emailer",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "repository": "nmaro/ooth",
   "dependencies": {
-    "ooth": "^2.2.0",
+    "ooth": "^2.3.0",
     "ooth-i18n": "^2.0.0"
   },
   "devDependencies": {
