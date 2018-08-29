@@ -1,7 +1,7 @@
 {
   "scripts": {
     "check-clean-repo": "test -z \"$(git status --porcelain)\"",
-    "bootstrap": "lerna exec \"npm i\" --concurrency=1",
+    "bootstrap": "rm packages/*/package-lock.json && lerna exec \"npm i\" --concurrency=1",
     "ci": "lerna exec \"npm ci\" --concurrency=1",
     "build": "lerna run build --concurrency=1",
     "test-build": "lerna exec \"npm run test && npm run build\" --concurrency=1",
