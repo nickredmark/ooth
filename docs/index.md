@@ -4,7 +4,8 @@ Welcome to the ooth documentation.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+**Table of Contents** _generated with [DocToc](https://github.com/thlorenz/doctoc)_
 
 - [What is Ooth](#what-is-ooth)
 - [Architecture](#architecture)
@@ -72,20 +73,51 @@ Welcome to the ooth documentation.
 
 Ooth is a series of javascript libraries to help you manage user accounts with node.js.
 
-## Architecture
+## Concepts
+
+### Architecture
 
 A typical scenario has 3 components:
 
-- The authentication server
-- A resource API (separate or same app as authentication server)
+- The authentication / identity management server
+- A resource API (optional, can be integrated with the auth server or standalone)
 - The client
 
-A typical usage flow would be:
+### Authentication flow
 
-1. The client authenticates towards the authentication server (gets session cookies or jwt in return).
-2. The client can now perform authenticated requests towards the authentication server (with jwt or session cookies).
-3. The client authenticates towards the resource API (only needed if it is a separate app, to exchange a jwt for a session cookie)
-4. The client can now perform authenticated requests towards the API (using either jwt or session cookies).
+**Primary authentication** is when the user first authenticates towards a server, e.g. with a username/password pair.
+The client usually gets a session cookie or a JWT in exchange.
+
+**Secondary authentication** is when the client performs an authenticated request using a session cookie or a JWT.
+
+If your application has an API we also need to distinguish between:
+
+1. Primary auth towards ooth
+2. Secondary auth towards ooth
+3. Primary auth towards API
+4. Secondary auth towards API
+
+![authentication flow](flow.png "Authentication flow")
+
+`ooth-local`, `ooth-guest`, `ooth-facebook`, `ooth-google` are all primary authentication strategies.
+This set of strategies should grow in the future and it should be easy to just build new ones building on existing passport.js strategies (openid or oauth, anyone?). See the details for these strategies below.
+
+Secondary authentication mainly boils down to sessions or JWT. Both have advantages and disadvantages.
+
+- Cross-server usage: sessions only work with a single host, JWTs can be transfered.
+- Client storage: sessions can be stored in HTTP-only cookies (thus be unreachable by JS), JWTs have to be stored e.g. in `localStorage` which can be a XSS vulnerability
+- State: session are stateful, JWTs are stateless
+
+My recommendation is: on mobile, just use JWTs, on browser use sessions as much as possible.
+If you have to use JWTs use them to create sessions and discard them as early as possible.
+
+| Scenario                          | Ooth primary auth | Ooth secondary auth | API primary auth | API secondary auth | Ooth server config       | Ooth client config                                                                                                                            |
+| --------------------------------- | ----------------- | ------------------- | ---------------- | ------------------ | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ooth only, mobile                 | any               | jwt                 | n.a              | n.a                | `ooth-jwt`               | `secondaryAuthMode: 'jwt'`                                                                                                                    |
+| Ooth only, browser                | any               | session             |                  |                    | `sessionSecret`          | `secondaryAuthMode: 'session'`                                                                                                                |
+| Ooth with API, mobile             | any               | jwt                 | none             | jwt                | `ooth-jwt`               | `secondaryAuthMode: 'jwt', api: { secondaryAuthMode: 'jwt' }`                                                                                 |
+| Ooth with integrated API, browser | any               | session             | none             | session            | `sessionSecret`          | `secondaryAuthMode: 'session', api: { secondaryAuthMode: 'session' }`                                                                         |
+| Ooth with standalone API, browser | any               | session             | jwt              | session            | `sessionSecret ooth-jwt` | `secondaryAuthMode: 'session', api: { primaryAuthMode: 'jwt', secondaryAuthMode: 'session', loginPath: LOGIN_PATH, logoutPath: LOGOUT_PATH }` |
 
 ## Ooth Server
 
@@ -232,7 +264,7 @@ Well, the way you log in depends on the plugins you installed on the server,
 as a general rule you will use:
 
 ```js
-const user = await ooth.authenticate(strategyName, methodName, data)
+const user = await ooth.authenticate(strategyName, methodName, data);
 ```
 
 ### Log out
