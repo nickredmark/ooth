@@ -2,6 +2,11 @@
 
 Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE2ODA2NjE0LTE1NGNmN2YzZTdiMWNjODExZmNjYzg3ZGJjZmVmZmI2YjVhOWYzZDQ1NWI4Y2JiNzNlMmI2Y2U5ZWFhODIzMWQ)!
 
+## Sample app
+
+Here is a live sample app built with next.js with username/password, facebook, google authentication, an accounts page.
+Find the source code [here](https://github.com/nmaro/staart/tree/master/examples/staart).
+
 ## Documentation
 
 Check out the ultimate [ooth documentation](https://nmaro.github.io/ooth/)!

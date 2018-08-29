@@ -28,7 +28,7 @@ const obfuscate = (obj, ...paths) => {
 
 describe('ooth-mongo', () => {
   beforeAll(async () => {
-    mongoServer = new MongodbMemoryServer();
+    mongoServer = new MongodbMemoryServer({ debug: true });
     const connectionString = await mongoServer.getConnectionString();
     const dbName = await mongoServer.getDbName();
     con = await MongoClient.connect(connectionString);
