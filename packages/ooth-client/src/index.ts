@@ -135,7 +135,7 @@ export class OothClient {
     const raw = await fetch(`${this.oothUrl}/${strategy}/${method}`, {
       method: 'POST',
       headers: actualHeaders,
-      body: JSON.stringify(body),
+      body: body && JSON.stringify(body),
       credentials: 'include',
     });
     const response = await raw.json();
@@ -180,7 +180,7 @@ export class OothClient {
     const raw = await fetch(`${this.api.url}${path}`, {
       method: 'POST',
       headers: actualHeaders,
-      body: JSON.stringify(body),
+      body: body && JSON.stringify(body),
     });
     const response = await raw.json();
     if (response.status === 'error') {
