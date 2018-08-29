@@ -107,7 +107,7 @@ export default ({ url, opts }: Options) => {
               <Component url={url} {...childProps} />
             </ApolloProvider>
           );
-          return getDataFromTree(app);
+          await getDataFromTree(app);
         }
 
         return {
