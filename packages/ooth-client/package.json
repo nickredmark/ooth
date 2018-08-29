@@ -1,6 +1,6 @@
 {
   "name": "ooth-client",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Ooth client library, wrapper around the ooth API.",
   "main": "lib/index.js",
   "scripts": {
