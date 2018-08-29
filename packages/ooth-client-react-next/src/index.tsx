@@ -13,7 +13,7 @@ export default (oothClient: OothClient) => {
     public static async getInitialProps(ctx: any): Promise<{ initialUser: User | undefined }> {
       return {
         initialUser: ctx.req
-          ? await oothClient.method<User | undefined>("user", "user", null, { Cookie: stringifyCookies(ctx.req.cookies) })
+          ? await oothClient.method<User | undefined>("user", "user", null, ctx.req.cookies && { Cookie: stringifyCookies(ctx.req.cookies) })
           : await oothClient.start()
       };
     }
