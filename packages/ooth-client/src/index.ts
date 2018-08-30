@@ -189,7 +189,7 @@ export class OothClient {
     return response;
   }
 
-  public async fetchUser(headers: any): Promise<User | undefined> {
+  public async fetchUser(headers?: any): Promise<User | undefined> {
     await this.method('user', 'user', null, headers);
 
     return this.user;
