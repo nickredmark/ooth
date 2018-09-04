@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "docs": "doctoc docs",
     "check-clean-repo": "test -z \"$(git status --porcelain)\"",
     "bootstrap": "rm -rf packages/*/node_modules && rm packages/*/package-lock.json && lerna exec \"npm i\" --concurrency=1",
     "build": "lerna run build --concurrency=1",
