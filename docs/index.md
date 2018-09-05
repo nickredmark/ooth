@@ -286,10 +286,22 @@ const oothJwt = require("ooth-jwt").default;
 
 oothJwt({
   ooth, // Required
-  sharedSecret: SHARED_SECRET // Required, can be any long random string, needs to be shared with the API
+  sharedSecret: SHARED_SECRET // Can be any long random string, needs to be shared with the API
 });
 ```
 
+You can also use asymetric encryption instead of shared secret:
+
+```js
+oothJwt({
+  ooth, // Required
+  privateKey: fs.readFileSync('path/to/private.key'),
+  publicKey: fs.readFileSync('path/to/public.key'),
+  algorithm: ALGORITHM_TU_USE // Defaults to 'RS256'. Used only if a publicKey / privateKey pair is provided
+});
+```
+
+You must provide either a sharedSecret, or a privateKey/publicKey pair
 ### API
 
 We'll assume the API is another express app. Here too, you need to enable cookie-based session:
@@ -330,7 +342,7 @@ app.use(passport.session())
 passport.serializeUser((userId, done) => done(null, userId))
 passport.deserializeUser((userId, done) => done(null, userId))
 passport.use('jwt', new JwtStrategy({
-    secretOrKey: SHARED_SECRET, // this should be the sharedKey you used in the ooth config
+    secretOrKey: SHARED_SECRET_OR_KEY, // this should either be the sharedKey or the publicKey you used in the ooth config
     jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('jwt'),
 }, (payload, next) => {
     if (!payload.user || typeof payload.user !== 'string') {
