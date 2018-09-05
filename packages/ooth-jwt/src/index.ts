@@ -15,22 +15,38 @@ type Options = {
   ooth: Ooth;
   tokenExpiry?: number;
   refreshTokenExpiry?: number;
-  sharedSecret: string;
+  sharedSecret?: string;
+  privateKey?: string;
+  publicKey?: string;
+  algorithm?: string;
 };
+
+type TokenOptions = {
+  sharedSecret?: string;
+  privateKey?: string;
+  publicKey?: string;
+  algorithm?: string;
+}
 
 function randomToken(): string {
   return randomBytes(43).toString('hex');
 }
 
-export function getToken(userId: string, iat: number, tokenExpiry: number, sharedSecret: string): string {
-  return sign(
-    {
-      iat,
-      exp: iat + tokenExpiry,
-      _id: userId,
-    },
-    sharedSecret,
-  );
+export function getToken(userId: string, iat: number, tokenExpiry: number, options: TokenOptions): string {
+  const data = {
+    iat,
+    exp: iat + tokenExpiry,
+    _id: userId,
+  };
+
+  if(options.sharedSecret) {
+    return sign(data, options.sharedSecret);
+  } else if(options.privateKey) {
+    return sign(data, options.privateKey, {
+      algorithm: options.algorithm
+    });
+  }
+  throw new Error('No secret nor key provided');
 }
 
 export default function({
@@ -39,11 +55,16 @@ export default function({
   tokenExpiry = 60 * 60, // 1 hour
   refreshTokenExpiry = 60 * 60 * 24, // 1 day
   sharedSecret,
+  privateKey,
+  publicKey,
+  algorithm = 'RS256'
 }: Options): void {
   // Return jwt after successful (primary) auth
   ooth.registerAuthAfterware(async (result: { [key: string]: any }, userId: string | undefined) => {
     if (userId) {
-      result.token = getToken(userId, new Date().getTime() / 1000, tokenExpiry, sharedSecret);
+      result.token = getToken(userId, new Date().getTime() / 1000, tokenExpiry, {
+        sharedSecret, privateKey, publicKey, algorithm
+      });
 
       const refreshToken = randomToken();
       const now = new Date();
@@ -75,7 +96,7 @@ export default function({
             .pop())),
     new JwtStrategy(
       {
-        secretOrKey: sharedSecret,
+        secretOrKey: sharedSecret || publicKey,
         jwtFromRequest: (req: Request) => {
           let token;
           if (req.body && req.body.token) {
