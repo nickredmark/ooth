@@ -59,6 +59,15 @@ export default function({
   publicKey,
   algorithm = 'RS256'
 }: Options): void {
+  if(sharedSecret === undefined && privateKey === undefined) {
+    throw new Error('Either sharedSecret or privateKey/publicKey pair is required');
+  }
+  if(sharedSecret !== undefined && privateKey !== undefined) {
+    throw new Error('Either sharedSecret or privateKey should be provided, not both');
+  }
+  if(privateKey !== undefined && publicKey === undefined) {
+    throw new Error('publicKey is required with privateKey');
+  }
   // Return jwt after successful (primary) auth
   ooth.registerAuthAfterware(async (result: { [key: string]: any }, userId: string | undefined) => {
     if (userId) {
