@@ -41,7 +41,9 @@ export function getToken(userId: string, iat: number, tokenExpiry: number, optio
 
   if(options.sharedSecret) {
     return sign(data, options.sharedSecret);
-  } else if(options.privateKey) {
+  }
+  
+  if (options.privateKey) {
     return sign(data, options.privateKey, {
       algorithm: options.algorithm
     });
