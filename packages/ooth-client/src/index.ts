@@ -47,7 +47,7 @@ export class OothClient {
   public async start(): Promise<User | undefined> {
     if (!this.started) {
       this.started = true;
-      await this.method('user', 'user');
+      await this.fetchUser();
       if (this.ws && typeof WebSocket !== 'undefined') {
         const urlParts = url.parse(this.oothUrl);
         const protocol = urlParts.protocol === 'https:' ? 'wss' : 'ws';
@@ -187,6 +187,12 @@ export class OothClient {
       throw new Error(response.message);
     }
     return response;
+  }
+
+  public async fetchUser(headers?: any): Promise<User | undefined> {
+    await this.method('user', 'user', null, headers);
+
+    return this.user;
   }
 
   public async setUser(user: User | undefined): Promise<void> {
