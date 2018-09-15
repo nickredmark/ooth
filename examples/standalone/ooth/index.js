@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const { Ooth } = require("ooth");
 const { OothMongo } = require("ooth-mongo");
@@ -10,7 +11,6 @@ const oothJwt = require("ooth-jwt").default;
 const morgan = require("morgan");
 const cors = require("cors");
 const mail = require("./mail");
-const settings = require("config");
 const { MongoClient } = require("mongodb");
 
 async function start() {
@@ -18,32 +18,42 @@ async function start() {
     const app = express();
     app.use(morgan("dev"));
     const corsMiddleware = cors({
-      origin: settings.originUrl,
+      origin: process.env.ORIGIN_URL,
       credentials: true,
       preflightContinue: false
     });
     app.use(corsMiddleware);
     app.options(corsMiddleware);
 
-    const db = await MongoClient.connect(settings.mongoUrl);
+    const db = await MongoClient.connect(process.env.MONGO_URL);
     const oothMongo = new OothMongo(db);
     const ooth = new Ooth({
       app,
       backend: oothMongo,
-      sessionSecret: settings.sessionSecret,
+      sessionSecret: process.env.SESSION_SECRET,
       standalone: true,
-      sharedSecret: settings.sharedSecret
     });
 
     oothGuest({ ooth });
     oothLocal({ ooth });
-    emailer({ ooth, ...settings.mail, sendMail: mail(settings.mailgun) });
+    if (process.env.MAIL_FROM) {
+      emailer({
+        ooth,
+        from: process.env.MAIL_FROM,
+        siteName: process.env.MAIL_SITE_NAME,
+        url: process.env.MAIL_URL,
+        sendMail: mail({
+          apiKey: process.env.MAILGUN_API_KEY,
+          domain: process.env.MAILGUN_DOMAIN,
+        })
+      })
+    } 
     oothUser({ ooth });
-    oothJwt({ ooth, sharedSecret: settings.sharedSecret });
+    oothJwt({ ooth, sharedSecret: process.env.SHARED_SECRET });
     oothWs({ ooth });
 
-    app.listen(settings.port, function() {
-      console.info(`Ooth started on port ${settings.port}`);
+    app.listen(process.env.PORT, function() {
+      console.info(`Ooth started on port ${process.env.PORT}`);
     });
   } catch (e) {
     console.error(e);

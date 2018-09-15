@@ -8,19 +8,30 @@ const { MongoClient, ObjectId } = require("mongodb");
 const { OothMongo } = require("ooth-mongo");
 const emailer = require("ooth-local-emailer").default;
 
-module.exports = async function start(app, settings) {
-  const db = await MongoClient.connect(settings.mongoUrl);
+module.exports = async function start(app) {
+  const db = await MongoClient.connect(process.env.MONGO_URL);
   const oothMongo = new OothMongo(db, ObjectId);
   const ooth = new Ooth({
     app,
     backend: oothMongo,
-    sessionSecret: settings.sessionSecret,
-    path: settings.oothPath
+    sessionSecret: process.env.SESSION_SECRET,
+    path: process.env.OOTH_PATH,
   });
 
   oothGuest({ ooth });
   oothLocal({ ooth });
   oothUser({ ooth });
   oothWs({ ooth });
-  emailer({ ooth, ...settings.mail, sendMail: mail(settings.mailgun) });
+  if (process.env.MAIL_FROM) {
+    emailer({
+      ooth,
+      from: process.env.MAIL_FROM,
+      siteName: process.env.MAIL_SITE_NAME,
+      url: process.env.MAIL_URL,
+      sendMail: mail({
+        apiKey: process.env.MAILGUN_API_KEY,
+        domain: process.env.MAILGUN_DOMAIN,
+      })
+    })
+  } 
 };

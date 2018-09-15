@@ -1,0 +1,19 @@
+version: '3'
+services:
+  db:
+    image: mongo
+    ports:
+      - 27017:27017 # Do not use in production!
+  api:
+    build: ./api
+    ports:
+      - 3001:3001
+    env_file: ./api/.env.docker
+    depends_on:
+      - db
+  client:
+    build: ./client
+    depends_on:
+      - api
+    ports:
+      - 3000:3000

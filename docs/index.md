@@ -795,7 +795,7 @@ Note that this example doesn't use `ooth-client` but performs queries to the ser
 
 ### With create-react-app
 
-The following two examples use create-react-app as a client. If you don't want to use cra you can still analyze the server folders and the code parts that use ooth-client independently.
+The following two examples use create-react-app as a client. If you don't want to use cra you can still analyze the server folders and the code parts that use ooth-client independently. Both examples can be run with Docker-Compose.
 
 - [standalone](examples/standalone) - ooth runs as a microservice separate from api, auth transfer is done via JWT.
 - [integrated](examples/integrated) - ooth runs in same process as api, no need for JWT.

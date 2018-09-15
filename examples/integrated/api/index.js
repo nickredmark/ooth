@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { MongoClient, ObjectId } = require("mongodb");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -7,7 +8,6 @@ const { graphqlExpress, graphiqlExpress } = require("graphql-server-express");
 const { makeExecutableSchema } = require("graphql-tools");
 const morgan = require("morgan");
 const cors = require("cors");
-const settings = require("config");
 const nodeify = require("nodeify");
 const ooth = require("./ooth");
 
@@ -26,7 +26,7 @@ function nodeifyAsync(asyncFunction) {
 
 const start = async () => {
   try {
-    const db = await MongoClient.connect(settings.mongoUrl);
+    const db = await MongoClient.connect(process.env.MONGO_URL);
 
     const Posts = db.collection("posts");
     const Comments = db.collection("comments");
@@ -130,14 +130,14 @@ const start = async () => {
     app.use(morgan("dev"));
 
     const corsMiddleware = cors({
-      origin: settings.originUrl,
+      origin: process.env.ORIGIN_URL,
       credentials: true,
       preflightContinue: false
     });
     app.use(corsMiddleware);
     app.options(corsMiddleware);
 
-    await ooth(app, settings);
+    await ooth(app);
 
     app.use(
       "/graphql",
@@ -157,8 +157,8 @@ const start = async () => {
       })
     );
 
-    app.listen(settings.port, () => {
-      console.info(`Online at ${settings.url}:${settings.port}`);
+    app.listen(process.env.PORT, () => {
+      console.info(`Online at ${process.env.URL}:${process.env.PORT}`);
     });
   } catch (e) {
     console.error(e);

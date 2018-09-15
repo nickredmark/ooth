@@ -1,7 +1,7 @@
 import { OothClient } from "ooth-client";
 
 const ooth = new OothClient({
-  url: "http://localhost:3002/auth",
+  url: "http://localhost:3001/auth",
   secondaryAuthMode: "session",
   standalone: false,
   ws: true

@@ -1,0 +1,27 @@
+version: '3'
+services:
+  db:
+    image: mongo
+    ports:
+      - 27017:27017 # Do not use in production!
+  ooth:
+    build: ./ooth
+    ports:
+      - 3001:3001
+    env_file: ./ooth/.env.docker
+    depends_on:
+      - db
+  api:
+    build: ./api
+    ports:
+      - 3002:3002
+    env_file: ./api/.env.docker
+    depends_on:
+      - db
+  client:
+    build: ./client
+    depends_on:
+      - ooth
+      - api
+    ports:
+      - 3000:3000

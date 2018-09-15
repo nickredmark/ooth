@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { MongoClient, ObjectId } = require("mongodb");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -7,7 +8,6 @@ const { graphqlExpress, graphiqlExpress } = require("graphql-server-express");
 const { makeExecutableSchema } = require("graphql-tools");
 const morgan = require("morgan");
 const cors = require("cors");
-const settings = require("config");
 const passport = require("passport");
 const nodeify = require("nodeify");
 const JwtStrategy = require("passport-jwt").Strategy;
@@ -31,7 +31,7 @@ function setupAuthEndpoints(app) {
   app.use(
     session({
       name: "api-session-id",
-      secret: settings.sessionSecret,
+      secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: true
     })
@@ -48,7 +48,7 @@ function setupAuthEndpoints(app) {
     "jwt",
     new JwtStrategy(
       {
-        secretOrKey: settings.sharedSecret,
+        secretOrKey: process.env.SHARED_SECRET,
         jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt")
       },
       nodeifyAsync(async payload => {
@@ -74,7 +74,7 @@ function setupAuthEndpoints(app) {
 
 const start = async () => {
   try {
-    const db = await MongoClient.connect(settings.mongoUrl);
+    const db = await MongoClient.connect(process.env.MONGO_URL);
 
     const Posts = db.collection("posts");
     const Comments = db.collection("comments");
@@ -178,7 +178,7 @@ const start = async () => {
     app.use(morgan("dev"));
 
     const corsMiddleware = cors({
-      origin: settings.originUrl,
+      origin: process.env.ORIGIN_URL,
       credentials: true,
       preflightContinue: false
     });
@@ -203,8 +203,8 @@ const start = async () => {
       })
     );
 
-    app.listen(settings.port, () => {
-      console.info(`Online at ${settings.url}:${settings.port}`);
+    app.listen(process.env.PORT, () => {
+      console.info(`Online at ${process.env.URL}:${process.env.PORT}`);
     });
   } catch (e) {
     console.error(e);

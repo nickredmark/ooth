@@ -11,9 +11,9 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "config": "^1.29.2",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
+    "dotenv": "^6.0.0",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "graphql": "^0.11.7",
