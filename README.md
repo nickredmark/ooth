@@ -14,9 +14,17 @@ Check out the ultimate [ooth documentation](https://nmaro.github.io/ooth/)!
 ## Development
 
 ```bash
-npm i -g lerna
+# enter the top-level ooth directory
 cd ooth
+
+# install build dependencies (lerna)
+npm install
+
+# install dependencies for all packages
 npm run bootstrap
+
+# build all packages
+npm run build
 ```
 
 ## Feature requests, Bugs, Contributions, Roadmap
