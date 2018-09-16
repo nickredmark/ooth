@@ -6,5 +6,8 @@
     "build": "lerna run build --concurrency=1",
     "test-build": "lerna exec \"npm run test && npm run build\" --concurrency=1",
     "safe-publish": "npm run check-clean-repo && npm run bootstrap && lerna link && npm run build && npm run test-build && lerna publish"
+  },
+  "devDependencies": {
+    "lerna": "^3.4.0"
   }
 }
