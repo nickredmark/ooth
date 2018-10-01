@@ -4,7 +4,8 @@ Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE
 
 ## Sample app
 
-Here is a live sample app built with next.js with username/password, facebook, google authentication, an accounts page.
+[Here](https://staart.nmr.io) is a live sample app built with next.js with username/password, facebook, google authentication, an accounts page.
+
 Find the source code [here](https://github.com/nmaro/staart/tree/master/examples/staart).
 
 ## Documentation
