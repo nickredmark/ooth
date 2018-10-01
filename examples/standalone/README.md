@@ -26,11 +26,6 @@ yarn
 yarn start
 ```
 
-Open `http://localhost:3000` to see a list of available routes. E.g. try out `http://localhost:3000/status`
-
-To be used in conjunction with [ooth-create-react-app](../ooth-create-react-app)
-
-
 ### API
 
 This is an example of a protected graphql API,

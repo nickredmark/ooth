@@ -1,7 +1,6 @@
 const { MongoClient } = require("mongodb");
 const express = require("express");
 const session = require("express-session");
-const { promisify } = require("util");
 const { Ooth } = require("ooth");
 const oothLocal = require("ooth-local").default;
 const oothUser = require("ooth-user").default;

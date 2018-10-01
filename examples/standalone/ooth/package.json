@@ -12,7 +12,6 @@
   "dependencies": {
     "cors": "^2.8.1",
     "dotenv": "^6.0.0",
-    "es6-promisify": "^5.0.0",
     "express": "^4.14.1",
     "mailcomposer": "^4.0.1",
     "mailgun-js": "^0.13.1",
