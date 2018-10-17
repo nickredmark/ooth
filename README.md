@@ -4,7 +4,8 @@ Join the [Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE
 
 ## Sample app
 
-Here is a live sample app built with next.js with username/password, facebook, google authentication, an accounts page.
+[Here](https://staart.nmr.io) is a live sample app built with next.js with username/password, facebook, google authentication, an accounts page.
+
 Find the source code [here](https://github.com/nmaro/staart/tree/master/examples/staart).
 
 ## Documentation
@@ -14,9 +15,17 @@ Check out the ultimate [ooth documentation](https://nmaro.github.io/ooth/)!
 ## Development
 
 ```bash
-npm i -g lerna
+# enter the top-level ooth directory
 cd ooth
+
+# install build dependencies (lerna)
+npm install
+
+# install dependencies for all packages
 npm run bootstrap
+
+# build all packages
+npm run build
 ```
 
 ## Feature requests, Bugs, Contributions, Roadmap

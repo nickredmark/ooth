@@ -27,6 +27,7 @@
     "@types/mongodb": "^3.1.12",
     "@types/node": "^10.9.2",
     "@types/request-promise": "^4.1.42",
+    "@types/passport": "^0.4.6",
     "del-cli": "^1.1.0",
     "express": "^4.16.2",
     "jest": "^23.5.0",
