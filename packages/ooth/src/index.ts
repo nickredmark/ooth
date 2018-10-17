@@ -2,7 +2,7 @@ import * as bodyParser from 'body-parser';
 import { Application, Request, RequestHandler, Response, Router } from 'express';
 import { getI18n, Translations, Values } from 'ooth-i18n';
 import * as passport from 'passport';
-import * as session from 'express-session';
+import * as expressSession from 'express-session';
 import * as cookieParser from 'cookie-parser';
 
 const { Strategy } = require('passport-custom');
@@ -21,6 +21,7 @@ export type Options = {
   backend: Backend;
   path?: string;
   sessionSecret?: string;
+  session?: RequestHandler;
 
   defaultLanguage?: string;
   translations?: Translations;
@@ -113,10 +114,10 @@ export class Ooth {
   private middleware: RequestHandler[] = [];
   private afterware: Afterware[] = [];
   private authAfterware: Afterware[] = [];
-  private sessionSecret?: string;
+  private session?: RequestHandler;
   private listeners: { [name: string]: EventListener[] } = {};
 
-  constructor({ app, backend, path, defaultLanguage, translations, sessionSecret }: Options) {
+  constructor({ app, backend, path, defaultLanguage, translations, session, sessionSecret }: Options) {
     if (!app) {
       throw new Error('App is required.');
     }
@@ -130,24 +131,30 @@ export class Ooth {
     this.translations = translations || DEFAULT_TRANSLATIONS;
     this.defaultLanguage = defaultLanguage || DEFAULT_LANGUAGE;
     this.__ = getI18n(this.translations, this.defaultLanguage);
-    this.sessionSecret = sessionSecret;
+    if (sessionSecret && session) {
+      throw new Error('Either set session or sessionSecret, not both');
+    }
+    if (session) {
+      this.session = session;
+    }
+    if (sessionSecret) {
+      this.session = expressSession({
+        secret: sessionSecret,
+        name: 'ooth-session-id',
+        resave: false,
+        saveUninitialized: true,
+      });
+    }
 
     // App-wide configuration
     this.app.use(bodyParser.json());
     this.app.use(locale(Object.keys(this.translations), this.defaultLanguage));
-    if (this.sessionSecret) {
+    if (this.session) {
       this.app.use(cookieParser());
-      this.app.use(
-        session({
-          secret: this.sessionSecret,
-          name: 'ooth-session-id',
-          resave: false,
-          saveUninitialized: true,
-        }),
-      );
+      this.app.use(this.session);
     }
     this.app.use(passport.initialize());
-    if (this.sessionSecret) {
+    if (this.session) {
       this.app.use(passport.session());
       passport.serializeUser((id: string | undefined, done: (e: Error | null, id: string | undefined) => void) =>
         done(null, id),
@@ -172,12 +179,12 @@ export class Ooth {
             if (this.strategies[strategyName].secondaryAuth[methodName](fullRequest)) {
               const userId = await authenticate<string | undefined>(
                 `${strategyName}-${methodName}`,
-                !!this.sessionSecret,
+                !!this.session,
                 fullRequest,
                 res,
               );
               await new Promise((res, rej) =>
-                fullRequest.login(userId, { session: !!this.sessionSecret }, (e) => (e ? rej(e) : res())),
+                fullRequest.login(userId, { session: !!this.session }, (e) => (e ? rej(e) : res())),
               );
             }
           }
@@ -195,7 +202,7 @@ export class Ooth {
   }
 
   public usesSession(): boolean {
-    return !!this.sessionSecret;
+    return !!this.session;
   }
 
   public registerUniqueField(strategyName: string, id: string, fieldName: string): void {
@@ -294,13 +301,13 @@ export class Ooth {
     this.route.post(routeName, ...((middleware as any) as RequestHandler[]), async (req: Request, res: Response) => {
       const fullRequest: FullRequest = req as any;
       try {
-        const authResult = await authenticate<T>(methodName, !!this.sessionSecret, fullRequest, res);
+        const authResult = await authenticate<T>(methodName, !!this.session, fullRequest, res);
         const userId = await resolveUserId(fullRequest, authResult);
         if (req.user !== userId) {
           if (userId) {
             this.emit('ooth', 'login', { userId, sessionId: req.session && req.session.id });
             await new Promise((res, rej) =>
-              fullRequest.login(userId, { session: !!this.sessionSecret }, (e) => (e ? rej(e) : res())),
+              fullRequest.login(userId, { session: !!this.session }, (e) => (e ? rej(e) : res())),
             );
           } else {
             this.emit('ooth', 'logout', { userId: req.user, sessionId: req.session && req.session.id });
