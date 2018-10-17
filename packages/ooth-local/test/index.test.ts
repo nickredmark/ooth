@@ -1,32 +1,34 @@
 import * as express from 'express';
 import * as session from 'express-session';
 import { cloneDeep } from 'lodash';
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
+import emailer from 'ooth-local-emailer';
 import { OothMongo } from 'ooth-mongo';
 import * as request from 'request-promise';
-import { Strategy } from 'passport-custom';
-import emailer from 'ooth-local-emailer';
 
 import oothLocal from '../src';
+import { Server } from 'http';
 
-let mongoServer;
-let con;
-let app;
-let server;
+const { Strategy } = require('passport-custom');
+
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let app: express.Express;
+let server: Server;
 let ooth: Ooth;
-let db;
+let db: Db;
 let cookies = '';
 let oothMongo: OothMongo;
 
 const startServer = () => {
   return new Promise((resolve) => {
-    server = app.listen(8080, resolve());
+    server = app.listen(8080, resolve);
   });
 };
 
-const obfuscate = (obj, ...paths) => {
+const obfuscate = (obj: any, ...paths: string[]) => {
   const res = cloneDeep(obj);
   for (const path of paths) {
     const keys = path.split('.');
@@ -40,9 +42,9 @@ const obfuscate = (obj, ...paths) => {
   return res;
 };
 
-const obfuscatePatterns = (obj, ...patterns) => {
+const obfuscatePatterns = (obj: any, ...patterns: RegExp[]): any => {
   if (typeof obj === 'object') {
-    const res = {};
+    const res: any = {};
     for (const key of Object.keys(obj)) {
       res[key] = obfuscatePatterns(obj[key], ...patterns);
     }
@@ -61,12 +63,12 @@ const obfuscatePatterns = (obj, ...patterns) => {
 };
 
 describe('ooth-local', () => {
-  let onForgotPasswordListener;
-  let onRequestVerifyListener;
-  let onRegisterListener;
-  let userId;
-  let resetToken;
-  let verificationToken;
+  let onForgotPasswordListener: any;
+  let onRequestVerifyListener: any;
+  let onRegisterListener: any;
+  let userId: string;
+  let resetToken: string;
+  let verificationToken: string;
   let sendMail: any = () => null;
 
   beforeAll(async () => {
@@ -159,7 +161,7 @@ describe('ooth-local', () => {
 
   test('fails without email', async () => {
     try {
-      const res = await request({
+      await request({
         method: 'POST',
         uri: 'http://localhost:8080/local/register',
         json: true,
@@ -173,7 +175,7 @@ describe('ooth-local', () => {
 
   test('translates', async () => {
     try {
-      const res = await request({
+      await request({
         method: 'POST',
         uri: 'http://localhost:8080/local/register',
         headers: {
@@ -190,7 +192,7 @@ describe('ooth-local', () => {
 
   test('fails without password', async () => {
     try {
-      const res = await request({
+      await request({
         method: 'POST',
         uri: 'http://localhost:8080/local/register',
         body: {
@@ -207,7 +209,7 @@ describe('ooth-local', () => {
 
   test('fails without valid password', async () => {
     try {
-      const res = await request({
+      await request({
         method: 'POST',
         uri: 'http://localhost:8080/local/register',
         body: {
@@ -255,7 +257,7 @@ describe('ooth-local', () => {
 
     test('login fails with wrong password', async () => {
       try {
-        const res = await request({
+        await request({
           method: 'POST',
           uri: 'http://localhost:8080/local/login',
           body: {
@@ -287,7 +289,7 @@ describe('ooth-local', () => {
 
     test('can forget password', async () => {
       onForgotPasswordListener = jest.fn();
-      const res = await request({
+      await request({
         method: 'POST',
         uri: 'http://localhost:8080/local/forgot-password',
         body: {
@@ -368,12 +370,17 @@ describe('ooth-local', () => {
           },
           json: true,
         });
-        ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, res.user._id)));
+        ooth.registerSecondaryAuth(
+          'foo',
+          'bar',
+          () => true,
+          new Strategy((_req: any, done: any) => done(null, res.user._id)),
+        );
       });
 
       test('can generate verification token', async () => {
         onRequestVerifyListener = jest.fn();
-        const res = await request({
+        await request({
           method: 'POST',
           uri: 'http://localhost:8080/local/generate-verification-token',
           json: true,

@@ -1,28 +1,30 @@
 import * as express from 'express';
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
 import { OothMongo } from 'ooth-mongo';
 import * as request from 'request-promise';
-import { Strategy } from 'passport-custom';
 
 import oothProfile from '../src';
+import { Server } from 'http';
 
-let mongoServer;
-let con;
-let app;
-let server;
+const { Strategy } = require('passport-custom');
+
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let app: express.Express;
+let server: Server;
 let ooth: Ooth;
-let oothMongo;
-let db;
+let oothMongo: OothMongo;
+let db: Db;
 
 const startServer = () =>
   new Promise((resolve) => {
     server = app.listen(8080, resolve);
   });
 
-const obfuscate = (obj, ...keys) => {
-  const res = {};
+const obfuscate = (obj: any, ...keys: string[]) => {
+  const res: any = {};
   for (const key of Object.keys(obj)) {
     if (keys.indexOf(key) > -1) {
       res[key] = '<obfuscated>';
@@ -55,7 +57,6 @@ describe('ooth-profile', () => {
       app,
       backend: oothMongo,
       path: '',
-      onLogin: () => null,
     });
     oothProfile({
       ooth,
@@ -63,7 +64,7 @@ describe('ooth-profile', () => {
         firstName: {},
         lastName: {},
         age: {
-          validate(value, user) {
+          validate(value, _user) {
             if (Number.isNaN(value)) {
               throw new Error(`Age is not a number: ${value}.`);
             }
@@ -74,7 +75,7 @@ describe('ooth-profile', () => {
         },
       },
     });
-    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((req, done) => done(null, {})));
+    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((_req: any, done: any) => done(null, {})));
     ooth.registerAfterware(async (res, userId) => {
       if (userId) {
         res.user = await ooth.getUserById(userId);
@@ -88,7 +89,7 @@ describe('ooth-profile', () => {
       uri: 'http://localhost:8080/guest/register',
       json: true,
     });
-    ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, res.user._id)));
+    ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((_req: any, done: any) => done(null, res.user._id)));
   });
 
   afterEach(async () => {

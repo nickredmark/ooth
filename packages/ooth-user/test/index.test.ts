@@ -1,21 +1,23 @@
 import * as express from 'express';
 import * as session from 'express-session';
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
 import { OothMongo } from 'ooth-mongo';
 import * as request from 'request-promise';
-import { Strategy } from 'passport-custom';
 
 import oothUser from '../src';
+import { Server } from 'http';
 
-let mongoServer;
-let con;
-let app;
-let server;
+const { Strategy } = require('passport-custom');
+
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let app: express.Express;
+let server: Server;
 let ooth: Ooth;
-let oothMongo;
-let db;
+let oothMongo: OothMongo;
+let db: Db;
 let cookies = '';
 
 const startServer = () =>
@@ -23,8 +25,8 @@ const startServer = () =>
     server = app.listen(8080, resolve);
   });
 
-const obfuscate = (obj, ...keys) => {
-  const res = {};
+const obfuscate = (obj: any, ...keys: string[]) => {
+  const res: any = {};
   for (const key of Object.keys(obj)) {
     if (keys.indexOf(key) > -1) {
       res[key] = '<obfuscated>';
@@ -66,14 +68,12 @@ describe('ooth-user', () => {
       app,
       backend: oothMongo,
       path: '',
-      onLogin: () => null,
-      onLogout: () => null,
     });
     oothUser({
       ooth,
     });
     ooth.registerProfileFields('guest', 'x');
-    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((_, done) => done(null, { x: 1 })));
+    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((_: any, done: any) => done(null, { x: 1 })));
     await startServer();
 
     const res = await request({

@@ -1,30 +1,33 @@
-import { Ooth } from 'ooth';
 import * as express from 'express';
-import * as request from 'request-promise';
-import oothRoles from '../src';
+import { MongoClient, ObjectId, Db } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
-import { MongoClient, ObjectId } from 'mongodb';
+import { Ooth } from 'ooth';
 import { OothMongo } from 'ooth-mongo';
-import { Strategy } from 'passport-custom';
+import * as request from 'request-promise';
 
-let mongoServer;
-let con;
-let app;
-let server;
-let ooth;
-let oothMongo;
-let db;
-let admin;
-let user;
+import oothRoles from '../src';
+import { Server } from 'http';
+
+const { Strategy } = require('passport-custom');
+
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let app: express.Express;
+let server: Server;
+let ooth: Ooth;
+let oothMongo: OothMongo;
+let db: Db;
+let admin: any;
+let user: any;
 
 const startServer = () => {
   return new Promise((resolve) => {
-    server = app.listen(8080, resolve());
+    server = app.listen(8080, resolve);
   });
 };
 
-const obfuscate = (obj, ...keys) => {
-  const res = {};
+const obfuscate = (obj: any, ...keys: string[]) => {
+  const res: any = {};
   for (const key of Object.keys(obj)) {
     if (keys.indexOf(key) > -1) {
       res[key] = '<obfuscated>';
@@ -57,10 +60,9 @@ describe('ooth-roles', () => {
       app,
       backend: oothMongo,
       path: '',
-      onLogin: () => null,
     });
     oothRoles({ ooth });
-    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((req, done) => done(null, {})));
+    ooth.registerPrimaryConnect('guest', 'register', [], new Strategy((_req: any, done: any) => done(null, {})));
     ooth.registerAfterware(async (res, userId) => {
       if (userId) {
         res.user = await ooth.getUserById(userId);
@@ -78,7 +80,7 @@ describe('ooth-roles', () => {
 
     db.collection('users').update(
       {
-        _id: ObjectId(admin._id),
+        _id: new ObjectId(admin._id),
       },
       {
         $set: {
@@ -107,7 +109,7 @@ describe('ooth-roles', () => {
   });
 
   test('admin can set roles', async () => {
-    ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, admin._id)));
+    ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((_req: any, done: any) => done(null, admin._id)));
     const res = await request({
       method: 'POST',
       uri: 'http://localhost:8080/roles/set',
@@ -123,8 +125,8 @@ describe('ooth-roles', () => {
 
   test("nonadmin can't set roles", async () => {
     try {
-      ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((req, done) => done(null, user._id)));
-      const res = await request({
+      ooth.registerSecondaryAuth('foo', 'bar', () => true, new Strategy((_req: any, done: any) => done(null, user._id)));
+      await request({
         method: 'POST',
         uri: 'http://localhost:8080/roles/set',
         body: {

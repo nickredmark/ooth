@@ -1,27 +1,28 @@
 import * as express from 'express';
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
 import { OothMongo } from 'ooth-mongo';
 import * as request from 'request-promise';
 
 import oothGuest from '../src';
+import { Server } from 'http';
 
-let mongoServer;
-let con;
-let app;
-let server;
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let app: express.Express;
+let server: Server;
 let ooth: Ooth;
-let oothMongo;
-let db;
+let oothMongo: OothMongo;
+let db: Db;
 
 const startServer = () =>
   new Promise((resolve) => {
     server = app.listen(8080, resolve);
   });
 
-const obfuscate = (obj, ...keys) => {
-  const res = {};
+const obfuscate = (obj: any, ...keys: string[]) => {
+  const res: any = {};
   for (const key of Object.keys(obj)) {
     if (keys.indexOf(key) > -1) {
       res[key] = '<obfuscated>';
@@ -58,7 +59,7 @@ describe('ooth-guest', () => {
     oothGuest({
       ooth,
     });
-    ooth.registerAfterware(async (res, user) => ((res.user = await ooth.getUserById(user)), res));
+    ooth.registerAfterware(async (res, user) => ((res.user = await ooth.getUserById(user!)), res));
     await startServer();
   });
 
