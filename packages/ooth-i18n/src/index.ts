@@ -31,6 +31,6 @@ export function i18n(translations: Translations, language: string, key: string, 
 
 export const getI18n = (translations: Translations, defaultLanguage: string) => (
   key: string,
-  values: Values | null,
-  language: string,
+  values?: Values | null,
+  language?: string,
 ) => i18n(translations, language || defaultLanguage || Object.keys(translations)[0], key, values);

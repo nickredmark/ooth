@@ -1,10 +1,8 @@
 import { getI18n } from '../src';
 
 describe('ooth-i18n', () => {
-  let __;
-
-  beforeEach(() => {
-    __ = getI18n({
+  const __ = getI18n(
+    {
       en: {
         foo: 'bar',
         baz: 'hello {name}',
@@ -13,8 +11,9 @@ describe('ooth-i18n', () => {
         foo: 'asd',
         baz: 'hi {name}',
       },
-    });
-  });
+    },
+    'en',
+  );
 
   it('translates', () => {
     expect(__('foo')).toBe('bar');
