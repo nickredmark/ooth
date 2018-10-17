@@ -1,18 +1,20 @@
 import * as express from 'express';
 import { cloneDeep } from 'lodash';
-import { MongoClient } from 'mongodb';
+import { Db, MongoClient } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { OothMongo } from 'ooth-mongo';
-import * as CustomStrategy from 'passport-custom';
 import * as request from 'request-promise';
 
-import { Ooth } from '../src';
+import { Ooth, User } from '../src';
+import { Server } from 'http';
 
-let mongoServer;
-let con;
-let db;
-let app;
-let server;
+const { Strategy } = require('passport-custom');
+
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let db: Db;
+let app: express.Express;
+let server: Server;
 let ooth: Ooth;
 let oothMongo: OothMongo;
 
@@ -21,11 +23,11 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 
 const startServer = () => {
   return new Promise((resolve) => {
-    server = app.listen(8080, resolve());
+    server = app.listen(8080, resolve);
   });
 };
 
-const obfuscate = (obj, ...paths) => {
+const obfuscate = (obj: any, ...paths: string[]) => {
   const res = cloneDeep(obj);
   for (const path of paths) {
     const keys = path.split('.');
@@ -102,14 +104,14 @@ describe('ooth', () => {
       });
 
       test('can call method', async () => {
-        ooth.registerMethod<{ message: string }>('test', 'foo', [], async (body) => (body));
+        ooth.registerMethod<{ message: string }>('test', 'foo', [], async (body) => body);
 
-        const res = await ooth.callMethod('test', 'foo', 'hello world')
-        expect(res).toBe('hello world')
-      })
+        const res = await ooth.callMethod('test', 'foo', 'hello world', null, 'en');
+        expect(res).toBe('hello world');
+      });
 
       test('fails with requireLogged', async () => {
-        ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
+        ooth.registerMethod('test', 'foo', [ooth.requireLogged], async () => ({
           message: 'hi',
         }));
 
@@ -128,7 +130,7 @@ describe('ooth', () => {
       });
 
       test('translates error', async () => {
-        ooth.registerMethod('test', 'foo', [ooth.requireLogged], async (req, res) => ({
+        ooth.registerMethod('test', 'foo', [ooth.requireLogged], async () => ({
           message: 'hi',
         }));
 
@@ -156,7 +158,7 @@ describe('ooth', () => {
 
         await startServer();
         try {
-          const res = await request({
+          await request({
             method: 'POST',
             uri: 'http://localhost:8080/test/foo',
             json: true,
@@ -176,7 +178,7 @@ describe('ooth', () => {
 
         await startServer();
         try {
-          const res = await request({
+          await request({
             method: 'POST',
             uri: 'http://localhost:8080/test/foo',
             json: true,
@@ -192,10 +194,10 @@ describe('ooth', () => {
       beforeEach(async () => {
         ooth.registerProfileFields('test', 'foo');
         ooth.registerUniqueField('test', 'bar', 'bar');
-        ooth.registerPrimaryConnect('test', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
+        ooth.registerPrimaryConnect('test', 'login', [], new Strategy((req: any, done: any) => done(null, req.body)));
         ooth.registerProfileFields('test2', 'baz');
         ooth.registerUniqueField('test2', 'bar', 'bar');
-        ooth.registerPrimaryConnect('test2', 'login', [], new CustomStrategy((req, done) => done(null, req.body)));
+        ooth.registerPrimaryConnect('test2', 'login', [], new Strategy((req: any, done: any) => done(null, req.body)));
         await startServer();
       });
 
@@ -226,7 +228,7 @@ describe('ooth', () => {
       });
 
       describe('after login', () => {
-        let user;
+        let user: User;
 
         beforeEach(async () => {
           const res = await request({
@@ -271,7 +273,7 @@ describe('ooth', () => {
         });
 
         test('can connect another strategy', async () => {
-          ooth.registerSecondaryAuth('bla', 'bla', () => true, new CustomStrategy((req, done) => done(null, user._id)));
+          ooth.registerSecondaryAuth('bla', 'bla', () => true, new Strategy((_req: any, done: any) => done(null, user._id)));
           const res = await request({
             method: 'POST',
             uri: 'http://localhost:8080/test2/login',
@@ -299,7 +301,7 @@ describe('ooth', () => {
         sessionSecret: 'secret',
       });
       ooth.registerProfileFields('foo', 'x');
-      ooth.registerPrimaryConnect('foo', 'login', [], new CustomStrategy((req, done) => done(null, { x: 1 })));
+      ooth.registerPrimaryConnect('foo', 'login', [], new Strategy((_req: any, done: any) => done(null, { x: 1 })));
       ooth.registerMethod('foo', 'bar', [ooth.requireLogged], async () => ({ x: 1 }));
       ooth.registerAfterware(async (result: { [key: string]: any }, userId: string | undefined) => {
         if (userId) {
@@ -323,7 +325,7 @@ describe('ooth', () => {
     describe('methods', () => {
       test('fails without cookies', async () => {
         try {
-          const res = await request({
+          await request({
             method: 'POST',
             uri: 'http://localhost:8080/foo/bar',
             json: true,
@@ -379,7 +381,7 @@ describe('ooth', () => {
         expect(reslogout).toMatchSnapshot();
 
         try {
-          const res = await request({
+          await request({
             method: 'POST',
             uri: 'http://localhost:8080/foo/bar',
             headers: {
