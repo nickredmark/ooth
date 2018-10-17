@@ -2,6 +2,7 @@ import * as React from 'react';
 import { create } from 'react-test-renderer';
 
 import { OothProvider, withOoth, withUser } from '../src';
+import { OothClient, User } from 'ooth-client';
 
 class MockOothClient {
   start() {
@@ -15,19 +16,19 @@ class MockOothClient {
   }
 }
 
-const C = ({ oothClient }) => {
-  return <p>{oothClient.user()._id}</p>;
+const C = ({ oothClient }: { oothClient: OothClient }) => {
+  return <p>{typeof oothClient}</p>;
 };
 
-const D = ({ user }) => {
+const D = ({ user }: { user: User }) => {
   return <p>{user._id}</p>;
 };
 
 describe('ooth-client-react', () => {
-  let client;
+  let client: OothClient;
 
   beforeEach(async () => {
-    client = new MockOothClient();
+    client = new MockOothClient() as any;
     await client.start();
   });
 
