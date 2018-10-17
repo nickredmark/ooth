@@ -27,7 +27,9 @@ Object {
 exports[`ooth-mongo can insert user and get it 1`] = `
 Object {
   "_id": "<obfuscated>",
-  "foo": "bar",
+  "foo": Object {
+    "baz": "bar",
+  },
 }
 `;
 

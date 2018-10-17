@@ -1,18 +1,18 @@
 import { cloneDeep } from 'lodash';
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 
 import { OothMongo } from '../src';
 
-let mongoServer;
-let con;
-let oothMongo;
-let db;
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let oothMongo: OothMongo;
+let db: Db;
 
 // May require additional time for downloading MongoDB binaries
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 60000;
 
-const obfuscate = (obj, ...paths) => {
+const obfuscate = (obj: any, ...paths: string[]) => {
   const res = cloneDeep(obj);
   for (const path of paths) {
     const keys = path.split('.');
@@ -48,7 +48,9 @@ describe('ooth-mongo', () => {
 
   test('can insert user and get it', async () => {
     const id = await oothMongo.insertUser({
-      foo: 'bar',
+      foo: {
+        baz: 'bar',
+      },
     });
     expect(typeof id).toBe('string');
     const user = await oothMongo.getUserById(id);
@@ -65,7 +67,7 @@ describe('ooth-mongo', () => {
   });
 
   test('can get user by value', async () => {
-    const id = await oothMongo.insertUser({
+    await oothMongo.insertUser({
       foo: {
         bar: 'baz',
       },
@@ -78,7 +80,7 @@ describe('ooth-mongo', () => {
   });
 
   test('can get user by fields', async () => {
-    const id = await oothMongo.insertUser({
+    await oothMongo.insertUser({
       foo: {
         bar: 'baz',
       },
