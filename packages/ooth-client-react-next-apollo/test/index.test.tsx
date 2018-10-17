@@ -18,13 +18,13 @@ describe('provideApollo', () => {
       url: 'http://localhost:8080',
     });
     const NC = hoc(C);
-    const initialProps = await NC.getInitialProps({});
+    await NC.getInitialProps({});
     const renderer = createRenderer();
     renderer.render(<NC />);
     const result = renderer.getRenderOutput();
 
     const NC2 = hoc(C);
-    const initialProps2 = await NC2.getInitialProps({});
+    await NC2.getInitialProps({});
     const renderer2 = createRenderer();
     renderer2.render(<NC2 />);
     const result2 = renderer2.getRenderOutput();
@@ -38,13 +38,13 @@ describe('provideApollo', () => {
       url: 'http://localhost:8080',
     });
     const NC = hoc(C);
-    const initialProps = await NC.getInitialProps({});
+    await NC.getInitialProps({});
     const renderer = createRenderer();
     renderer.render(<NC />);
     const result = renderer.getRenderOutput();
 
     const NC2 = hoc(C);
-    const initialProps2 = await NC2.getInitialProps({});
+    await NC2.getInitialProps({});
     const renderer2 = createRenderer();
     renderer2.render(<NC2 />);
     const result2 = renderer2.getRenderOutput();
@@ -75,10 +75,10 @@ describe('provideApollo', () => {
       },
     });
     const NC = hoc(C);
-    const initialProps = await NC.getInitialProps({});
+    await NC.getInitialProps({});
     const renderer = createRenderer();
     renderer.render(<NC />);
-    const result = renderer.getRenderOutput();
+    renderer.getRenderOutput();
   });
 
   test('with fragment matcher - ssr', async () => {
@@ -102,9 +102,9 @@ describe('provideApollo', () => {
       },
     });
     const NC = hoc(C);
-    const initialProps = await NC.getInitialProps({});
+    await NC.getInitialProps({});
     const renderer = createRenderer();
     renderer.render(<NC />);
-    const result = renderer.getRenderOutput();
+    renderer.getRenderOutput();
   });
 });
