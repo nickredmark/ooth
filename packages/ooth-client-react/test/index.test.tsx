@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { OothProvider, withOoth, withUser } from '../src';
 import { create } from 'react-test-renderer';
+
+import { OothProvider, withOoth, withUser } from '../src';
 
 class MockOothClient {
   start() {

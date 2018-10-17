@@ -1,8 +1,8 @@
-import provideApollo, { clear } from '../src';
-import * as React from 'react';
-import withApollo from 'react-apollo';
-import { createRenderer } from 'react-test-renderer/shallow';
 import { IntrospectionFragmentMatcher } from 'apollo-cache-inmemory';
+import * as React from 'react';
+import { createRenderer } from 'react-test-renderer/shallow';
+
+import provideApollo, { clear } from '../src';
 
 const C = () => <p />;
 
