@@ -1,23 +1,24 @@
 import * as express from 'express';
-import { MongoClient } from 'mongodb';
+import { MongoClient, Db } from 'mongodb';
 import MongodbMemoryServer from 'mongodb-memory-server';
 import { Ooth } from 'ooth';
 import { OothMongo } from 'ooth-mongo';
 import * as request from 'request-promise';
 
 import oothGoogle from '../src';
+import { Server } from 'http';
 
-let mongoServer;
-let con;
-let app;
-let server;
-let ooth;
-let oothMongo;
-let db;
+let mongoServer: MongodbMemoryServer;
+let con: MongoClient;
+let app: express.Express;
+let server: Server;
+let ooth: Ooth;
+let oothMongo: OothMongo;
+let db: Db;
 
 const startServer = () => {
   return new Promise((resolve) => {
-    server = app.listen(8080, resolve());
+    server = app.listen(8080, resolve);
   });
 };
 
@@ -62,7 +63,7 @@ describe('ooth-google', () => {
 
   test('fails to log in with valid token', async () => {
     try {
-      const res = await request({
+      await request({
         method: 'POST',
         uri: 'http://localhost:8080/google/login',
         json: true,
