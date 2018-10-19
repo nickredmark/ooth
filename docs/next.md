@@ -1,5 +1,7 @@
 # User Accounts with Next.js - An Extensive Tutorial
 
+This was also posted as a [medium article](https://medium.com/the-ideal-system/user-accounts-with-next-js-an-extensive-tutorial-6831cdaed16b).
+
 There is an [issue on the next.js](https://github.com/zeit/next.js/issues/153) repo that has been open since the early days of the project (October 2016),
 it's called [Add login / authentication example](https://github.com/zeit/next.js/issues/153) and is one of 2 issues tagged [Priority: OMG Maximum](https://github.com/zeit/next.js/labels/Priority%3A%20OMG%20Maximum). The issue has 185 comments, many of which mine.
 
@@ -16,7 +18,6 @@ To approach the ease of creating an accounts system I experienced with meteor.js
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Time for a Comprehensive Tutorial](#time-for-a-comprehensive-tutorial)
 - [So You Want User Accounts](#so-you-want-user-accounts)
