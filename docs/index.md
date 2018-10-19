@@ -8,6 +8,7 @@ Welcome to the ooth documentation.
 
 - [What is Ooth](#what-is-ooth)
   - [Architecture](#architecture)
+- [Tutorial](#tutorial)
 - [Ooth Server](#ooth-server)
   - [Server app](#server-app)
   - [Ooth backend](#ooth-backend)
@@ -80,6 +81,10 @@ A typical scenario has 3 components:
 - The authentication / identity management server
 - A resource API (optional, can be integrated with the auth server or standalone)
 - The client
+
+## Tutorial
+
+The most complete example with a starting UI with all the main user account flow is programmed with next.js. See the full tutorial [here](./next.md)
 
 ## Ooth Server
 
@@ -295,13 +300,14 @@ You can also use asymetric encryption instead of shared secret:
 ```js
 oothJwt({
   ooth, // Required
-  privateKey: fs.readFileSync('path/to/private.key'),
-  publicKey: fs.readFileSync('path/to/public.key'),
+  privateKey: fs.readFileSync("path/to/private.key"),
+  publicKey: fs.readFileSync("path/to/public.key"),
   algorithm: ALGORITHM_TU_USE // Defaults to 'RS256'. Used only if a publicKey / privateKey pair is provided
 });
 ```
 
 You must provide either a sharedSecret, or a privateKey/publicKey pair
+
 ### API
 
 We'll assume the API is another express app. Here too, you need to enable cookie-based session:
@@ -812,4 +818,4 @@ The following two examples use create-react-app as a client. If you don't want t
 
 ### With UI and next.js
 
-The most complete example with a starting UI with all the main user account flow is programmed with next.js and can now be found in the [staart project](https://github.com/nmaro/staart)!
+The most complete example with a starting UI with all the main user account flow is programmed with next.js. See the full explanation [here](./next.md)

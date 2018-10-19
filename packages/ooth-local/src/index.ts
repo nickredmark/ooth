@@ -123,7 +123,7 @@ export default function({ name = 'local', ooth, defaultLanguage, translations, v
       const existingUser = await ooth.getUserByUniqueField('username', username);
 
       if (existingUser) {
-        throw new Error(__('username_taken.invalid_username', null, locale));
+        throw new Error(__('set_username.username_taken', null, locale));
       }
 
       await ooth.updateUser(name, userId!, {
