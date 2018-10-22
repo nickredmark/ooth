@@ -1,6 +1,6 @@
 {
   "name": "ooth-client-react-next",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -17,8 +17,8 @@
   },
   "repository": "nmaro/ooth",
   "dependencies": {
-    "compose-next": "^2.0.0",
-    "ooth-client-react": "^2.5.0",
+    "compose-next": "^2.6.0",
+    "ooth-client-react": "^2.6.0",
     "react": "^16.1.1"
   },
   "devDependencies": {
@@ -29,7 +29,7 @@
     "@types/recompose": "^0.26.5",
     "del-cli": "^1.1.0",
     "jest": "^23.5.0",
-    "ooth-client": "^2.5.0",
+    "ooth-client": "^2.6.0",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
