@@ -3,17 +3,12 @@ import { composeInitialProps } from "compose-next";
 import { OothClient, User } from "ooth-client";
 import { OothProvider } from "ooth-client-react";
 
-const stringifyCookies = (cookies: { [key: string]: string }) =>
-  Object.keys(cookies)
-    .map((key: string) => `${key}=${cookies[key]}`)
-    .join("; ");
-
 export default (oothClient: OothClient) => {
   class OothProviderWithInitialProps extends React.Component<{ initialUser: User | undefined; children: React.Component }> {
     public static async getInitialProps(ctx: any): Promise<{ initialUser: User | undefined }> {
       return {
         initialUser: ctx.req
-          ? await oothClient.fetchUser(ctx.req.cookies && { Cookie: stringifyCookies(ctx.req.cookies) })
+          ? await oothClient.fetchUser(ctx.req.headers && { cookie: ctx.req.headers.cookie })
           : await oothClient.start()
       };
     }
