@@ -5,7 +5,6 @@ Welcome to the ooth documentation.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [What is Ooth](#what-is-ooth)
   - [Architecture](#architecture)
 - [Tutorial](#tutorial)
@@ -146,7 +145,7 @@ If you want to use ooth-client you will need `ooth-user` to inject the user obje
 ```js
 const oothUser = require("ooth-user").default;
 
-oothUser({ user });
+oothUser({ ooth });
 ```
 
 ### Start Application
