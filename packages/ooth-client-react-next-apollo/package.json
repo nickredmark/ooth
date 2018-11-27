@@ -34,6 +34,7 @@
     "@types/node": "^10.9.2",
     "@types/node-fetch": "^2.1.2",
     "@types/react": "^16.4.11",
+    "@types/react-dom": "^16.0.10",
     "@types/react-test-renderer": "^16.0.2",
     "del-cli": "^1.1.0",
     "jest": "^23.5.0",
