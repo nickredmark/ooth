@@ -347,6 +347,8 @@ describe('ooth', () => {
 
         expect(obfuscate(lres.body.user, '_id')).toMatchSnapshot();
 
+        expect(/Expires/.test(lres.headers['set-cookie'])).toBe(false);
+
         const res = await request({
           method: 'POST',
           uri: 'http://localhost:8080/foo/bar',
@@ -357,6 +359,18 @@ describe('ooth', () => {
         });
 
         expect(obfuscate(res.user, '_id')).toMatchSnapshot();
+      });
+
+      test('remember', async () => {
+        const lres = await request({
+          method: 'POST',
+          uri: 'http://localhost:8080/foo/login',
+          json: true,
+          body: { remember: true },
+          resolveWithFullResponse: true,
+        });
+
+        expect(/Expires/.test(lres.headers['set-cookie'])).toBe(true);
       });
 
       test('can log out', async () => {

@@ -70,6 +70,9 @@ export type FullRequest = Override<
     user?: string | undefined;
     session?: {
       id: string;
+      cookie: {
+        maxAge?: number;
+      };
     };
   }
 >;
@@ -80,7 +83,7 @@ type UserIdResolver<T> = (req: FullRequest, authResult: T) => Promise<string | u
 
 type Result = { [key: string]: any };
 
-type Afterware = ((res: Result, userId: string | undefined) => Promise<Result>);
+type Afterware = ((res: Result, userId: string | undefined, req: FullRequest, response: Response) => Promise<Result>);
 
 const DEFAULT_LANGUAGE = 'en';
 const DEFAULT_TRANSLATIONS = {
@@ -143,6 +146,14 @@ export class Ooth {
         name: 'ooth-session-id',
         resave: false,
         saveUninitialized: true,
+      });
+    }
+    if (this.session) {
+      this.registerAuthAfterware(async (result: Result, _userId: string | undefined, req: FullRequest) => {
+        if (req.body.remember) {
+          req.session!.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
+        }
+        return result;
       });
     }
 
@@ -317,7 +328,7 @@ export class Ooth {
 
         let result = {};
         for (const aw of [...this.authAfterware, ...this.afterware]) {
-          result = await aw(result, fullRequest.user);
+          result = await aw(result, fullRequest.user, fullRequest, res);
         }
         return res.send(result);
       } catch (e) {
@@ -439,7 +450,7 @@ export class Ooth {
       try {
         let result = await this.callMethod(strategyName, method, req.body, req.user, req.locale);
         for (const aw of this.afterware) {
-          result = await aw(result, req.user);
+          result = await aw(result, req.user, req, res);
         }
         res.send(result);
       } catch (e) {
