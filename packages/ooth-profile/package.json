@@ -1,6 +1,6 @@
 {
   "name": "ooth-profile",
-  "version": "2.6.0",
+  "version": "2.9.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   },
   "repository": "nmaro/ooth",
   "dependencies": {
-    "ooth": "^2.6.0",
+    "ooth": "^2.9.0",
     "ooth-i18n": "^2.5.0"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "ooth-google",
-  "version": "2.6.0",
+  "version": "2.9.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-    "ooth": "^2.6.0",
+    "ooth": "^2.9.0",
     "passport-google-id-token": "^0.4.2"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "ooth-twitter",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "typescript": "^3.0.1"
   },
   "dependencies": {
-    "ooth": "^2.6.0",
+    "ooth": "^2.9.0",
     "passport-custom": "^1.0.5",
     "qs": "^6.6.0",
     "request": "^2.88.0"
