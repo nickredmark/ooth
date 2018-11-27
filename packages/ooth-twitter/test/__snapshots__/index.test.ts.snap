@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-twitter fails to log in with valid token 1`] = `
+Object {
+  "message": "Invalid or expired token.",
+  "status": "error",
+}
+`;
