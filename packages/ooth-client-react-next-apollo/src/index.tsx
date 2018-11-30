@@ -9,6 +9,8 @@ import { ApolloProvider, getDataFromTree } from 'react-apollo';
 
 let client: ApolloClient<any> | null = null;
 
+const AP = ApolloProvider as any;
+
 const getBrowserClient = (
   uri: string,
   opts: Partial<ApolloClientOptions<any>>,
@@ -118,9 +120,9 @@ export default ({ url, opts, apolloOpts }: Options) => {
             asPath: ctx.asPath,
           };
           const app = (
-            <ApolloProvider client={client}>
+            <AP client={client}>
               <Component url={url} {...childProps} />
-            </ApolloProvider>
+            </AP>
           );
           await getDataFromTree(app);
         }
@@ -133,9 +135,9 @@ export default ({ url, opts, apolloOpts }: Options) => {
 
       public render(): JSX.Element {
         return (
-          <ApolloProvider client={this.client}>
+          <AP client={this.client}>
             <Component {...this.props} {...this.props.childProps} />
-          </ApolloProvider>
+          </AP>
         );
       }
     };
