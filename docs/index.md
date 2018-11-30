@@ -618,6 +618,58 @@ oothGoogle({
 
 See [this component](https://github.com/nmaro/staart/blob/master/packages/staart/src/components/login-google.js)
 
+### Twitter
+
+#### Server
+
+```js
+const oothTwitter = require("ooth-twitter").default;
+oothTwitter({
+  ooth,
+  clientID: process.env.TWITTER_CLIENT_ID,
+  clientSecret: process.env.TWITTER_CLIENT_SECRET,
+  callbackUrl: process.env.TWITTER_CALLBACK_URL
+});
+```
+
+#### Client
+
+See [this](https://github.com/nmaro/staart/blob/master/packages/staart/src/components/login-twitter.js) for the log in part
+and [this](https://github.com/nmaro/staart/blob/master/examples/staart/next/pages/oauth/twitter.js) for the redirect page.
+
+### Authy (Twilio)
+
+#### Server
+
+```js
+const oothAuthy = require("ooth-authy").default;
+oothAuthy({
+  ooth,
+  apiKey: process.env.AUTHY_API_KEY
+});
+```
+
+#### Client
+
+There is no client UI implementation available yet, but these are the necessary ooth client calls:
+
+```js
+// Register
+await client.method("authy", "register", {
+  email: "example@example.com",
+  cellphone: "1234567",
+  country_code: "41"
+});
+
+// Login
+await client.method("authy", "otp", { email: "example@example.com" });
+// User gets an SMS with the token
+await client.authenticate("authy", "login", {
+  email: "example@example.com",
+  token: 1234567
+});
+```
+
 ## Managing the user
 
 ### Profile Data
