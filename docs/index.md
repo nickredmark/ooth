@@ -5,6 +5,7 @@ Welcome to the ooth documentation.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [What is Ooth](#what-is-ooth)
   - [Architecture](#architecture)
 - [Tutorial](#tutorial)
@@ -48,13 +49,19 @@ Welcome to the ooth documentation.
   - [Google](#google)
     - [Server](#server-3)
     - [Client](#client-3)
-- [Managing the user](#managing-the-user)
-  - [Profile Data](#profile-data)
+  - [Twitter](#twitter)
     - [Server](#server-4)
     - [Client](#client-4)
-  - [User roles](#user-roles)
+  - [Authy (Twilio)](#authy-twilio)
     - [Server](#server-5)
     - [Client](#client-5)
+- [Managing the user](#managing-the-user)
+  - [Profile Data](#profile-data)
+    - [Server](#server-6)
+    - [Client](#client-6)
+  - [User roles](#user-roles)
+    - [Server](#server-7)
+    - [Client](#client-7)
 - [UI](#ui)
   - [React](#react)
     - [Provider](#provider)

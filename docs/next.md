@@ -19,6 +19,7 @@ To approach the ease of creating an accounts system I experienced with meteor.js
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Time for a Comprehensive Tutorial](#time-for-a-comprehensive-tutorial)
 - [So You Want User Accounts](#so-you-want-user-accounts)
 - [How to Keep the User Logged In: Cookie-Based Sessions or JWTs?](#how-to-keep-the-user-logged-in-cookie-based-sessions-or-jwts)
