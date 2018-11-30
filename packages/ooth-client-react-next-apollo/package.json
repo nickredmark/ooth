@@ -1,6 +1,6 @@
 {
   "name": "ooth-client-react-next-apollo",
-  "version": "2.8.0",
+  "version": "2.10.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
