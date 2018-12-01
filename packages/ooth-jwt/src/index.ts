@@ -34,18 +34,7 @@ function randomToken(): string {
   return randomBytes(43).toString('hex');
 }
 
-export default function({
-  name = 'jwt',
-  ooth,
-  tokenExpiry = 60 * 60, // 1 hour
-  refreshTokenExpiry = 60 * 60 * 24, // 1 day
-  sharedSecret,
-  privateKey,
-  publicKey,
-  algorithm = 'RS256',
-  includeProfile = false,
-}: Options): void {
-  async function getToken(userId: string, iat: number, tokenExpiry: number, options: TokenOptions): Promise<string> {
+export async function getToken(userId: string, iat: number, tokenExpiry: number, options: TokenOptions, ooth: Ooth): Promise<string> {
     const data: {[key: string]: any} = {
       iat,
       exp: iat + tokenExpiry,
@@ -53,7 +42,7 @@ export default function({
     };
 
     if (options.includeProfile) {
-      data.profile = ooth.getProfile(await ooth.getUserById(userId));
+      data.user = ooth.getProfile(await ooth.getUserById(userId));
     }
 
     if (options.sharedSecret) {
@@ -67,6 +56,18 @@ export default function({
     }
     throw new Error('No secret nor key provided');
   }
+
+export default function({
+  name = 'jwt',
+  ooth,
+  tokenExpiry = 60 * 60, // 1 hour
+  refreshTokenExpiry = 60 * 60 * 24, // 1 day
+  sharedSecret,
+  privateKey,
+  publicKey,
+  algorithm = 'RS256',
+  includeProfile = false,
+}: Options): void {
 
   if (sharedSecret === undefined && privateKey === undefined) {
     throw new Error('Either sharedSecret or privateKey/publicKey pair is required');
@@ -85,8 +86,8 @@ export default function({
         privateKey,
         publicKey,
         algorithm,
-        includeProfile
-      });
+        includeProfile,
+      }, ooth);
 
       const refreshToken = randomToken();
       const now = new Date();
