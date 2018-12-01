@@ -19,6 +19,7 @@ type Options = {
   privateKey?: string;
   publicKey?: string;
   algorithm?: string;
+  includeProfile?: boolean;
 };
 
 type TokenOptions = {
@@ -26,30 +27,35 @@ type TokenOptions = {
   privateKey?: string;
   publicKey?: string;
   algorithm?: string;
-}
+  includeProfile?: boolean;
+};
 
 function randomToken(): string {
   return randomBytes(43).toString('hex');
 }
 
-export function getToken(userId: string, iat: number, tokenExpiry: number, options: TokenOptions): string {
-  const data = {
-    iat,
-    exp: iat + tokenExpiry,
-    _id: userId,
-  };
+export async function getToken(userId: string, iat: number, tokenExpiry: number, options: TokenOptions, ooth: Ooth): Promise<string> {
+    const data: {[key: string]: any} = {
+      iat,
+      exp: iat + tokenExpiry,
+      _id: userId,
+    };
 
-  if(options.sharedSecret) {
-    return sign(data, options.sharedSecret);
+    if (options.includeProfile) {
+      data.user = ooth.getProfile(await ooth.getUserById(userId));
+    }
+
+    if (options.sharedSecret) {
+      return sign(data, options.sharedSecret);
+    }
+
+    if (options.privateKey) {
+      return sign(data, options.privateKey, {
+        algorithm: options.algorithm,
+      });
+    }
+    throw new Error('No secret nor key provided');
   }
-  
-  if (options.privateKey) {
-    return sign(data, options.privateKey, {
-      algorithm: options.algorithm
-    });
-  }
-  throw new Error('No secret nor key provided');
-}
 
 export default function({
   name = 'jwt',
@@ -59,23 +65,29 @@ export default function({
   sharedSecret,
   privateKey,
   publicKey,
-  algorithm = 'RS256'
+  algorithm = 'RS256',
+  includeProfile = false,
 }: Options): void {
-  if(sharedSecret === undefined && privateKey === undefined) {
+
+  if (sharedSecret === undefined && privateKey === undefined) {
     throw new Error('Either sharedSecret or privateKey/publicKey pair is required');
   }
-  if(sharedSecret !== undefined && privateKey !== undefined) {
+  if (sharedSecret !== undefined && privateKey !== undefined) {
     throw new Error('Either sharedSecret or privateKey should be provided, not both');
   }
-  if(privateKey !== undefined && publicKey === undefined) {
+  if (privateKey !== undefined && publicKey === undefined) {
     throw new Error('publicKey is required with privateKey');
   }
   // Return jwt after successful (primary) auth
   ooth.registerAuthAfterware(async (result: { [key: string]: any }, userId: string | undefined) => {
     if (userId) {
-      result.token = getToken(userId, new Date().getTime() / 1000, tokenExpiry, {
-        sharedSecret, privateKey, publicKey, algorithm
-      });
+      result.token = await getToken(userId, new Date().getTime() / 1000, tokenExpiry, {
+        sharedSecret,
+        privateKey,
+        publicKey,
+        algorithm,
+        includeProfile,
+      }, ooth);
 
       const refreshToken = randomToken();
       const now = new Date();
