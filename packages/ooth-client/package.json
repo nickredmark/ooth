@@ -13,7 +13,7 @@
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
   "engines": {
-    "node": ">= 10.9.0"
+    "node": ">=8"
   },
   "repository": "nmaro/ooth",
   "dependencies": {
