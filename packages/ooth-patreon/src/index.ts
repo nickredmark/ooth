@@ -57,7 +57,7 @@ export default function({ name = 'patreon', ooth, clientID, clientSecret, redire
         );
         const user = await userRes.json();
 
-        const member = user.data.relationships.memberships.length > 0;
+        const member = user.data.relationships.memberships.data.length > 0;
 
         return {
           accessToken,
