@@ -1,6 +1,6 @@
 {
   "name": "ooth-local",
-  "version": "2.10.0",
+  "version": "2.12.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -19,7 +19,7 @@
   "repository": "nmaro/ooth",
   "dependencies": {
     "bcrypt": "^3.0.0",
-    "ooth-i18n": "^2.10.0",
+    "ooth-i18n": "^2.12.0",
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
@@ -38,9 +38,9 @@
     "jest": "^23.5.0",
     "mongodb": "^2.2.30",
     "mongodb-memory-server": "^2.0.1",
-    "ooth": "^2.10.0",
-    "ooth-local-emailer": "^2.10.0",
-    "ooth-mongo": "^2.10.0",
+    "ooth": "^2.12.0",
+    "ooth-local-emailer": "^2.12.0",
+    "ooth-mongo": "^2.12.0",
     "passport-custom": "^1.0.5",
     "request-promise": "^4.2.1",
     "ts-jest": "^23.1.4",

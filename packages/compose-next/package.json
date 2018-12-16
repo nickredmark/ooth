@@ -1,6 +1,6 @@
 {
   "name": "compose-next",
-  "version": "2.10.0",
+  "version": "2.12.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
