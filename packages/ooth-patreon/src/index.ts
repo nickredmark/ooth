@@ -18,7 +18,7 @@ type Config = {
 
 export default function({ name = 'patreon', ooth, clientID, clientSecret, redirectURL }: Config): void {
   ooth.registerUniqueField(name, 'email', 'email');
-  ooth.registerProfileFields(name, 'id', 'email');
+  ooth.registerProfileFields(name, 'id', 'email', 'member');
   ooth.registerStrategyUniqueField(name, 'id');
   ooth.registerPrimaryConnect(
     name,
@@ -60,13 +60,12 @@ export default function({ name = 'patreon', ooth, clientID, clientSecret, redire
         );
         const user = await userRes.json();
 
-        if (user.data.relationships.memberships.length === 0) {
-          throw new Error("You don't seem to be a patreon supporter.");
-        }
+        const member = user.data.relationships.memberships.length > 0;
 
         return {
           accessToken,
           refreshToken,
+          member,
           email: user.data.attributes.email,
           id: user.data.id,
         };
