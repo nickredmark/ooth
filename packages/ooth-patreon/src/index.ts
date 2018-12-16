@@ -11,9 +11,6 @@ type Config = {
   clientID: string;
   clientSecret: string;
   redirectURL: string;
-  creatorAccessToken: string;
-  creatorRefreshToken: string;
-  campaignID: string;
 };
 
 export default function({ name = 'patreon', ooth, clientID, clientSecret, redirectURL }: Config): void {

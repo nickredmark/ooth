@@ -48,7 +48,6 @@ describe('ooth-patreon', () => {
       clientID: 'XXX',
       clientSecret: 'XXX',
       redirectURL: 'XXX',
-      creatorID: 'XXX',
     });
     await startServer();
   });
