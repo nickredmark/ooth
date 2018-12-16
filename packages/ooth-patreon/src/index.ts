@@ -1,5 +1,5 @@
-import formurlencoded from 'form-urlencoded';
-import fetch from 'node-fetch';
+import formUrlencoded from 'form-urlencoded';
+import nodeFetch from 'node-fetch';
 import { FullRequest, Ooth } from 'ooth';
 import { callbackify } from 'util';
 
@@ -28,12 +28,12 @@ export default function({ name = 'patreon', ooth, clientID, clientSecret, redire
       callbackify(async (req: FullRequest) => {
         const code = req.body.code;
 
-        const tokenRes = await fetch(`https://www.patreon.com/api/oauth2/token`, {
+        const tokenRes = await nodeFetch(`https://www.patreon.com/api/oauth2/token`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
-          body: formurlencoded({
+          body: formUrlencoded({
             code,
             grant_type: 'authorization_code',
             client_id: clientID,
@@ -45,7 +45,7 @@ export default function({ name = 'patreon', ooth, clientID, clientSecret, redire
 
         const accessToken = tokenData.access_token;
         const refreshToken = tokenData.refresh_token;
-        const userRes = await fetch(
+        const userRes = await nodeFetch(
           `https://www.patreon.com/api/oauth2/v2/identity?${qs.stringify({
             include: 'memberships',
             fields: {
