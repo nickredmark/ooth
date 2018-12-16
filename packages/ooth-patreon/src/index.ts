@@ -1,52 +1,76 @@
-import { Ooth, StrategyValues, FullRequest } from 'ooth';
-const { patreon, oauth } = require('patreon');
+import formurlencoded from 'form-urlencoded';
+import fetch from 'node-fetch';
+import { FullRequest, Ooth } from 'ooth';
+import { callbackify } from 'util';
 
+const qs = require('qs');
 const { Strategy } = require('passport-custom');
-
 type Config = {
   name?: string;
   ooth: Ooth;
   clientID: string;
   clientSecret: string;
-  creatorID: string;
   redirectURL: string;
+  creatorAccessToken: string;
+  creatorRefreshToken: string;
+  campaignID: string;
 };
 
-export default function({ name = 'patreon', ooth, clientID, clientSecret, redirectURL, creatorID }: Config): void {
-  const patreonOAuthClient = oauth(clientID, clientSecret);
-
+export default function({ name = 'patreon', ooth, clientID, clientSecret, redirectURL }: Config): void {
   ooth.registerUniqueField(name, 'email', 'email');
-  ooth.registerProfileFields(name, 'id', 'rewards', 'email');
+  ooth.registerProfileFields(name, 'id', 'email');
   ooth.registerStrategyUniqueField(name, 'id');
   ooth.registerPrimaryConnect(
     name,
     'login',
     [],
-    new Strategy(async (req: FullRequest, done: (e: Error | null, v: StrategyValues) => void) => {
-      try {
+    new Strategy(
+      callbackify(async (req: FullRequest) => {
         const code = req.body.code;
 
-        const tokensRespose = await patreonOAuthClient.getTokens(code, redirectURL);
-        const accessToken = tokensRespose.access_token;
-        const patreonAPIClient = patreon(accessToken);
+        const tokenRes = await fetch(`https://www.patreon.com/api/oauth2/token`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formurlencoded({
+            code,
+            grant_type: 'authorization_code',
+            client_id: clientID,
+            client_secret: clientSecret,
+            redirect_uri: redirectURL,
+          }),
+        });
+        const tokenData = await tokenRes.json();
 
-        const userRespnse = await patreonAPIClient('/current_user');
-        const user = userRespnse.rawJson;
+        const accessToken = tokenData.access_token;
+        const refreshToken = tokenData.refresh_token;
+        const userRes = await fetch(
+          `https://www.patreon.com/api/oauth2/v2/identity?${qs.stringify({
+            include: 'memberships',
+            fields: {
+              user: 'email',
+            },
+          })}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          },
+        );
+        const user = await userRes.json();
 
-        const rewards = user.included
-          .filter((o: any) => o.type === 'pledge' && o.relationships.creator.data.id === creatorID)
-          .map((pledge: any) => pledge.relationships.reward.data.id);
+        if (user.data.relationships.memberships.length === 0) {
+          throw new Error("You don't seem to be a patreon supporter.");
+        }
 
-        done(null, {
+        return {
           accessToken,
-          rewards,
-          refreshToken: tokensRespose.refresh_token,
+          refreshToken,
           email: user.data.attributes.email,
           id: user.data.id,
-        });
-      } catch (e) {
-        done(e, null as any);
-      }
-    }),
+        };
+      }),
+    ),
   );
 }
