@@ -297,7 +297,8 @@ const oothJwt = require("ooth-jwt").default;
 
 oothJwt({
   ooth, // Required
-  sharedSecret: SHARED_SECRET // Can be any long random string, needs to be shared with the API
+  sharedSecret: SHARED_SECRET // Can be any long random string, needs to be shared with the API,
+  tokenLocation: 'header' // Place to read token from. Can be 'body', 'header' or 'both'. Defaults to 'both'
 });
 ```
 
@@ -308,11 +309,20 @@ oothJwt({
   ooth, // Required
   privateKey: fs.readFileSync("path/to/private.key"),
   publicKey: fs.readFileSync("path/to/public.key"),
-  algorithm: ALGORITHM_TU_USE // Defaults to 'RS256'. Used only if a publicKey / privateKey pair is provided
+  algorithm: ALGORITHM_TO_USE, // Defaults to 'RS256'. Used only if a publicKey / privateKey pair is provided
+  tokenLocation: 'header'
 });
 ```
 
 You must provide either a sharedSecret, or a privateKey/publicKey pair
+
+#### tokenLocation
+
+The 'tokenLocation' option is used to specify where (in the request) to read the token from. 'body' means read from the request body ('token' parameter), 'header' means read from the request Authorization header; and 'both' enables both methods.
+
+The encouraged option is 'header', as standard JWT implementation is to use the Authorization header for the token.
+
+Also, if you use 'ooth-jwt' together with 'ooth-local', 'body' or 'both' will conflict with 'reset-password' and 'verify-email' methods.
 
 ### API
 

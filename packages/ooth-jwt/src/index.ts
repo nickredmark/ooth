@@ -20,6 +20,7 @@ type Options = {
   publicKey?: string;
   algorithm?: string;
   includeProfile?: boolean;
+  tokenLocation: 'header' | 'body' | 'both';
 };
 
 type TokenOptions = {
@@ -67,6 +68,7 @@ export default function({
   publicKey,
   algorithm = 'RS256',
   includeProfile = false,
+  tokenLocation = 'both',
 }: Options): void {
 
   if (sharedSecret === undefined && privateKey === undefined) {
@@ -105,14 +107,17 @@ export default function({
     return result;
   });
 
+  const readTokenFromHeader = (tokenLocation === 'header' || tokenLocation === 'both');
+  const readTokenFromBody   = (tokenLocation === 'body'   || tokenLocation === 'both');
+
   // Authenticate user with jwt
   ooth.registerSecondaryAuth(
     name,
     'auth',
     (req: FullRequest) =>
       !req.user &&
-      ((req.body && req.body.token) ||
-        (req.get('authorization') &&
+      ((readTokenFromBody && req.body && req.body.token) ||
+        (readTokenFromHeader && req.get('authorization') &&
           req
             .get('authorization')!
             .split(' ')
@@ -122,12 +127,14 @@ export default function({
         secretOrKey: sharedSecret || publicKey,
         jwtFromRequest: (req: Request) => {
           let token;
-          if (req.body && req.body.token) {
+          if (readTokenFromBody && req.body && req.body.token) {
             token = req.body.token;
           }
-          const authorization = req.get('authorization');
-          if (authorization) {
-            token = authorization.split(' ').pop();
+          if (readTokenFromHeader) {
+            const authorization = req.get('authorization');
+            if (authorization) {
+              token = authorization.split(' ').pop();
+            }
           }
 
           return token;
