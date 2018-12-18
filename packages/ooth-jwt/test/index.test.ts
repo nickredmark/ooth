@@ -52,6 +52,7 @@ describe('ooth-user', () => {
     oothJwt({
       ooth,
       sharedSecret: 'secret',
+      tokenLocation: 'header'
     });
     ooth.registerProfileFields('foo', 'a');
     ooth.registerPrimaryConnect('foo', 'bar', [], new Strategy((_req: any, done: any) => done(null, { a: 'b' })));
