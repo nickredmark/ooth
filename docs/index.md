@@ -316,6 +316,14 @@ oothJwt({
 
 You must provide either a sharedSecret, or a privateKey/publicKey pair
 
+#### tokenLocation
+
+The 'tokenLocation' option is used to specify where (in the request) to read the token from. 'body' means read from the request body ('token' parameter), 'header' means read from the request Authorization header; and 'both' enables both methods.
+
+The encouraged option is 'header', as standard JWT implementation is to use the Authorization header for the token.
+
+Also, if you use 'ooth-jwt' together with 'ooth-local', 'body' or 'both' will conflict with 'reset-password' and 'verify-email' methods.
+
 ### API
 
 We'll assume the API is another express app. Here too, you need to enable cookie-based session:
