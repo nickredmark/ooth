@@ -297,7 +297,8 @@ const oothJwt = require("ooth-jwt").default;
 
 oothJwt({
   ooth, // Required
-  sharedSecret: SHARED_SECRET // Can be any long random string, needs to be shared with the API
+  sharedSecret: SHARED_SECRET // Can be any long random string, needs to be shared with the API,
+  tokenLocation: 'header' // Place to read token from. Can be 'body', 'header' or 'both'. Defaults to 'both'
 });
 ```
 
@@ -308,7 +309,8 @@ oothJwt({
   ooth, // Required
   privateKey: fs.readFileSync("path/to/private.key"),
   publicKey: fs.readFileSync("path/to/public.key"),
-  algorithm: ALGORITHM_TU_USE // Defaults to 'RS256'. Used only if a publicKey / privateKey pair is provided
+  algorithm: ALGORITHM_TO_USE, // Defaults to 'RS256'. Used only if a publicKey / privateKey pair is provided
+  tokenLocation: 'header'
 });
 ```
 

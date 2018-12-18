@@ -49,7 +49,7 @@ async function start() {
       })
     } 
     oothUser({ ooth });
-    oothJwt({ ooth, sharedSecret: process.env.SHARED_SECRET });
+    oothJwt({ ooth, sharedSecret: process.env.SHARED_SECRET, tokenLocation: 'header' });
     oothWs({ ooth });
 
     app.listen(process.env.PORT, function() {
