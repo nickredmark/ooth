@@ -38,6 +38,7 @@ const getServerClient = (
   opts: Partial<ApolloClientOptions<any>>,
   cacheOpts?: ApolloReducerConfig,
   initialData?: any,
+  linkState?: any,
 ) => {
   let link: ApolloLink = new HttpLink({
     uri,
@@ -61,6 +62,10 @@ const getServerClient = (
     cache.restore(initialData);
   }
 
+  if (linkState) {
+    link = ApolloLink.from([link, linkState]);
+  }
+
   return new ApolloClient({
     link,
     cache,
@@ -75,10 +80,11 @@ const getClient = (
   opts: Partial<ApolloClientOptions<any>>,
   cacheOpts?: ApolloReducerConfig,
   initialData?: any,
+  linkState?: any,
 ) => {
   if (!(process as any).browser) {
     // on server, create a new client for each request
-    return getServerClient(uri, cookies, opts, cacheOpts, initialData);
+    return getServerClient(uri, cookies, opts, cacheOpts, initialData, linkState);
   }
   // on client, create singleton
   if (!client) {
@@ -91,11 +97,12 @@ export type Options = {
   url: string;
   opts?: ApolloReducerConfig;
   apolloOpts?: Partial<ApolloClientOptions<any>>;
+  linkState?: any;
 };
 
 type Props = { initialData?: any; childProps?: any };
 
-export default ({ url, opts, apolloOpts }: Options) => {
+export default ({ url, opts, apolloOpts, linkState }: Options) => {
   // tslint:disable-next-line variable-name
   return (Component: React.ComponentType<any> & { getInitialProps?: (ctx: any) => Promise<any> }) =>
     class extends React.Component<Props> {
@@ -109,7 +116,7 @@ export default ({ url, opts, apolloOpts }: Options) => {
 
       public static async getInitialProps(ctx: any): Promise<{ initialData: any; childProps: any }> {
         const cookies = ctx.req && ctx.req.cookies;
-        const client = getClient(url, cookies, apolloOpts || {}, opts);
+        const client = getClient(url, cookies, apolloOpts, linkState || {}, opts);
 
         const childProps = Component.getInitialProps ? await Component.getInitialProps(ctx) : {};
 
