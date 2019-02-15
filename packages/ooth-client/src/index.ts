@@ -1,4 +1,4 @@
-import * as fetch from 'isomorphic-fetch';
+import fetch from 'cross-fetch';
 import { isEqual } from 'lodash';
 
 const url = require('url');
