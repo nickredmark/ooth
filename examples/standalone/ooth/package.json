@@ -4,12 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon -e js -x node index.js",
+    "deploy": "prisma deploy --env-file .env.docker",
+    "generate": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
   "license": "MIT",
   "dependencies": {
+    "@types/node": "^11.11.3",
     "cors": "^2.8.1",
     "dotenv": "^6.0.0",
     "express": "^4.14.1",
@@ -17,6 +20,7 @@
     "mailgun-js": "^0.13.1",
     "mongodb": "^2.2.33",
     "morgan": "^1.8.0",
+    "nodemon": "^1.18.10",
     "ooth": "^2.0.0",
     "ooth-guest": "^2.0.0",
     "ooth-jwt": "^2.0.0",
@@ -24,7 +28,11 @@
     "ooth-local-emailer": "^2.0.0",
     "ooth-mongo": "^2.0.0",
     "ooth-user": "^2.0.0",
-    "ooth-ws": "^2.0.0"
+    "ooth-ws": "^2.0.0",
+    "prisma": "^1.28.3",
+    "prisma-client-lib": "^1.28.3",
+    "ts-node": "^8.0.3",
+    "typescript": "^3.3.3333"
   },
   "engines": {
     "node": ">=8"

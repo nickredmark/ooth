@@ -8,8 +8,8 @@ In this example, ooth is a standalone microservice.
 
 Standalone Ooth server with
 
-* Guest login
-* Local login
+- Guest login
+- Local login
 
 #### Setup
 
@@ -18,6 +18,8 @@ cd ooth
 cp .env.dist .env
 vi .env # Or edit with editor of your choice
 yarn
+yarn run deploy # to create the prisma project
+yarn run generate # to generate the prisma client
 ```
 
 #### Start

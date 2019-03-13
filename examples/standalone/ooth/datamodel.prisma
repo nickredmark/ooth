@@ -1,0 +1,16 @@
+type User {
+  id: ID! @unique
+  email: String @unique
+  username: String @unique
+  password: String
+  verificationToken: String
+  verificationTokenExpiresAt: DateTime
+  userMeta: [UserMeta]! @relation(name: "UserMetasForUser")
+}
+
+type UserMeta {
+  id: ID! @unique
+  key: String!
+  value: String!
+  user: User! @relation(name: "UserMetasForUser")
+}
