@@ -2,6 +2,7 @@ FROM node:10
 
 # Prepare app directory
 RUN mkdir -p /ooth
+RUN mkdir -p /packages
 
 # Install dependencies
 WORKDIR /ooth

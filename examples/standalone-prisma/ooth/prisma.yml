@@ -1,6 +1,6 @@
 datamodel: datamodel.prisma
 endpoint: ${env:PRISMA_ENDPOINT}
-secret: ${env:PRISMA_SECRET}
+# secret: ${env:PRISMA_SECRET}
 
 generate:
   - generator: javascript-client
