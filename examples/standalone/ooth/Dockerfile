@@ -1,23 +1,11 @@
 FROM node:10
 
-# Prepare app directory
-RUN mkdir -p /ooth
+COPY package.json yarn.lock ./
 
-# Install dependencies
-WORKDIR /ooth
+RUN yarn
 
-COPY ./docker-entrypoint.sh /
+COPY . .
 
-RUN chmod +x /docker-entrypoint.sh
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
-
-# COPY package.json yarn.lock ./ooth
-
-# RUN yarn
-
-# COPY . .
-
-# ENTRYPOINT [ "yarn" ]
-# CMD [ "start" ]
+ENTRYPOINT [ "yarn" ]
+CMD [ "start" ]
 
