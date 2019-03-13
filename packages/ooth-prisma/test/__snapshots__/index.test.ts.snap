@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-mongo can get user by fields 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "bar": "baz",
+  },
+  "foo2": Object {
+    "bar2": "baz2",
+  },
+}
+`;
+
+exports[`ooth-mongo can get user by value 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "bar": "baz",
+  },
+  "foo2": Object {
+    "bar2": "baz2",
+  },
+}
+`;
+
+exports[`ooth-mongo can insert user and get it 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "baz": "bar",
+  },
+}
+`;
+
+exports[`ooth-mongo can update user 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": "bar",
+}
+`;
