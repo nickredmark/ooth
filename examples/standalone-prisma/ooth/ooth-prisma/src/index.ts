@@ -7,6 +7,16 @@ type User = {
   [key: string]: string | StrategyValues;
 };
 
+// Prisma is for relational data. So when defining the prisma datamodel
+// we must decide what fields to have in the user table
+// and any others will be added to an additional 'user meta' table.
+// See: datamodel.prisma
+const PrismaUserFields = ['id', 'email', 'username', 'password', 'verificationToken', 'verificationTokenExpiresAt'];
+
+// TODO - check the fields, if any are not in PrismaUserFields then build them into the userMeta table query
+
+// TODO - on the user queries, request userMeta { key value }
+
 function prepare(o: any): User {
   if (o && !o._id && o.id) {
     o._id = o.id;
