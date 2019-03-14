@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const { Ooth } = require("ooth");
-const { OothMongo } = require("ooth-mongo");
+// const { OothMongo } = require("ooth-mongo");
 const { OothPrisma } = require("./ooth-prisma");
 const oothGuest = require("ooth-guest").default;
 const oothLocal = require("ooth-local").default;
@@ -12,7 +12,7 @@ const oothJwt = require("ooth-jwt").default;
 const morgan = require("morgan");
 const cors = require("cors");
 const mail = require("./mail");
-const { MongoClient } = require("mongodb");
+// const { MongoClient } = require("mongodb");
 const { Prisma } = require("./prisma-client");
 
 async function start() {
@@ -30,12 +30,9 @@ async function start() {
     const prisma = new Prisma();
     const oothPrisma = new OothPrisma(prisma);
 
-    const db = await MongoClient.connect(process.env.MONGO_URL);
-    const oothMongo = new OothMongo(db);
-
     const ooth = new Ooth({
       app,
-      backend: oothMongo,
+      backend: oothPrisma,
       sessionSecret: process.env.SESSION_SECRET,
       standalone: true
     });

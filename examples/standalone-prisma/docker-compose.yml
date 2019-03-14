@@ -12,7 +12,6 @@ services:
     volumes:
       - ./ooth:/ooth
     depends_on:
-      - db
       - prisma
   api:
     build: ./api

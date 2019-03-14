@@ -38,42 +38,51 @@ fragment UserWithMeta on User {
 }
 `;
 
-function objectToPrismaData(key, object) {
-  console.log(key);
-  console.log(object);
-  let keyParts = key.split('.');
-  console.log(keyParts);
-}
-
 async function massageFields(fields: any ) {
-
   let userMetaArray = [];
-
   for (var key in fields) {
     if( prismaUserFields.indexOf(key) == -1 ) {
       // this field does not have it's own column in the prisma user table
-      // objectToPrismaData(key, fields[key]);
-      // console.log(key)
-      // console.log(fields[key]);
-      // let thisKeyObject = {};
-      // let keyParts = key.split('.');
-      // for (var i = 0, len = keyArray; i < len; i++) {
-      //   let keyPart = keyArray[i];
-      //   thisKeyObject[keyPart] = 
-      // }
-      // userMetaArray.push({
-      //   value: key,
-      // });
+      let keyParts = key.split('.');
+      let temp = {};
+      for (var i = (keyParts.length - 1); i >= 0; i--) {
+        if (i == keyParts.length - 1) {
+          temp = { key: keyParts[i], value: fields[key] }
+        } else {
+          temp = { key: keyParts[i], child_some: temp };
+        }
+      }
+      userMetaArray.push({ userMeta_some: temp });
       delete fields[key];
     }
   }
-
-  // fields.AND = [{ userMeta_some: { key: 'foo', value: 'bar' } }];
-  fields.AND = [{ userMeta_some: {  key: "foo3", child_some:  { key : "inner-foo", value: "inner-bar" } } }];
-
-  console.log(fields);
-
+  fields.AND = userMetaArray;
+  // console.log( JSON.stringify(fields));
   return fields;
+}
+
+async function massageFieldsAndValue(fields: any, value: string ) {
+  let where = { OR : [] };
+  for (var j = 0, lenf = fields.length; j < lenf; j++) {
+    let key = fields[j];
+    if (prismaUserFields.indexOf(key) == -1) {
+      // this field does not have it's own column in the prisma user table
+      let keyParts = fields[j].split('.');
+      let temp = {};
+      for (var i = keyParts.length - 1; i >= 0; i--) {
+        if (i == keyParts.length - 1) {
+          temp = { key: keyParts[i], value };
+        } else {
+          temp = { key: keyParts[i], child_some: temp };
+        }
+      }
+      where.OR.push({ userMeta_some: temp });
+      delete fields[j];
+    } else {
+      where.OR.push({ [key]: value });
+    }
+  }
+  return where;
 }
 
 function userMetaToObject(userMeta: any) {
@@ -95,10 +104,12 @@ function prepare(o: any): User {
     o._id = o.id;
     delete o.id;
   }
-  if( o.userMeta.length > 0 ) {
+  if (o && o.userMeta.length > 0) {
     Object.assign(o, userMetaToObject(o.userMeta));
   }
-  delete o.userMeta;
+  if (o && o.userMeta) {
+    delete o.userMeta;
+  }
   return o;
 }
 
@@ -137,14 +148,11 @@ export class OothPrisma {
   };
 
   public getUserByValue = async (fields: string[], value: any) => {
+    const where = await massageFieldsAndValue(fields, value );
     try {
       const users = await this.prisma
         .users({
-          where: {
-            OR: fields.map((field) => ({
-              [field]: value,
-            })),
-          },
+          where
         })
         .$fragment(prismaUserFragment);
       if ( users.length > 1 ) {
