@@ -11,7 +11,7 @@ type User = {
 // we must decide what fields to have in the user table
 // and any others will be added to an additional 'user meta' table.
 // See: datamodel.prisma
-const PrismaUserFields = ['id', 'email', 'username', 'password', 'verificationToken', 'verificationTokenExpiresAt'];
+const prismaUserFields = ['id', 'email', 'username', 'password', 'verificationToken', 'verificationTokenExpiresAt'];
 
 // TODO - check the fields, if any are not in PrismaUserFields then build them into the userMeta table query
 
@@ -38,6 +38,44 @@ fragment UserWithMeta on User {
 }
 `;
 
+function objectToPrismaData(key, object) {
+  console.log(key);
+  console.log(object);
+  let keyParts = key.split('.');
+  console.log(keyParts);
+}
+
+async function massageFields(fields: any ) {
+
+  let userMetaArray = [];
+
+  for (var key in fields) {
+    if( prismaUserFields.indexOf(key) == -1 ) {
+      // this field does not have it's own column in the prisma user table
+      // objectToPrismaData(key, fields[key]);
+      // console.log(key)
+      // console.log(fields[key]);
+      // let thisKeyObject = {};
+      // let keyParts = key.split('.');
+      // for (var i = 0, len = keyArray; i < len; i++) {
+      //   let keyPart = keyArray[i];
+      //   thisKeyObject[keyPart] = 
+      // }
+      // userMetaArray.push({
+      //   value: key,
+      // });
+      delete fields[key];
+    }
+  }
+
+  // fields.AND = [{ userMeta_some: { key: 'foo', value: 'bar' } }];
+  fields.AND = [{ userMeta_some: {  key: "foo3", child_some:  { key : "inner-foo", value: "inner-bar" } } }];
+
+  console.log(fields);
+
+  return fields;
+}
+
 function userMetaToObject(userMeta: any) {
   let f = {};
   for (var i = 0, len = userMeta.length; i < len; i++) {
@@ -55,9 +93,7 @@ function userMetaToObject(userMeta: any) {
 function prepare(o: any): User {
   if (o && !o._id && o.id) {
     o._id = o.id;
-  }
-  if (o && o._id) {
-    o._id = o._id.toString();
+    delete o.id;
   }
   if( o.userMeta.length > 0 ) {
     Object.assign(o, userMetaToObject(o.userMeta));
@@ -87,8 +123,9 @@ export class OothPrisma {
   };
 
   public getUser = async (fields: { [key: string]: any }) => {
+    const where = await massageFields(fields);
     try {
-      const users = await this.prisma.users({ where: fields }).$fragment(prismaUserFragment);
+      const users = await this.prisma.users({ where }).$fragment(prismaUserFragment);
       if (users.length > 1) {
         console.log('The getUser query found ' + users.length + ' users. users[0] returned');
       }
@@ -101,13 +138,15 @@ export class OothPrisma {
 
   public getUserByValue = async (fields: string[], value: any) => {
     try {
-      const users = await this.prisma.users({
-        where: {
-          OR: fields.map((field) => ({
-            [field]: value,
-          })),
-        },
-      });
+      const users = await this.prisma
+        .users({
+          where: {
+            OR: fields.map((field) => ({
+              [field]: value,
+            })),
+          },
+        })
+        .$fragment(prismaUserFragment);
       if ( users.length > 1 ) {
         console.log('The getUserByValue query found ' + users.length + ' users. users[0] returned');
       }
@@ -120,14 +159,16 @@ export class OothPrisma {
 
   public updateUser = async (id: string, fields: { [key: string]: any }) => {
     try {
-      const user = await await this.prisma.updateUser({
-        data: {
-          ...fields,
-        },
-        where: {
-          id,
-        },
-      });
+      const user = await await this.prisma
+        .updateUser({
+          data: {
+            ...fields,
+          },
+          where: {
+            id,
+          },
+        })
+        .$fragment(prismaUserFragment);
       return user;
     } catch (err) {
       console.error(err);
