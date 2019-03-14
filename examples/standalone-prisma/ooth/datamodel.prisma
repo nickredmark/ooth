@@ -11,6 +11,7 @@ type User {
 type UserMeta {
   id: ID! @unique
   key: String!
-  value: String!
-  user: User! @relation(name: "UserMetasForUser")
+  value: String
+  user: User @relation(name: "UserMetasForUser")
+  child: [UserMeta]!
 }

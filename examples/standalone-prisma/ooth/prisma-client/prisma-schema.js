@@ -112,8 +112,9 @@ type UserEdge {
 type UserMeta {
   id: ID!
   key: String!
-  value: String!
-  user: User!
+  value: String
+  user: User
+  child(where: UserMetaWhereInput, orderBy: UserMetaOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [UserMeta!]
 }
 
 type UserMetaConnection {
@@ -124,8 +125,14 @@ type UserMetaConnection {
 
 input UserMetaCreateInput {
   key: String!
-  value: String!
-  user: UserCreateOneWithoutUserMetaInput!
+  value: String
+  user: UserCreateOneWithoutUserMetaInput
+  child: UserMetaCreateManyInput
+}
+
+input UserMetaCreateManyInput {
+  create: [UserMetaCreateInput!]
+  connect: [UserMetaWhereUniqueInput!]
 }
 
 input UserMetaCreateManyWithoutUserInput {
@@ -135,7 +142,8 @@ input UserMetaCreateManyWithoutUserInput {
 
 input UserMetaCreateWithoutUserInput {
   key: String!
-  value: String!
+  value: String
+  child: UserMetaCreateManyInput
 }
 
 type UserMetaEdge {
@@ -159,7 +167,7 @@ enum UserMetaOrderByInput {
 type UserMetaPreviousValues {
   id: ID!
   key: String!
-  value: String!
+  value: String
 }
 
 input UserMetaScalarWhereInput {
@@ -228,15 +236,35 @@ input UserMetaSubscriptionWhereInput {
   NOT: [UserMetaSubscriptionWhereInput!]
 }
 
+input UserMetaUpdateDataInput {
+  key: String
+  value: String
+  user: UserUpdateOneWithoutUserMetaInput
+  child: UserMetaUpdateManyInput
+}
+
 input UserMetaUpdateInput {
   key: String
   value: String
-  user: UserUpdateOneRequiredWithoutUserMetaInput
+  user: UserUpdateOneWithoutUserMetaInput
+  child: UserMetaUpdateManyInput
 }
 
 input UserMetaUpdateManyDataInput {
   key: String
   value: String
+}
+
+input UserMetaUpdateManyInput {
+  create: [UserMetaCreateInput!]
+  update: [UserMetaUpdateWithWhereUniqueNestedInput!]
+  upsert: [UserMetaUpsertWithWhereUniqueNestedInput!]
+  delete: [UserMetaWhereUniqueInput!]
+  connect: [UserMetaWhereUniqueInput!]
+  set: [UserMetaWhereUniqueInput!]
+  disconnect: [UserMetaWhereUniqueInput!]
+  deleteMany: [UserMetaScalarWhereInput!]
+  updateMany: [UserMetaUpdateManyWithWhereNestedInput!]
 }
 
 input UserMetaUpdateManyMutationInput {
@@ -264,11 +292,23 @@ input UserMetaUpdateManyWithWhereNestedInput {
 input UserMetaUpdateWithoutUserDataInput {
   key: String
   value: String
+  child: UserMetaUpdateManyInput
+}
+
+input UserMetaUpdateWithWhereUniqueNestedInput {
+  where: UserMetaWhereUniqueInput!
+  data: UserMetaUpdateDataInput!
 }
 
 input UserMetaUpdateWithWhereUniqueWithoutUserInput {
   where: UserMetaWhereUniqueInput!
   data: UserMetaUpdateWithoutUserDataInput!
+}
+
+input UserMetaUpsertWithWhereUniqueNestedInput {
+  where: UserMetaWhereUniqueInput!
+  update: UserMetaUpdateDataInput!
+  create: UserMetaCreateInput!
 }
 
 input UserMetaUpsertWithWhereUniqueWithoutUserInput {
@@ -321,6 +361,9 @@ input UserMetaWhereInput {
   value_ends_with: String
   value_not_ends_with: String
   user: UserWhereInput
+  child_every: UserMetaWhereInput
+  child_some: UserMetaWhereInput
+  child_none: UserMetaWhereInput
   AND: [UserMetaWhereInput!]
   OR: [UserMetaWhereInput!]
   NOT: [UserMetaWhereInput!]
@@ -393,10 +436,12 @@ input UserUpdateManyMutationInput {
   verificationTokenExpiresAt: DateTime
 }
 
-input UserUpdateOneRequiredWithoutUserMetaInput {
+input UserUpdateOneWithoutUserMetaInput {
   create: UserCreateWithoutUserMetaInput
   update: UserUpdateWithoutUserMetaDataInput
   upsert: UserUpsertWithoutUserMetaInput
+  delete: Boolean
+  disconnect: Boolean
   connect: UserWhereUniqueInput
 }
 

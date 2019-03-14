@@ -178,22 +178,12 @@ export type UserOrderByInput =
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
-export interface UserMetaUpdateManyWithoutUserInput {
-  create?: UserMetaCreateWithoutUserInput[] | UserMetaCreateWithoutUserInput;
-  delete?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
-  connect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
-  set?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
-  disconnect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
-  update?:
-    | UserMetaUpdateWithWhereUniqueWithoutUserInput[]
-    | UserMetaUpdateWithWhereUniqueWithoutUserInput;
-  upsert?:
-    | UserMetaUpsertWithWhereUniqueWithoutUserInput[]
-    | UserMetaUpsertWithWhereUniqueWithoutUserInput;
-  deleteMany?: UserMetaScalarWhereInput[] | UserMetaScalarWhereInput;
-  updateMany?:
-    | UserMetaUpdateManyWithWhereNestedInput[]
-    | UserMetaUpdateManyWithWhereNestedInput;
+export interface UserCreateWithoutUserMetaInput {
+  email?: String;
+  username?: String;
+  password?: String;
+  verificationToken?: String;
+  verificationTokenExpiresAt?: DateTimeInput;
 }
 
 export type UserWhereUniqueInput = AtLeastOne<{
@@ -202,9 +192,9 @@ export type UserWhereUniqueInput = AtLeastOne<{
   username?: String;
 }>;
 
-export interface UserMetaUpdateWithoutUserDataInput {
-  key?: String;
-  value?: String;
+export interface UserMetaUpdateWithWhereUniqueWithoutUserInput {
+  where: UserMetaWhereUniqueInput;
+  data: UserMetaUpdateWithoutUserDataInput;
 }
 
 export interface UserMetaWhereInput {
@@ -251,26 +241,43 @@ export interface UserMetaWhereInput {
   value_ends_with?: String;
   value_not_ends_with?: String;
   user?: UserWhereInput;
+  child_every?: UserMetaWhereInput;
+  child_some?: UserMetaWhereInput;
+  child_none?: UserMetaWhereInput;
   AND?: UserMetaWhereInput[] | UserMetaWhereInput;
   OR?: UserMetaWhereInput[] | UserMetaWhereInput;
   NOT?: UserMetaWhereInput[] | UserMetaWhereInput;
 }
 
-export interface UserMetaCreateInput {
+export interface UserMetaCreateManyWithoutUserInput {
+  create?: UserMetaCreateWithoutUserInput[] | UserMetaCreateWithoutUserInput;
+  connect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+}
+
+export interface UserUpdateOneWithoutUserMetaInput {
+  create?: UserCreateWithoutUserMetaInput;
+  update?: UserUpdateWithoutUserMetaDataInput;
+  upsert?: UserUpsertWithoutUserMetaInput;
+  delete?: Boolean;
+  disconnect?: Boolean;
+  connect?: UserWhereUniqueInput;
+}
+
+export interface UserMetaCreateWithoutUserInput {
   key: String;
-  value: String;
-  user: UserCreateOneWithoutUserMetaInput;
+  value?: String;
+  child?: UserMetaCreateManyInput;
 }
 
-export interface UserMetaUpdateManyWithWhereNestedInput {
-  where: UserMetaScalarWhereInput;
-  data: UserMetaUpdateManyDataInput;
+export interface UserMetaUpdateWithoutUserDataInput {
+  key?: String;
+  value?: String;
+  child?: UserMetaUpdateManyInput;
 }
 
-export interface UserMetaUpsertWithWhereUniqueWithoutUserInput {
-  where: UserMetaWhereUniqueInput;
-  update: UserMetaUpdateWithoutUserDataInput;
-  create: UserMetaCreateWithoutUserInput;
+export interface UserMetaCreateManyInput {
+  create?: UserMetaCreateInput[] | UserMetaCreateInput;
+  connect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
 }
 
 export interface UserSubscriptionWhereInput {
@@ -284,35 +291,34 @@ export interface UserSubscriptionWhereInput {
   NOT?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
 }
 
-export interface UserCreateInput {
-  email?: String;
-  username?: String;
-  password?: String;
-  verificationToken?: String;
-  verificationTokenExpiresAt?: DateTimeInput;
-  userMeta?: UserMetaCreateManyWithoutUserInput;
+export interface UserMetaCreateInput {
+  key: String;
+  value?: String;
+  user?: UserCreateOneWithoutUserMetaInput;
+  child?: UserMetaCreateManyInput;
+}
+
+export interface UserMetaUpdateInput {
+  key?: String;
+  value?: String;
+  user?: UserUpdateOneWithoutUserMetaInput;
+  child?: UserMetaUpdateManyInput;
+}
+
+export interface UserCreateOneWithoutUserMetaInput {
+  create?: UserCreateWithoutUserMetaInput;
+  connect?: UserWhereUniqueInput;
+}
+
+export interface UserMetaUpsertWithWhereUniqueWithoutUserInput {
+  where: UserMetaWhereUniqueInput;
+  update: UserMetaUpdateWithoutUserDataInput;
+  create: UserMetaCreateWithoutUserInput;
 }
 
 export interface UserUpsertWithoutUserMetaInput {
   update: UserUpdateWithoutUserMetaDataInput;
   create: UserCreateWithoutUserMetaInput;
-}
-
-export interface UserMetaCreateManyWithoutUserInput {
-  create?: UserMetaCreateWithoutUserInput[] | UserMetaCreateWithoutUserInput;
-  connect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
-}
-
-export interface UserUpdateOneRequiredWithoutUserMetaInput {
-  create?: UserCreateWithoutUserMetaInput;
-  update?: UserUpdateWithoutUserMetaDataInput;
-  upsert?: UserUpsertWithoutUserMetaInput;
-  connect?: UserWhereUniqueInput;
-}
-
-export interface UserMetaCreateWithoutUserInput {
-  key: String;
-  value: String;
 }
 
 export type UserMetaWhereUniqueInput = AtLeastOne<{
@@ -326,24 +332,6 @@ export interface UserUpdateInput {
   verificationToken?: String;
   verificationTokenExpiresAt?: DateTimeInput;
   userMeta?: UserMetaUpdateManyWithoutUserInput;
-}
-
-export interface UserCreateOneWithoutUserMetaInput {
-  create?: UserCreateWithoutUserMetaInput;
-  connect?: UserWhereUniqueInput;
-}
-
-export interface UserUpdateManyMutationInput {
-  email?: String;
-  username?: String;
-  password?: String;
-  verificationToken?: String;
-  verificationTokenExpiresAt?: DateTimeInput;
-}
-
-export interface UserMetaUpdateManyMutationInput {
-  key?: String;
-  value?: String;
 }
 
 export interface UserMetaScalarWhereInput {
@@ -394,9 +382,33 @@ export interface UserMetaScalarWhereInput {
   NOT?: UserMetaScalarWhereInput[] | UserMetaScalarWhereInput;
 }
 
-export interface UserMetaUpdateManyDataInput {
-  key?: String;
-  value?: String;
+export interface UserMetaUpdateManyWithoutUserInput {
+  create?: UserMetaCreateWithoutUserInput[] | UserMetaCreateWithoutUserInput;
+  delete?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  connect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  set?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  disconnect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  update?:
+    | UserMetaUpdateWithWhereUniqueWithoutUserInput[]
+    | UserMetaUpdateWithWhereUniqueWithoutUserInput;
+  upsert?:
+    | UserMetaUpsertWithWhereUniqueWithoutUserInput[]
+    | UserMetaUpsertWithWhereUniqueWithoutUserInput;
+  deleteMany?: UserMetaScalarWhereInput[] | UserMetaScalarWhereInput;
+  updateMany?:
+    | UserMetaUpdateManyWithWhereNestedInput[]
+    | UserMetaUpdateManyWithWhereNestedInput;
+}
+
+export interface UserMetaSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: UserMetaWhereInput;
+  AND?: UserMetaSubscriptionWhereInput[] | UserMetaSubscriptionWhereInput;
+  OR?: UserMetaSubscriptionWhereInput[] | UserMetaSubscriptionWhereInput;
+  NOT?: UserMetaSubscriptionWhereInput[] | UserMetaSubscriptionWhereInput;
 }
 
 export interface UserWhereInput {
@@ -486,9 +498,42 @@ export interface UserWhereInput {
   NOT?: UserWhereInput[] | UserWhereInput;
 }
 
-export interface UserMetaUpdateWithWhereUniqueWithoutUserInput {
+export interface UserUpdateManyMutationInput {
+  email?: String;
+  username?: String;
+  password?: String;
+  verificationToken?: String;
+  verificationTokenExpiresAt?: DateTimeInput;
+}
+
+export interface UserMetaUpdateDataInput {
+  key?: String;
+  value?: String;
+  user?: UserUpdateOneWithoutUserMetaInput;
+  child?: UserMetaUpdateManyInput;
+}
+
+export interface UserMetaUpdateWithWhereUniqueNestedInput {
   where: UserMetaWhereUniqueInput;
-  data: UserMetaUpdateWithoutUserDataInput;
+  data: UserMetaUpdateDataInput;
+}
+
+export interface UserMetaUpdateManyInput {
+  create?: UserMetaCreateInput[] | UserMetaCreateInput;
+  update?:
+    | UserMetaUpdateWithWhereUniqueNestedInput[]
+    | UserMetaUpdateWithWhereUniqueNestedInput;
+  upsert?:
+    | UserMetaUpsertWithWhereUniqueNestedInput[]
+    | UserMetaUpsertWithWhereUniqueNestedInput;
+  delete?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  connect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  set?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  disconnect?: UserMetaWhereUniqueInput[] | UserMetaWhereUniqueInput;
+  deleteMany?: UserMetaScalarWhereInput[] | UserMetaScalarWhereInput;
+  updateMany?:
+    | UserMetaUpdateManyWithWhereNestedInput[]
+    | UserMetaUpdateManyWithWhereNestedInput;
 }
 
 export interface UserUpdateWithoutUserMetaDataInput {
@@ -499,29 +544,34 @@ export interface UserUpdateWithoutUserMetaDataInput {
   verificationTokenExpiresAt?: DateTimeInput;
 }
 
-export interface UserMetaSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: UserMetaWhereInput;
-  AND?: UserMetaSubscriptionWhereInput[] | UserMetaSubscriptionWhereInput;
-  OR?: UserMetaSubscriptionWhereInput[] | UserMetaSubscriptionWhereInput;
-  NOT?: UserMetaSubscriptionWhereInput[] | UserMetaSubscriptionWhereInput;
+export interface UserMetaUpdateManyDataInput {
+  key?: String;
+  value?: String;
 }
 
-export interface UserCreateWithoutUserMetaInput {
+export interface UserMetaUpdateManyMutationInput {
+  key?: String;
+  value?: String;
+}
+
+export interface UserCreateInput {
   email?: String;
   username?: String;
   password?: String;
   verificationToken?: String;
   verificationTokenExpiresAt?: DateTimeInput;
+  userMeta?: UserMetaCreateManyWithoutUserInput;
 }
 
-export interface UserMetaUpdateInput {
-  key?: String;
-  value?: String;
-  user?: UserUpdateOneRequiredWithoutUserMetaInput;
+export interface UserMetaUpsertWithWhereUniqueNestedInput {
+  where: UserMetaWhereUniqueInput;
+  update: UserMetaUpdateDataInput;
+  create: UserMetaCreateInput;
+}
+
+export interface UserMetaUpdateManyWithWhereNestedInput {
+  where: UserMetaScalarWhereInput;
+  data: UserMetaUpdateManyDataInput;
 }
 
 export interface NodeNode {
@@ -531,7 +581,7 @@ export interface NodeNode {
 export interface UserMetaPreviousValues {
   id: ID_Output;
   key: String;
-  value: String;
+  value?: String;
 }
 
 export interface UserMetaPreviousValuesPromise
@@ -550,21 +600,20 @@ export interface UserMetaPreviousValuesSubscription
   value: () => Promise<AsyncIterator<String>>;
 }
 
-export interface UserEdge {
-  node: User;
-  cursor: String;
+export interface BatchPayload {
+  count: Long;
 }
 
-export interface UserEdgePromise extends Promise<UserEdge>, Fragmentable {
-  node: <T = UserPromise>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface UserEdgeSubscription
-  extends Promise<AsyncIterator<UserEdge>>,
+export interface BatchPayloadPromise
+  extends Promise<BatchPayload>,
     Fragmentable {
-  node: <T = UserSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
+  count: () => Promise<Long>;
+}
+
+export interface BatchPayloadSubscription
+  extends Promise<AsyncIterator<BatchPayload>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Long>>;
 }
 
 export interface UserSubscriptionPayload {
@@ -595,7 +644,7 @@ export interface UserSubscriptionPayloadSubscription
 export interface UserMeta {
   id: ID_Output;
   key: String;
-  value: String;
+  value?: String;
 }
 
 export interface UserMetaPromise extends Promise<UserMeta>, Fragmentable {
@@ -603,6 +652,17 @@ export interface UserMetaPromise extends Promise<UserMeta>, Fragmentable {
   key: () => Promise<String>;
   value: () => Promise<String>;
   user: <T = UserPromise>() => T;
+  child: <T = FragmentableArray<UserMeta>>(
+    args?: {
+      where?: UserMetaWhereInput;
+      orderBy?: UserMetaOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
 }
 
 export interface UserMetaSubscription
@@ -612,31 +672,36 @@ export interface UserMetaSubscription
   key: () => Promise<AsyncIterator<String>>;
   value: () => Promise<AsyncIterator<String>>;
   user: <T = UserSubscription>() => T;
+  child: <T = Promise<AsyncIterator<UserMetaSubscription>>>(
+    args?: {
+      where?: UserMetaWhereInput;
+      orderBy?: UserMetaOrderByInput;
+      skip?: Int;
+      after?: String;
+      before?: String;
+      first?: Int;
+      last?: Int;
+    }
+  ) => T;
 }
 
-export interface UserMetaSubscriptionPayload {
-  mutation: MutationType;
+export interface UserMetaEdge {
   node: UserMeta;
-  updatedFields: String[];
-  previousValues: UserMetaPreviousValues;
+  cursor: String;
 }
 
-export interface UserMetaSubscriptionPayloadPromise
-  extends Promise<UserMetaSubscriptionPayload>,
+export interface UserMetaEdgePromise
+  extends Promise<UserMetaEdge>,
     Fragmentable {
-  mutation: () => Promise<MutationType>;
   node: <T = UserMetaPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = UserMetaPreviousValuesPromise>() => T;
+  cursor: () => Promise<String>;
 }
 
-export interface UserMetaSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<UserMetaSubscriptionPayload>>,
+export interface UserMetaEdgeSubscription
+  extends Promise<AsyncIterator<UserMetaEdge>>,
     Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
   node: <T = UserMetaSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = UserMetaPreviousValuesSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
 }
 
 export interface UserPreviousValues {
@@ -765,54 +830,6 @@ export interface PageInfoSubscription
   endCursor: () => Promise<AsyncIterator<String>>;
 }
 
-export interface AggregateUserMeta {
-  count: Int;
-}
-
-export interface AggregateUserMetaPromise
-  extends Promise<AggregateUserMeta>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateUserMetaSubscription
-  extends Promise<AsyncIterator<AggregateUserMeta>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface BatchPayload {
-  count: Long;
-}
-
-export interface BatchPayloadPromise
-  extends Promise<BatchPayload>,
-    Fragmentable {
-  count: () => Promise<Long>;
-}
-
-export interface BatchPayloadSubscription
-  extends Promise<AsyncIterator<BatchPayload>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Long>>;
-}
-
-export interface AggregateUser {
-  count: Int;
-}
-
-export interface AggregateUserPromise
-  extends Promise<AggregateUser>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateUserSubscription
-  extends Promise<AsyncIterator<AggregateUser>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
 export interface UserMetaConnection {
   pageInfo: PageInfo;
   edges: UserMetaEdge[];
@@ -834,29 +851,81 @@ export interface UserMetaConnectionSubscription
   aggregate: <T = AggregateUserMetaSubscription>() => T;
 }
 
-export interface UserMetaEdge {
+export interface AggregateUserMeta {
+  count: Int;
+}
+
+export interface AggregateUserMetaPromise
+  extends Promise<AggregateUserMeta>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateUserMetaSubscription
+  extends Promise<AsyncIterator<AggregateUserMeta>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface UserMetaSubscriptionPayload {
+  mutation: MutationType;
   node: UserMeta;
+  updatedFields: String[];
+  previousValues: UserMetaPreviousValues;
+}
+
+export interface UserMetaSubscriptionPayloadPromise
+  extends Promise<UserMetaSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = UserMetaPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = UserMetaPreviousValuesPromise>() => T;
+}
+
+export interface UserMetaSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<UserMetaSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = UserMetaSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = UserMetaPreviousValuesSubscription>() => T;
+}
+
+export interface UserEdge {
+  node: User;
   cursor: String;
 }
 
-export interface UserMetaEdgePromise
-  extends Promise<UserMetaEdge>,
-    Fragmentable {
-  node: <T = UserMetaPromise>() => T;
+export interface UserEdgePromise extends Promise<UserEdge>, Fragmentable {
+  node: <T = UserPromise>() => T;
   cursor: () => Promise<String>;
 }
 
-export interface UserMetaEdgeSubscription
-  extends Promise<AsyncIterator<UserMetaEdge>>,
+export interface UserEdgeSubscription
+  extends Promise<AsyncIterator<UserEdge>>,
     Fragmentable {
-  node: <T = UserMetaSubscription>() => T;
+  node: <T = UserSubscription>() => T;
   cursor: () => Promise<AsyncIterator<String>>;
 }
 
-/*
-The `Boolean` scalar type represents `true` or `false`.
-*/
-export type Boolean = boolean;
+export interface AggregateUser {
+  count: Int;
+}
+
+export interface AggregateUserPromise
+  extends Promise<AggregateUser>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateUserSubscription
+  extends Promise<AsyncIterator<AggregateUser>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export type Long = string;
 
 /*
 DateTime scalar input type, allowing Date
@@ -873,7 +942,10 @@ The `Int` scalar type represents non-fractional signed whole numeric values. Int
 */
 export type Int = number;
 
-export type Long = string;
+/*
+The `Boolean` scalar type represents `true` or `false`.
+*/
+export type Boolean = boolean;
 
 /*
 The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.

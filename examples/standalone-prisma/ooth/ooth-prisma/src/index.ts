@@ -17,6 +17,41 @@ const PrismaUserFields = ['id', 'email', 'username', 'password', 'verificationTo
 
 // TODO - on the user queries, request userMeta { key value }
 
+
+
+const prismaUserFragment = `
+fragment UserWithMeta on User {
+  id
+  email
+  userMeta { 
+    key
+    value
+    child {
+      key
+      value
+      child {
+        key
+        value
+      }
+    }
+  }
+}
+`;
+
+function userMetaToObject(userMeta: any) {
+  let f = {};
+  for (var i = 0, len = userMeta.length; i < len; i++) {
+    let key = userMeta[i].key;
+    if( userMeta[i].child.length > 0 ) {
+      // recursively run this function
+      f[key] = userMetaToObject(userMeta[i].child);
+    } else {
+      f[key] = userMeta[i].value;
+    }
+  }
+  return f;
+}
+
 function prepare(o: any): User {
   if (o && !o._id && o.id) {
     o._id = o.id;
@@ -24,6 +59,10 @@ function prepare(o: any): User {
   if (o && o._id) {
     o._id = o._id.toString();
   }
+  if( o.userMeta.length > 0 ) {
+    Object.assign(o, userMetaToObject(o.userMeta));
+  }
+  delete o.userMeta;
   return o;
 }
 
@@ -39,7 +78,7 @@ export class OothPrisma {
 
   public getUserById = async (id: string) => {
     try {
-      const user = await this.prisma.user({ id });
+      const user = await this.prisma.user({ id }).$fragment(prismaUserFragment);
       return prepare(user);
     } catch (err) {
       console.error(err);
@@ -49,7 +88,7 @@ export class OothPrisma {
 
   public getUser = async (fields: { [key: string]: any }) => {
     try {
-      const users = await this.prisma.users({ where: fields });
+      const users = await this.prisma.users({ where: fields }).$fragment(prismaUserFragment);
       if (users.length > 1) {
         console.log('The getUser query found ' + users.length + ' users. users[0] returned');
       }
