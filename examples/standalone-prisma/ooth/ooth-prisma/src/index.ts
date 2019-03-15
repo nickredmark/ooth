@@ -157,7 +157,7 @@ export class OothPrisma {
         })
         .$fragment(prismaUserFragment);
       // Tidy up - remove overwritten metas
-      const oothMetasCount = await this.prisma.deleteManyOothMetas(
+      this.prisma.deleteManyOothMetas(
         { id_in: processed.oothMetaIds } 
       );  
       return updatedUser;

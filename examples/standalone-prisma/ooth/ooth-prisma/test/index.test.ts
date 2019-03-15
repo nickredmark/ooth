@@ -17,29 +17,22 @@ const obfuscate = (obj: any, ...paths: string[]) => {
   return res;
 };
 
-let prisma = new Prisma();
-let oothPrisma = new OothPrisma(prisma); 
+let prisma: any = {};
+let oothPrisma: any = {};
+
 
 describe('ooth-prisma', () => {
   beforeAll(async () => {
-    // prisma = new Prisma();
-    // oothPrisma = new OothPrisma(prisma);
-    // mongoServer = new MongodbMemoryServer({ debug: true });
-    // const connectionString = await mongoServer.getConnectionString();
-    // const dbName = await mongoServer.getDbName();
-    // con = await MongoClient.connect(connectionString);
-    // db = await con.db(dbName);
-    // await db.dropDatabase();
-    // oothMongo = new OothMongo(db);
+    prisma = new Prisma();
+    oothPrisma = new OothPrisma(prisma); 
   });
 
   afterAll(async () => {
-    // await con.close();
-    // await mongoServer.stop();
+
   });
 
   afterEach(async () => {
-    // await db.dropDatabase(); 
+    
   });
 
   test('can insert user and get it', async () => {
@@ -69,13 +62,6 @@ describe('ooth-prisma', () => {
       },
     });
     const user = await oothPrisma.getUserById(id);
-    expect(obfuscate(user, '_id')).toMatchSnapshot();
-  });
-
-  test('can get user by id', async () => {
-    const id = 'cjt9zfyk101o40744agd5mwa8';
-    const user = await oothPrisma.getUserById(id);
-    console.log(user);
     expect(obfuscate(user, '_id')).toMatchSnapshot();
   });
 
