@@ -69,9 +69,6 @@ function filterForGetUserByValue(users: any, fields: any, value: string) {
     return users
   }
   let filteredUsers: any[] = [];
-  console.log('users.length: ', users.length);
-  console.log(fields);
-  console.log(value);
   // we have many users and we need to do some js filtering because 
   // Prisma cannot yet filter json data
   // loop over the returned users
@@ -97,9 +94,9 @@ function filterForGetUserByValue(users: any, fields: any, value: string) {
         }
         // getting close
         filteredUsers.push(users[i]);
-        console.log('filteredUsers:', filteredUsers);
+        // console.log('filteredUsers:', filteredUsers);
+        // return the array with only the first one that matches
         return filteredUsers;
-        // console.log(thisMeta);
       }
     }
     
