@@ -51,6 +51,18 @@ Object {
 }
 `;
 
+exports[`ooth-prisma can get user by value 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "bar": "baz",
+  },
+  "foo2": Object {
+    "bar2": "baz2",
+  },
+}
+`;
+
 exports[`ooth-prisma can insert user and get it 1`] = `
 Object {
   "_id": "<obfuscated>",

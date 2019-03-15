@@ -19,6 +19,7 @@ fragment UserWithMeta on User {
     id
     key
     data
+    dataString
     value
   }
 }
@@ -44,6 +45,68 @@ function oothMetaToObject(oothMeta: any) {
   return f;
 }
 
+function whereForgetUserByValue(fields: any, value: string) {
+  // we want to build something like
+  // OR: [
+  //   {
+  //     oothMeta_some: { key: 'foo', dataString_contains: 'baz2' },
+  //   },
+  //   {
+  //     oothMeta_some: { key: 'foo2', dataString_contains: 'baz2' },
+  //   },
+  // ];
+  let where: { OR: any[] } = { OR: [] };
+  for (var i = 0, len = fields.length; i < len; i++) {
+    where.OR.push({ oothMeta_some: { key: fields[i].split('.')[0], dataString_contains: value } });
+  }
+  // console.log(where);
+  return where;
+}
+
+
+function filterForGetUserByValue(users: any, fields: any, value: string) {
+  if( users.length <= 1 ) {
+    return users
+  }
+  let filteredUsers: any[] = [];
+  console.log('users.length: ', users.length);
+  console.log(fields);
+  console.log(value);
+  // we have many users and we need to do some js filtering because 
+  // Prisma cannot yet filter json data
+  // loop over the returned users
+  for (var i = 0, len = users.length; i < len; i++) {
+    // console.log('user: ', users[i].oothMeta);
+    // loop over the oothMeta for this user
+    for (var j = 0, lenj = users[i].oothMeta.length; j < lenj; j++) {
+      // loop over the fields that we're looking in
+      let thisMeta = users[i].oothMeta[j];
+      // continue to next if the string isn't present
+      if ( thisMeta.dataString.indexOf(value) == -1 ) {
+        // console.log('continue');
+        continue;
+      }
+      for (var k = 0, lenk = fields.length; k < lenk; k++) {
+        if(fields[k].split('.')[0] !== thisMeta.key ) {
+          // console.log('continue2');
+          continue;
+        }
+        let innerKey = fields[k].split('.')[1];
+        if (thisMeta.data[innerKey] !== value) {
+          continue;
+        }
+        // getting close
+        filteredUsers.push(users[i]);
+        console.log('filteredUsers:', filteredUsers);
+        return filteredUsers;
+        // console.log(thisMeta);
+      }
+    }
+    
+  }
+  return users;
+}
+
 function dataForUpdateUser(oothMeta: any, fields: any) {
   let oothMetaIds: any[] = [];
   // first work out what the data should look like.
@@ -59,10 +122,12 @@ function dataForUpdateUser(oothMeta: any, fields: any) {
         // let's update oothMeta[i].value or oothMeta[i].data
         if(typeof(fields[key]) == 'string') {
           delete oothMeta[i].data;
+          delete oothMeta[i].dataString;
           oothMeta[i].value = fields[key];
         } else {
           delete oothMeta[i].value;
           oothMeta[i].data = fields[key];
+          oothMeta[i].dataString = JSON.stringify(fields[key]);
         }
         // push this metaId to an array
         // and delete from the object
@@ -77,7 +142,7 @@ function dataForUpdateUser(oothMeta: any, fields: any) {
       if(typeof(fields[key]) == 'string') {
         oothMeta.push({  key, value:  fields[key] });
       } else {
-        oothMeta.push({ key, data: fields[key] });
+        oothMeta.push({ key, data: fields[key], dataString: JSON.stringify(fields[key]) });
       }
     }
   }
@@ -97,7 +162,7 @@ function dataForInsertUser(fields: any) {
       createPart = { key: key, value: fields[key] };
     } else {
       // is object 
-      createPart = { key: key, data: fields[key] };  
+      createPart = { key: key, data: fields[key], dataString: JSON.stringify(fields[key]) };  
     }
     data.oothMeta.create.push(createPart);
   }
@@ -141,6 +206,25 @@ export class OothPrisma {
     } catch (err) {
       console.error(err);
       return null;  
+    }
+  };
+
+  public getUserByValue = async (fields: string[], value: any) => {
+    const where = await whereForgetUserByValue(fields, value);
+    try {
+      let users = await this.prisma
+        .users({
+          where
+        })
+        .$fragment(prismaUserFragment);
+      if ( users.length > 1 ) {
+        // we need to filter out which user based on what our broad prisma search returned
+        users = filterForGetUserByValue(users, fields, value);
+      }
+      return prepare(users[0]);
+    } catch (err) {
+      console.error(err);
+      return null;
     }
   };
 
