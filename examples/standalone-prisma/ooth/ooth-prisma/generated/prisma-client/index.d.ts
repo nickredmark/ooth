@@ -150,8 +150,6 @@ export type OothMetaOrderByInput =
   | "key_DESC"
   | "data_ASC"
   | "data_DESC"
-  | "dataString_ASC"
-  | "dataString_DESC"
   | "value_ASC"
   | "value_DESC"
   | "createdAt_ASC"
@@ -172,7 +170,6 @@ export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 export interface OothMetaUpdateInput {
   key?: String;
   data?: Json;
-  dataString?: String;
   value?: String;
   user?: UserUpdateOneWithoutOothMetaInput;
 }
@@ -211,7 +208,6 @@ export interface OothMetaUpdateManyWithoutUserInput {
 export interface OothMetaUpdateManyMutationInput {
   key?: String;
   data?: Json;
-  dataString?: String;
   value?: String;
 }
 
@@ -233,14 +229,12 @@ export interface UserSubscriptionWhereInput {
 export interface OothMetaCreateWithoutUserInput {
   key: String;
   data?: Json;
-  dataString?: String;
   value?: String;
 }
 
 export interface OothMetaUpdateManyDataInput {
   key?: String;
   data?: Json;
-  dataString?: String;
   value?: String;
 }
 
@@ -273,20 +267,6 @@ export interface OothMetaScalarWhereInput {
   key_not_starts_with?: String;
   key_ends_with?: String;
   key_not_ends_with?: String;
-  dataString?: String;
-  dataString_not?: String;
-  dataString_in?: String[] | String;
-  dataString_not_in?: String[] | String;
-  dataString_lt?: String;
-  dataString_lte?: String;
-  dataString_gt?: String;
-  dataString_gte?: String;
-  dataString_contains?: String;
-  dataString_not_contains?: String;
-  dataString_starts_with?: String;
-  dataString_not_starts_with?: String;
-  dataString_ends_with?: String;
-  dataString_not_ends_with?: String;
   value?: String;
   value_not?: String;
   value_in?: String[] | String;
@@ -309,14 +289,12 @@ export interface OothMetaScalarWhereInput {
 export interface OothMetaUpdateWithoutUserDataInput {
   key?: String;
   data?: Json;
-  dataString?: String;
   value?: String;
 }
 
 export interface OothMetaCreateInput {
   key: String;
   data?: Json;
-  dataString?: String;
   value?: String;
   user?: UserCreateOneWithoutOothMetaInput;
 }
@@ -373,20 +351,6 @@ export interface OothMetaWhereInput {
   key_not_starts_with?: String;
   key_ends_with?: String;
   key_not_ends_with?: String;
-  dataString?: String;
-  dataString_not?: String;
-  dataString_in?: String[] | String;
-  dataString_not_in?: String[] | String;
-  dataString_lt?: String;
-  dataString_lte?: String;
-  dataString_gt?: String;
-  dataString_gte?: String;
-  dataString_contains?: String;
-  dataString_not_contains?: String;
-  dataString_starts_with?: String;
-  dataString_not_starts_with?: String;
-  dataString_ends_with?: String;
-  dataString_not_ends_with?: String;
   value?: String;
   value_not?: String;
   value_in?: String[] | String;
@@ -488,7 +452,6 @@ export interface OothMeta {
   id: ID_Output;
   key: String;
   data?: Json;
-  dataString?: String;
   value?: String;
 }
 
@@ -496,7 +459,6 @@ export interface OothMetaPromise extends Promise<OothMeta>, Fragmentable {
   id: () => Promise<ID_Output>;
   key: () => Promise<String>;
   data: () => Promise<Json>;
-  dataString: () => Promise<String>;
   value: () => Promise<String>;
   user: <T = UserPromise>() => T;
 }
@@ -507,7 +469,6 @@ export interface OothMetaSubscription
   id: () => Promise<AsyncIterator<ID_Output>>;
   key: () => Promise<AsyncIterator<String>>;
   data: () => Promise<AsyncIterator<Json>>;
-  dataString: () => Promise<AsyncIterator<String>>;
   value: () => Promise<AsyncIterator<String>>;
   user: <T = UserSubscription>() => T;
 }
@@ -714,7 +675,6 @@ export interface OothMetaPreviousValues {
   id: ID_Output;
   key: String;
   data?: Json;
-  dataString?: String;
   value?: String;
 }
 
@@ -724,7 +684,6 @@ export interface OothMetaPreviousValuesPromise
   id: () => Promise<ID_Output>;
   key: () => Promise<String>;
   data: () => Promise<Json>;
-  dataString: () => Promise<String>;
   value: () => Promise<String>;
 }
 
@@ -734,7 +693,6 @@ export interface OothMetaPreviousValuesSubscription
   id: () => Promise<AsyncIterator<ID_Output>>;
   key: () => Promise<AsyncIterator<String>>;
   data: () => Promise<AsyncIterator<Json>>;
-  dataString: () => Promise<AsyncIterator<String>>;
   value: () => Promise<AsyncIterator<String>>;
 }
 

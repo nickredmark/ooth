@@ -47,7 +47,6 @@ type OothMeta {
   id: ID!
   key: String!
   data: Json
-  dataString: String
   value: String
   user: User
 }
@@ -61,7 +60,6 @@ type OothMetaConnection {
 input OothMetaCreateInput {
   key: String!
   data: Json
-  dataString: String
   value: String
   user: UserCreateOneWithoutOothMetaInput
 }
@@ -74,7 +72,6 @@ input OothMetaCreateManyWithoutUserInput {
 input OothMetaCreateWithoutUserInput {
   key: String!
   data: Json
-  dataString: String
   value: String
 }
 
@@ -90,8 +87,6 @@ enum OothMetaOrderByInput {
   key_DESC
   data_ASC
   data_DESC
-  dataString_ASC
-  dataString_DESC
   value_ASC
   value_DESC
   createdAt_ASC
@@ -104,7 +99,6 @@ type OothMetaPreviousValues {
   id: ID!
   key: String!
   data: Json
-  dataString: String
   value: String
 }
 
@@ -137,20 +131,6 @@ input OothMetaScalarWhereInput {
   key_not_starts_with: String
   key_ends_with: String
   key_not_ends_with: String
-  dataString: String
-  dataString_not: String
-  dataString_in: [String!]
-  dataString_not_in: [String!]
-  dataString_lt: String
-  dataString_lte: String
-  dataString_gt: String
-  dataString_gte: String
-  dataString_contains: String
-  dataString_not_contains: String
-  dataString_starts_with: String
-  dataString_not_starts_with: String
-  dataString_ends_with: String
-  dataString_not_ends_with: String
   value: String
   value_not: String
   value_in: [String!]
@@ -191,7 +171,6 @@ input OothMetaSubscriptionWhereInput {
 input OothMetaUpdateInput {
   key: String
   data: Json
-  dataString: String
   value: String
   user: UserUpdateOneWithoutOothMetaInput
 }
@@ -199,14 +178,12 @@ input OothMetaUpdateInput {
 input OothMetaUpdateManyDataInput {
   key: String
   data: Json
-  dataString: String
   value: String
 }
 
 input OothMetaUpdateManyMutationInput {
   key: String
   data: Json
-  dataString: String
   value: String
 }
 
@@ -230,7 +207,6 @@ input OothMetaUpdateManyWithWhereNestedInput {
 input OothMetaUpdateWithoutUserDataInput {
   key: String
   data: Json
-  dataString: String
   value: String
 }
 
@@ -274,20 +250,6 @@ input OothMetaWhereInput {
   key_not_starts_with: String
   key_ends_with: String
   key_not_ends_with: String
-  dataString: String
-  dataString_not: String
-  dataString_in: [String!]
-  dataString_not_in: [String!]
-  dataString_lt: String
-  dataString_lte: String
-  dataString_gt: String
-  dataString_gte: String
-  dataString_contains: String
-  dataString_not_contains: String
-  dataString_starts_with: String
-  dataString_not_starts_with: String
-  dataString_ends_with: String
-  dataString_not_ends_with: String
   value: String
   value_not: String
   value_in: [String!]

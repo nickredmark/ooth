@@ -1,17 +1,13 @@
 type User {
   id: ID! @unique
-  email: String @unique
-  username: String @unique
-  password: String
-  verificationToken: String
-  verificationTokenExpiresAt: DateTime
-  userMeta: [UserMeta]! @relation(name: "UserMetasForUser")
+  oothMeta: [OothMeta]! @relation(name: "OothMetasForUser")
 }
 
-type UserMeta {
+type OothMeta {
   id: ID! @unique
   key: String!
+  data: Json
+  dataString: String  # for querying - JSON filtering is not available (https://github.com/prisma/prisma/issues/148)
   value: String
-  user: User @relation(name: "UserMetasForUser")
-  child: [UserMeta]!
+  user: User @relation(name: "OothMetasForUser")
 }

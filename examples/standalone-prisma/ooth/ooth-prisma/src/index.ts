@@ -11,107 +11,75 @@ type User = {
 // we must decide what fields to have in the user table
 // and any others will be added to an additional 'user meta' table.
 // See: datamodel.prisma
-const prismaUserFields = ['id', 'email', 'username', 'password', 'verificationToken', 'verificationTokenExpiresAt'];
-
-// TODO - check the fields, if any are not in PrismaUserFields then build them into the userMeta table query
-
-// TODO - on the user queries, request userMeta { key value }
-
-
 
 const prismaUserFragment = `
 fragment UserWithMeta on User {
   id
-  email
-  userMeta { 
+  oothMeta { 
     key
+    data
     value
-    child {
-      key
-      value
-      child {
-        key
-        value
-      }
-    }
   }
 }
 `;
 
-async function massageFields(fields: any ) {
-  let userMetaArray = [];
-  for (var key in fields) {
-    if( prismaUserFields.indexOf(key) == -1 ) {
-      // this field does not have it's own column in the prisma user table
-      let keyParts = key.split('.');
-      let temp = {};
-      for (var i = (keyParts.length - 1); i >= 0; i--) {
-        if (i == keyParts.length - 1) {
-          temp = { key: keyParts[i], value: fields[key] }
-        } else {
-          temp = { key: keyParts[i], child_some: temp };
-        }
-      }
-      userMetaArray.push({ userMeta_some: temp });
-      delete fields[key];
-    }
-  }
-  fields.AND = userMetaArray;
-  // console.log( JSON.stringify(fields));
-  return fields;
-}
 
-async function massageFieldsAndValue(fields: any, value: string ) {
-  let where = { OR : [] };
-  for (var j = 0, lenf = fields.length; j < lenf; j++) {
-    let key = fields[j];
-    if (prismaUserFields.indexOf(key) == -1) {
-      // this field does not have it's own column in the prisma user table
-      let keyParts = fields[j].split('.');
-      let temp = {};
-      for (var i = keyParts.length - 1; i >= 0; i--) {
-        if (i == keyParts.length - 1) {
-          temp = { key: keyParts[i], value };
-        } else {
-          temp = { key: keyParts[i], child_some: temp };
-        }
-      }
-      where.OR.push({ userMeta_some: temp });
-      delete fields[j];
-    } else {
-      where.OR.push({ [key]: value });
-    }
-  }
-  return where;
-}
-
-function userMetaToObject(userMeta: any) {
+function oothMetaToObject(oothMeta: any) {
   let f = {};
-  for (var i = 0, len = userMeta.length; i < len; i++) {
-    let key = userMeta[i].key;
-    if( userMeta[i].child.length > 0 ) {
-      // recursively run this function
-      f[key] = userMetaToObject(userMeta[i].child);
+  for (var i = 0, len = oothMeta.length; i < len; i++) {
+    let key = oothMeta[i].key;
+    // console.log(key);
+    if (oothMeta[i].data) {
+      // check the data parameter for json
+      // console.log(oothMeta[i].data);
+      (<any>f)[key] = oothMeta[i].data;
     } else {
-      f[key] = userMeta[i].value;
+      // check the value parameter for a string
+      // console.log(oothMeta[i].value);
+      (<any>f)[key] = oothMeta[i].value;
     }
   }
+  // console.log({f});
   return f;
 }
+
+function dataForInsertUser(fields: any) {
+  let data: { oothMeta: { create: any[] } } = { oothMeta: { create: [] } };
+  for (var key in fields) {
+    // console.log(key);
+    // console.log(fields[key]);
+    let createPart: any;
+    if ( typeof(fields[key]) == 'string' ) {
+      // is a string
+      createPart = { key: key, value: fields[key] };
+    } else {
+      // is object 
+      createPart = { key: key, data: fields[key] };  
+    }
+    data.oothMeta.create.push(createPart);
+  }
+  // console.log(JSON.stringify(data));
+  return data;
+}
+
 
 function prepare(o: any): User {
   if (o && !o._id && o.id) {
     o._id = o.id;
     delete o.id;
   }
-  if (o && o.userMeta.length > 0) {
-    Object.assign(o, userMetaToObject(o.userMeta));
+  // console.log(o);
+  if (o && o.oothMeta.length > 0) {
+    Object.assign(o, oothMetaToObject(o.oothMeta));
   }
-  if (o && o.userMeta) {
-    delete o.userMeta;
+  if (o && o.oothMeta) {
+    delete o.oothMeta;
   }
+  // console.log({o});
   return o;
 }
+
+
 
 export class OothPrisma {
 
@@ -129,68 +97,21 @@ export class OothPrisma {
       return prepare(user);
     } catch (err) {
       console.error(err);
-      return null;
+      return null;  
     }
   };
 
-  public getUser = async (fields: { [key: string]: any }) => {
-    const where = await massageFields(fields);
-    try {
-      const users = await this.prisma.users({ where }).$fragment(prismaUserFragment);
-      if (users.length > 1) {
-        console.log('The getUser query found ' + users.length + ' users. users[0] returned');
-      }
-      return await prepare(users[0]);
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  };
-
-  public getUserByValue = async (fields: string[], value: any) => {
-    const where = await massageFieldsAndValue(fields, value );
-    try {
-      const users = await this.prisma
-        .users({
-          where
-        })
-        .$fragment(prismaUserFragment);
-      if ( users.length > 1 ) {
-        console.log('The getUserByValue query found ' + users.length + ' users. users[0] returned');
-      }
-      return prepare(users[0]);
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  };
-
-  public updateUser = async (id: string, fields: { [key: string]: any }) => {
-    try {
-      const user = await await this.prisma
-        .updateUser({
-          data: {
-            ...fields,
-          },
-          where: {
-            id,
-          },
-        })
-        .$fragment(prismaUserFragment);
-      return user;
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
-  };
 
   public insertUser = async (fields: { [key: string]: StrategyValues }) => {
+    const data = await dataForInsertUser(fields);
     try {
-      const { id } = await this.prisma.createUser(fields);
+      const { id } = await this.prisma.createUser(data);
+      // console.log({id})
       return id;
-    } catch (err) {
+    } catch (err) { 
       console.error(err);
       return null; 
     }
   };
+
 }
