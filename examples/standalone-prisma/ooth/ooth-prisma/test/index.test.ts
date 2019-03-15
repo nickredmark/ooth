@@ -18,7 +18,7 @@ const obfuscate = (obj: any, ...paths: string[]) => {
 };
 
 let prisma = new Prisma();
-let oothPrisma = new OothPrisma(prisma);
+let oothPrisma = new OothPrisma(prisma); 
 
 describe('ooth-prisma', () => {
   beforeAll(async () => {
@@ -53,11 +53,30 @@ describe('ooth-prisma', () => {
     expect(obfuscate(user, '_id')).toMatchSnapshot();
   });
 
+  test('can update user', async () => {
+    const id = await oothPrisma.insertUser({
+      foo: {
+        baz: 'bar',
+      },
+    });
+    await oothPrisma.updateUser(id, {
+      foo: {
+        baz: 'bar',
+        baz2: 'bar2',
+      },
+      foo2: {
+        baz: 'bar2',
+      },
+    });
+    const user = await oothPrisma.getUserById(id);
+    expect(obfuscate(user, '_id')).toMatchSnapshot();
+  });
+
   test('can get user by id', async () => {
     const id = 'cjt9zfyk101o40744agd5mwa8';
     const user = await oothPrisma.getUserById(id);
     console.log(user);
-    expect(obfuscate(user, '_id')).toMatchSnapshot();  
+    expect(obfuscate(user, '_id')).toMatchSnapshot();
   });
 
 });

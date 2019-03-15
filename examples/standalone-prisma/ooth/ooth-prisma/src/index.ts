@@ -15,7 +15,8 @@ type User = {
 const prismaUserFragment = `
 fragment UserWithMeta on User {
   id
-  oothMeta { 
+  oothMeta {
+    id
     key
     data
     value
@@ -41,6 +42,48 @@ function oothMetaToObject(oothMeta: any) {
   }
   // console.log({f});
   return f;
+}
+
+function dataForUpdateUser(oothMeta: any, fields: any) {
+  let oothMetaIds: any[] = [];
+  // first work out what the data should look like.
+  // it is user.oothMeta with fields applied to it
+  let matched = false;
+  // loop through the new fields
+  for (var key in fields) {
+    matched = false;
+    // loop through existing oothMeta keys
+    for (var i = 0, len = oothMeta.length; i < len; i++) {
+      // if this field key matches the key in the child loop
+      if (key == oothMeta[i].key) {
+        // let's update oothMeta[i].value or oothMeta[i].data
+        if(typeof(fields[key]) == 'string') {
+          delete oothMeta[i].data;
+          oothMeta[i].value = fields[key];
+        } else {
+          delete oothMeta[i].value;
+          oothMeta[i].data = fields[key];
+        }
+        // push this metaId to an array
+        // and delete from the object
+        oothMetaIds.push(oothMeta[i].id);
+        delete oothMeta[i].id;
+        matched = true;
+      }
+    }
+    // if this field key hasn't matched any key in the child loop
+    if(!matched) {
+      // let's create oothMeta[i].value or oothMeta[i].data
+      if(typeof(fields[key]) == 'string') {
+        oothMeta.push({  key, value:  fields[key] });
+      } else {
+        oothMeta.push({ key, data: fields[key] });
+      }
+    }
+  }
+
+  let data: { oothMeta: { create: any[] } } = { oothMeta: { create: oothMeta } };
+  return { data, oothMetaIds };
 }
 
 function dataForInsertUser(fields: any) {
@@ -101,11 +144,33 @@ export class OothPrisma {
     }
   };
 
+  public updateUser = async (id: string, fields: { [key: string]: any }) => {
+    try {
+      const user = await this.prisma.user({ id }).$fragment(prismaUserFragment);
+      const processed = await dataForUpdateUser(user.oothMeta, fields);
+      const updatedUser = await this.prisma
+        .updateUser({
+          data: processed.data,
+          where: {
+            id,
+          },
+        })
+        .$fragment(prismaUserFragment);
+      // Tidy up - remove overwritten metas
+      const oothMetasCount = await this.prisma.deleteManyOothMetas(
+        { id_in: processed.oothMetaIds } 
+      );  
+      return updatedUser;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };  
 
   public insertUser = async (fields: { [key: string]: StrategyValues }) => {
     const data = await dataForInsertUser(fields);
     try {
-      const { id } = await this.prisma.createUser(data);
+      const { id } = await this.prisma.createUser(data); 
       // console.log({id})
       return id;
     } catch (err) { 

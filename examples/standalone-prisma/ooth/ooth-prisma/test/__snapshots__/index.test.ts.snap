@@ -59,3 +59,16 @@ Object {
   },
 }
 `;
+
+exports[`ooth-prisma can update user 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "baz": "bar",
+    "baz2": "bar2",
+  },
+  "foo2": Object {
+    "baz": "bar2",
+  },
+}
+`;
