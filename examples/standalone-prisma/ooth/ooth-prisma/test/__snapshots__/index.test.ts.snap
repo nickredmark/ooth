@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ooth-mongo can get user by fields 1`] = `
+exports[`ooth-prisma can get user by fields 1`] = `
 Object {
   "_id": "<obfuscated>",
   "foo": Object {
@@ -9,44 +9,8 @@ Object {
   "foo2": Object {
     "bar2": "baz2",
   },
-}
-`;
-
-exports[`ooth-mongo can get user by value 1`] = `
-Object {
-  "_id": "<obfuscated>",
-  "foo": Object {
-    "bar": "baz",
-  },
-  "foo2": Object {
-    "bar2": "baz2",
-  },
-}
-`;
-
-exports[`ooth-mongo can insert user and get it 1`] = `
-Object {
-  "_id": "<obfuscated>",
-  "foo": Object {
-    "baz": "bar",
-  },
-}
-`;
-
-exports[`ooth-mongo can update user 1`] = `
-Object {
-  "_id": "<obfuscated>",
-  "foo": "bar",
-}
-`;
-
-exports[`ooth-prisma can get user by id 1`] = `
-Object {
-  "_id": "<obfuscated>",
-  "foo": "bar",
-  "foo2": Object {
-    "image": "uno",
-    "year": "2017",
+  "foo3": Object {
+    "bar3": "baz3",
   },
 }
 `;
