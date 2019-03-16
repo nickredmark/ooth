@@ -25,6 +25,8 @@ services:
       - api
     ports:
       - 3000:3000
+    volumes:
+      - ./client:/client
   # Security review before use in production!
   prisma:
     image: prismagraphql/prisma:1.24

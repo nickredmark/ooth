@@ -1,10 +1,13 @@
 FROM node:10
 
-COPY package.json yarn.lock ./
+# Prepare app directory
+RUN mkdir -p /client
 
-RUN yarn
+WORKDIR /client
 
-COPY . .
+COPY ./docker-entrypoint.sh /
 
-ENTRYPOINT [ "yarn" ]
-CMD [ "start" ]
+RUN chmod +x /docker-entrypoint.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
