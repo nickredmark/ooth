@@ -1,9 +1,5 @@
 version: '3'
 services:
-  db:
-    image: mongo
-    ports:
-      - 27017:27017 # Do not use in production!
   ooth:
     build: ./ooth
     ports:
@@ -19,7 +15,9 @@ services:
       - 3002:3002
     env_file: ./api/.env.docker
     depends_on:
-      - db
+      - prisma
+    volumes:
+      - ./api:/api
   client:
     build: ./client
     depends_on:
