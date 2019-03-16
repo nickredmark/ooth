@@ -145,6 +145,8 @@ function filterForGetUserByValue(users: any, fields: any, value: string) {
 }
 
 function dataForUpdateUser(oothMeta: any, fields: any) {
+  // console.log('oothMeta: ', oothMeta);
+  // console.log('fields: ', fields);
   let oothMetaIds: any[] = [];
   // first work out what the data should look like.
   // it is user.oothMeta with fields applied to it
@@ -168,18 +170,20 @@ function dataForUpdateUser(oothMeta: any, fields: any) {
         }
         // push this metaId to an array
         // and delete from the object
-        oothMetaIds.push(oothMeta[i].id);
-        delete oothMeta[i].id;
         matched = true;
       }
+      oothMetaIds.push(oothMeta[i].id);
+      delete oothMeta[i].id;
     }
     // if this field key hasn't matched any key in the child loop
     if(!matched) {
       // let's create oothMeta[i].value or oothMeta[i].data
-      if(typeof(fields[key]) == 'string') {
-        oothMeta.push({  key, value:  fields[key] });
-      } else {
+      if (typeof fields[key] == 'string') {
+        oothMeta.push({ key, value: fields[key] });
+      } else if (typeof fields[key] == 'object' && fields[key].length) {
         oothMeta.push({ key, data: fields[key], dataString: JSON.stringify(fields[key]) });
+      } else {
+        oothMeta.push({ key });
       }
     }
   }
@@ -196,10 +200,12 @@ function dataForInsertUser(fields: any) {
     let createPart: any;
     if ( typeof(fields[key]) == 'string' ) {
       // is a string
-      createPart = { key: key, value: fields[key] };
-    } else {
+      createPart = { key, value: fields[key] };
+    } else if ( typeof(fields[key]) == 'object' && fields[key].length ) {
       // is object 
-      createPart = { key: key, data: fields[key], dataString: JSON.stringify(fields[key]) };  
+      createPart = { key, data: fields[key], dataString: JSON.stringify(fields[key]) };  
+    } else {
+      createPart = { key };
     }
     data.oothMeta.create.push(createPart);
   }
