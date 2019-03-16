@@ -1,3 +1,5 @@
+# For Ooth
+
 type User {
   id: ID! @unique
   oothMeta: [OothMeta]! @relation(name: "OothMetasForUser")
@@ -10,4 +12,21 @@ type OothMeta {
   dataString: String  # for querying - JSON filtering is not available (https://github.com/prisma/prisma/issues/148)
   value: String
   user: User @relation(name: "OothMetasForUser")
+}
+
+# For API
+
+type Post {
+  id: ID! @unique
+  title: String
+  content: String
+  author: User!
+  comments: [Comment]! @relation(name: "CommentOnAPost")
+}
+
+type Comment {
+  id: ID! @unique
+  author: User!
+  content: String
+  post: Post @relation(name: "CommentOnAPost")
 }

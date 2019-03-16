@@ -81,7 +81,7 @@ export class OothPrisma {
     try {
       const user = await this.prisma.user({ id }).$fragment(prismaUserFragment);
       const processed = await helpers.dataForUpdateUser(user.oothMeta, fields);
-      console.log('processed.data:', processed.data.oothMeta.create);
+      // console.log('processed.data:', processed.data.oothMeta.create);
       const updatedUser = await this.prisma
         .updateUser({
           data: processed.data,

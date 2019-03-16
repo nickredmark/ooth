@@ -180,7 +180,7 @@ function dataForUpdateUser(oothMeta: any, fields: any) {
       // let's create oothMeta[i].value or oothMeta[i].data
       if (typeof fields[key] == 'string') {
         oothMeta.push({ key, value: fields[key] });
-      } else if (typeof fields[key] == 'object' && fields[key].length) {
+      } else if (typeof fields[key] == 'object' && Object.keys(fields[key]).length ) {
         oothMeta.push({ key, data: fields[key], dataString: JSON.stringify(fields[key]) });
       } else {
         oothMeta.push({ key });
@@ -190,7 +190,7 @@ function dataForUpdateUser(oothMeta: any, fields: any) {
 
   let data: { oothMeta: { create: any[] } } = { oothMeta: { create: oothMeta } };
   return { data, oothMetaIds };
-}
+} 
 
 function dataForInsertUser(fields: any) {
   let data: { oothMeta: { create: any[] } } = { oothMeta: { create: [] } };
@@ -201,7 +201,7 @@ function dataForInsertUser(fields: any) {
     if ( typeof(fields[key]) == 'string' ) {
       // is a string
       createPart = { key, value: fields[key] };
-    } else if ( typeof(fields[key]) == 'object' && fields[key].length ) {
+    } else if ( typeof fields[key] == 'object' && Object.keys(fields[key]).length ) {
       // is object 
       createPart = { key, data: fields[key], dataString: JSON.stringify(fields[key]) };  
     } else {
