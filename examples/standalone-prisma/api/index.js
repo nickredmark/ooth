@@ -1,5 +1,6 @@
-require('dotenv').config();
-const { MongoClient, ObjectId } = require("mongodb");
+require("dotenv").config();
+// const { MongoClient, ObjectId } = require("mongodb");
+const { Prisma, forwardTo } = require("prisma-binding");
 const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
@@ -12,11 +13,12 @@ const passport = require("passport");
 const nodeify = require("nodeify");
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
+const prismaSchema = require("./generated/prisma-schema");
 
 const prepare = o => {
-  if (o) {
-    o._id = o._id.toString();
-  }
+  // if (o) {
+  //   o.id = o.id.toString();
+  // }
   return o;
 };
 
@@ -52,14 +54,16 @@ function setupAuthEndpoints(app) {
         jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme("jwt")
       },
       nodeifyAsync(async payload => {
-        return payload._id;
+        return payload.id;
       })
     )
   );
+  // app.post("/login", (req, res) => {
   app.post("/login", passport.authenticate("jwt"), (req, res) => {
+    console.log("/login hit");
     res.send({
       user: {
-        _id: req.user
+        id: req.user
       },
       message: "Logged in successfully."
     });
@@ -74,37 +78,27 @@ function setupAuthEndpoints(app) {
 
 const start = async () => {
   try {
-    const db = await MongoClient.connect(process.env.MONGO_URL);
-
-    const Posts = db.collection("posts");
-    const Comments = db.collection("comments");
-
     const typeDefs = [
       `
             type Query {
                 me: User
-                post(_id: ID!): Post
+                post(id: ID!): Post
                 posts: [Post]
-                comment(_id: ID!): Comment
+                comment(id: ID!): Comment
             }
             type User {
-                _id: ID!
+                id: ID!
             }
             type Post {
-                _id: ID!
-                authorId: ID!
+                id: ID!
                 title: String
                 content: String
-
                 author: User
                 comments: [Comment]!
             }
             type Comment {
-                _id: ID!
-                postId: ID!
-                authorId: ID
+                id: ID!
                 content: String
-
                 author: User
                 post: Post
             }
@@ -119,6 +113,13 @@ const start = async () => {
         `
     ];
 
+    const db = new Prisma({
+      typeDefs: prismaSchema.typeDefs,
+      endpoint: process.env.PRISMA_ENDPOINT,
+      secret: process.env.PRISMA_SECRET,
+      debug: false
+    });
+
     const resolvers = {
       Query: {
         me: async (root, args, { userId }) => {
@@ -129,24 +130,33 @@ const start = async () => {
             _id: userId
           };
         },
-        post: async (root, { _id }) => {
-          return prepare(await Posts.findOne(ObjectId(_id)));
+        post: async (root, { id }) => {
+          const post = await db.query.post({ where: { id: id } });
+          return post;
         },
         posts: async (root, args, context) => {
-          return (await Posts.find({}).toArray()).map(prepare);
+          const posts = await db.query.posts();
+          return posts;
         },
-        comment: async (root, { _id }) => {
-          return prepare(await Comments.findOne(ObjectId(_id)));
+        comment: async (root, { id }) => {
+          const comment = await db.query.comment({
+            where: { id: id }
+          });
+          return comment;
         }
       },
       Post: {
-        comments: async ({ _id }) => {
-          return (await Comments.find({ postId: _id }).toArray()).map(prepare);
+        comments: async ({ id }) => {
+          return await db.query.comments({
+            where: { postId: id }
+          });
         }
       },
       Comment: {
         post: async ({ postId }) => {
-          return prepare(await Posts.findOne(ObjectId(postId)));
+          return await db.query.post({
+            where: { id: postId }
+          });
         }
       },
       Mutation: {
@@ -154,17 +164,33 @@ const start = async () => {
           if (!userId) {
             throw new Error("User not logged in.");
           }
-          args.authorId = userId;
-          const { insertedId } = await Posts.insertOne(args);
-          return prepare(await Posts.findOne(ObjectId(insertedId)));
+          args.author = {
+            connect: {
+              id: userId
+            }
+          };
+          args.post = {
+            connect: {
+              id: postId
+            }
+          };
+          delete args.postId;
+          console.log("createPost with args: ", args);
+          const { id } = await db.mutation.createPost(args);
+          return prepare(await db.query.post({ where: { id } }));
         },
         createComment: async (root, args, { userId }) => {
           if (!userId) {
             throw new Error("User not logged in.");
           }
-          args.authorId = userId;
-          const { insertedId } = await Comments.insertOne(args);
-          return prepare(await Comments.findOne(ObjectId(insertedId)));
+          args.author = {
+            connect: {
+              id: args.userId
+            }
+          };
+          console.log("createComment with args: ", args);
+          const { id } = await db.mutation.createComment(args);
+          return prepare(await db.query.comment({ where: { id } }));
         }
       }
     };

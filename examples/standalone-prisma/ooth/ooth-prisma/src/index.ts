@@ -28,6 +28,7 @@ export class OothPrisma {
   }
 
   public getUserById = async (id: string) => {
+    console.log('getUserById: ', id);        
     try {
       const user = await this.prisma.user({ id }).$fragment(prismaUserFragment);
       return helpers.prepare(user);
@@ -38,6 +39,7 @@ export class OothPrisma {
   };
 
   public getUser =  async (fields: { [key: string]: any }) => {
+    console.log('getUser fields: ', fields);    
     const where = await helpers.whereForGetUser(fields);
     try {
       let users = await this.prisma
@@ -57,6 +59,7 @@ export class OothPrisma {
   };
 
   public getUserByValue = async (fields: string[], value: any) => {
+    console.log('getUserByValue fields: ', fields, value);
     const where = await helpers.whereForgetUserByValue(fields, value);
     try {
       let users = await this.prisma
@@ -77,7 +80,7 @@ export class OothPrisma {
 
   public updateUser = async (id: string, fields: { [key: string]: any }) => {
     // console.log('id: ', id);
-    // console.log('fields: ', fields);
+    console.log('updateUser fields: ', fields);
     try {
       const user = await this.prisma.user({ id }).$fragment(prismaUserFragment);
       const processed = await helpers.dataForUpdateUser(user.oothMeta, fields);
@@ -102,7 +105,7 @@ export class OothPrisma {
   };  
 
   public insertUser = async (fields: { [key: string]: StrategyValues }) => {
-    // console.log('insertUser fields: ', fields);
+    console.log('insertUser fields: ', fields);
     const data = await helpers.dataForInsertUser(fields);
     // console.log('data:', data);    
     try {

@@ -18,20 +18,15 @@ type OothMeta {
 
 type Post {
   id: ID! @unique
-  authorId: ID!
   title: String
   content: String
-  
   author: User!
   comments: [Comment]! @relation(name: "CommentOnAPost")
 }
 
 type Comment {
   id: ID! @unique
-  postId: ID!
-  authorId: ID
   content: String
-
   author: User!
   post: Post @relation(name: "CommentOnAPost")
 }

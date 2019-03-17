@@ -4,7 +4,7 @@
   "description": "This is an example of a protected graphql API, to which the user will need to authenticate using a JWT. This example API needs to be running for these example projects to work:",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "nodemon -e js -x node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
@@ -16,14 +16,15 @@
     "dotenv": "^6.0.0",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
-    "graphql": "^0.11.7",
+    "graphql": "^14.1.1",
     "graphql-server-express": "^1.2.0",
     "graphql-tools": "^2.7.2",
-    "mongodb": "^2.2.33",
     "morgan": "^1.9.0",
     "nodeify": "^1.0.1",
+    "nodemon": "^1.18.10",
     "passport": "^0.4.0",
-    "passport-jwt": "^3.0.1"
+    "passport-jwt": "^3.0.1",
+    "prisma-binding": "^2.3.8"
   },
   "engines": {
     "node": ">=8"

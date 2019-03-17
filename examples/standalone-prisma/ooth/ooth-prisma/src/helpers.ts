@@ -3,7 +3,7 @@ type StrategyValues = {
 };
 
 type User = {
-  _id: string;
+  id: string;
   [key: string]: string | StrategyValues;
 };
 
@@ -215,18 +215,17 @@ function dataForInsertUser(fields: any) {
 
 
 function prepare(o: any): User {
-  if (o && !o._id && o.id) {
-    o._id = o.id;
-    delete o.id;
-  }
-  // console.log(o);
   if (o && o.oothMeta.length > 0) {
     Object.assign(o, oothMetaToObject(o.oothMeta));
   }
   if (o && o.oothMeta) {
     delete o.oothMeta;
   }
-  // console.log({o});
+  if (o && o.id) {
+    o._id = o.id
+    delete o.id;
+  }
+  console.log('prepare', o);
   return o;
 }
 

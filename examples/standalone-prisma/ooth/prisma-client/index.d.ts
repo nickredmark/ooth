@@ -248,10 +248,6 @@ export type OothMetaOrderByInput =
 export type CommentOrderByInput =
   | "id_ASC"
   | "id_DESC"
-  | "postId_ASC"
-  | "postId_DESC"
-  | "authorId_ASC"
-  | "authorId_DESC"
   | "content_ASC"
   | "content_DESC"
   | "createdAt_ASC"
@@ -262,8 +258,6 @@ export type CommentOrderByInput =
 export type PostOrderByInput =
   | "id_ASC"
   | "id_DESC"
-  | "authorId_ASC"
-  | "authorId_DESC"
   | "title_ASC"
   | "title_DESC"
   | "content_ASC"
@@ -405,8 +399,6 @@ export interface OothMetaScalarWhereInput {
 }
 
 export interface CommentCreateInput {
-  postId: ID_Input;
-  authorId?: ID_Input;
   content?: String;
   author: UserCreateOneInput;
   post?: PostCreateOneWithoutCommentsInput;
@@ -427,34 +419,6 @@ export interface CommentWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
-  postId?: ID_Input;
-  postId_not?: ID_Input;
-  postId_in?: ID_Input[] | ID_Input;
-  postId_not_in?: ID_Input[] | ID_Input;
-  postId_lt?: ID_Input;
-  postId_lte?: ID_Input;
-  postId_gt?: ID_Input;
-  postId_gte?: ID_Input;
-  postId_contains?: ID_Input;
-  postId_not_contains?: ID_Input;
-  postId_starts_with?: ID_Input;
-  postId_not_starts_with?: ID_Input;
-  postId_ends_with?: ID_Input;
-  postId_not_ends_with?: ID_Input;
-  authorId?: ID_Input;
-  authorId_not?: ID_Input;
-  authorId_in?: ID_Input[] | ID_Input;
-  authorId_not_in?: ID_Input[] | ID_Input;
-  authorId_lt?: ID_Input;
-  authorId_lte?: ID_Input;
-  authorId_gt?: ID_Input;
-  authorId_gte?: ID_Input;
-  authorId_contains?: ID_Input;
-  authorId_not_contains?: ID_Input;
-  authorId_starts_with?: ID_Input;
-  authorId_not_starts_with?: ID_Input;
-  authorId_ends_with?: ID_Input;
-  authorId_not_ends_with?: ID_Input;
   content?: String;
   content_not?: String;
   content_in?: String[] | String;
@@ -590,7 +554,6 @@ export interface CommentUpdateManyWithWhereNestedInput {
 }
 
 export interface PostCreateWithoutCommentsInput {
-  authorId: ID_Input;
   title?: String;
   content?: String;
   author: UserCreateOneInput;
@@ -601,16 +564,12 @@ export type PostWhereUniqueInput = AtLeastOne<{
 }>;
 
 export interface CommentUpdateInput {
-  postId?: ID_Input;
-  authorId?: ID_Input;
   content?: String;
   author?: UserUpdateOneRequiredInput;
   post?: PostUpdateOneWithoutCommentsInput;
 }
 
 export interface CommentUpdateWithoutPostDataInput {
-  postId?: ID_Input;
-  authorId?: ID_Input;
   content?: String;
   author?: UserUpdateOneRequiredInput;
 }
@@ -645,7 +604,6 @@ export interface UserUpdateDataInput {
 }
 
 export interface PostUpdateInput {
-  authorId?: ID_Input;
   title?: String;
   content?: String;
   author?: UserUpdateOneRequiredInput;
@@ -705,7 +663,6 @@ export interface UserUpdateOneWithoutOothMetaInput {
 }
 
 export interface PostUpdateManyMutationInput {
-  authorId?: ID_Input;
   title?: String;
   content?: String;
 }
@@ -733,34 +690,6 @@ export interface CommentScalarWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
-  postId?: ID_Input;
-  postId_not?: ID_Input;
-  postId_in?: ID_Input[] | ID_Input;
-  postId_not_in?: ID_Input[] | ID_Input;
-  postId_lt?: ID_Input;
-  postId_lte?: ID_Input;
-  postId_gt?: ID_Input;
-  postId_gte?: ID_Input;
-  postId_contains?: ID_Input;
-  postId_not_contains?: ID_Input;
-  postId_starts_with?: ID_Input;
-  postId_not_starts_with?: ID_Input;
-  postId_ends_with?: ID_Input;
-  postId_not_ends_with?: ID_Input;
-  authorId?: ID_Input;
-  authorId_not?: ID_Input;
-  authorId_in?: ID_Input[] | ID_Input;
-  authorId_not_in?: ID_Input[] | ID_Input;
-  authorId_lt?: ID_Input;
-  authorId_lte?: ID_Input;
-  authorId_gt?: ID_Input;
-  authorId_gte?: ID_Input;
-  authorId_contains?: ID_Input;
-  authorId_not_contains?: ID_Input;
-  authorId_starts_with?: ID_Input;
-  authorId_not_starts_with?: ID_Input;
-  authorId_ends_with?: ID_Input;
-  authorId_not_ends_with?: ID_Input;
   content?: String;
   content_not?: String;
   content_in?: String[] | String;
@@ -798,8 +727,6 @@ export interface OothMetaUpdateManyDataInput {
 }
 
 export interface CommentCreateWithoutPostInput {
-  postId: ID_Input;
-  authorId?: ID_Input;
   content?: String;
   author: UserCreateOneInput;
 }
@@ -824,20 +751,6 @@ export interface PostWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
-  authorId?: ID_Input;
-  authorId_not?: ID_Input;
-  authorId_in?: ID_Input[] | ID_Input;
-  authorId_not_in?: ID_Input[] | ID_Input;
-  authorId_lt?: ID_Input;
-  authorId_lte?: ID_Input;
-  authorId_gt?: ID_Input;
-  authorId_gte?: ID_Input;
-  authorId_contains?: ID_Input;
-  authorId_not_contains?: ID_Input;
-  authorId_starts_with?: ID_Input;
-  authorId_not_starts_with?: ID_Input;
-  authorId_ends_with?: ID_Input;
-  authorId_not_ends_with?: ID_Input;
   title?: String;
   title_not?: String;
   title_in?: String[] | String;
@@ -885,8 +798,6 @@ export interface PostUpdateOneWithoutCommentsInput {
 }
 
 export interface CommentUpdateManyDataInput {
-  postId?: ID_Input;
-  authorId?: ID_Input;
   content?: String;
 }
 
@@ -895,8 +806,6 @@ export interface UserCreateOneWithoutOothMetaInput {
 }
 
 export interface CommentUpdateManyMutationInput {
-  postId?: ID_Input;
-  authorId?: ID_Input;
   content?: String;
 }
 
@@ -906,7 +815,6 @@ export interface PostUpsertWithoutCommentsInput {
 }
 
 export interface PostUpdateWithoutCommentsDataInput {
-  authorId?: ID_Input;
   title?: String;
   content?: String;
   author?: UserUpdateOneRequiredInput;
@@ -930,7 +838,6 @@ export interface CommentSubscriptionWhereInput {
 }
 
 export interface PostCreateInput {
-  authorId: ID_Input;
   title?: String;
   content?: String;
   author: UserCreateOneInput;
@@ -1084,7 +991,6 @@ export interface AggregateCommentSubscription
 
 export interface PostPreviousValues {
   id: ID_Output;
-  authorId: ID_Output;
   title?: String;
   content?: String;
 }
@@ -1093,7 +999,6 @@ export interface PostPreviousValuesPromise
   extends Promise<PostPreviousValues>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  authorId: () => Promise<ID_Output>;
   title: () => Promise<String>;
   content: () => Promise<String>;
 }
@@ -1102,7 +1007,6 @@ export interface PostPreviousValuesSubscription
   extends Promise<AsyncIterator<PostPreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  authorId: () => Promise<AsyncIterator<ID_Output>>;
   title: () => Promise<AsyncIterator<String>>;
   content: () => Promise<AsyncIterator<String>>;
 }
@@ -1204,15 +1108,11 @@ export interface AggregatePostSubscription
 
 export interface Comment {
   id: ID_Output;
-  postId: ID_Output;
-  authorId?: ID_Output;
   content?: String;
 }
 
 export interface CommentPromise extends Promise<Comment>, Fragmentable {
   id: () => Promise<ID_Output>;
-  postId: () => Promise<ID_Output>;
-  authorId: () => Promise<ID_Output>;
   content: () => Promise<String>;
   author: <T = UserPromise>() => T;
   post: <T = PostPromise>() => T;
@@ -1222,8 +1122,6 @@ export interface CommentSubscription
   extends Promise<AsyncIterator<Comment>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  postId: () => Promise<AsyncIterator<ID_Output>>;
-  authorId: () => Promise<AsyncIterator<ID_Output>>;
   content: () => Promise<AsyncIterator<String>>;
   author: <T = UserSubscription>() => T;
   post: <T = PostSubscription>() => T;
@@ -1386,8 +1284,6 @@ export interface PageInfoSubscription
 
 export interface CommentPreviousValues {
   id: ID_Output;
-  postId: ID_Output;
-  authorId?: ID_Output;
   content?: String;
 }
 
@@ -1395,8 +1291,6 @@ export interface CommentPreviousValuesPromise
   extends Promise<CommentPreviousValues>,
     Fragmentable {
   id: () => Promise<ID_Output>;
-  postId: () => Promise<ID_Output>;
-  authorId: () => Promise<ID_Output>;
   content: () => Promise<String>;
 }
 
@@ -1404,21 +1298,17 @@ export interface CommentPreviousValuesSubscription
   extends Promise<AsyncIterator<CommentPreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  postId: () => Promise<AsyncIterator<ID_Output>>;
-  authorId: () => Promise<AsyncIterator<ID_Output>>;
   content: () => Promise<AsyncIterator<String>>;
 }
 
 export interface Post {
   id: ID_Output;
-  authorId: ID_Output;
   title?: String;
   content?: String;
 }
 
 export interface PostPromise extends Promise<Post>, Fragmentable {
   id: () => Promise<ID_Output>;
-  authorId: () => Promise<ID_Output>;
   title: () => Promise<String>;
   content: () => Promise<String>;
   author: <T = UserPromise>() => T;
@@ -1439,7 +1329,6 @@ export interface PostSubscription
   extends Promise<AsyncIterator<Post>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
-  authorId: () => Promise<AsyncIterator<ID_Output>>;
   title: () => Promise<AsyncIterator<String>>;
   content: () => Promise<AsyncIterator<String>>;
   author: <T = UserSubscription>() => T;

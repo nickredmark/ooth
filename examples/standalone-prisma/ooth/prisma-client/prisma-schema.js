@@ -25,8 +25,6 @@ type BatchPayload {
 
 type Comment {
   id: ID!
-  postId: ID!
-  authorId: ID
   content: String
   author: User!
   post: Post
@@ -39,8 +37,6 @@ type CommentConnection {
 }
 
 input CommentCreateInput {
-  postId: ID!
-  authorId: ID
   content: String
   author: UserCreateOneInput!
   post: PostCreateOneWithoutCommentsInput
@@ -52,8 +48,6 @@ input CommentCreateManyWithoutPostInput {
 }
 
 input CommentCreateWithoutPostInput {
-  postId: ID!
-  authorId: ID
   content: String
   author: UserCreateOneInput!
 }
@@ -66,10 +60,6 @@ type CommentEdge {
 enum CommentOrderByInput {
   id_ASC
   id_DESC
-  postId_ASC
-  postId_DESC
-  authorId_ASC
-  authorId_DESC
   content_ASC
   content_DESC
   createdAt_ASC
@@ -80,8 +70,6 @@ enum CommentOrderByInput {
 
 type CommentPreviousValues {
   id: ID!
-  postId: ID!
-  authorId: ID
   content: String
 }
 
@@ -100,34 +88,6 @@ input CommentScalarWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  postId: ID
-  postId_not: ID
-  postId_in: [ID!]
-  postId_not_in: [ID!]
-  postId_lt: ID
-  postId_lte: ID
-  postId_gt: ID
-  postId_gte: ID
-  postId_contains: ID
-  postId_not_contains: ID
-  postId_starts_with: ID
-  postId_not_starts_with: ID
-  postId_ends_with: ID
-  postId_not_ends_with: ID
-  authorId: ID
-  authorId_not: ID
-  authorId_in: [ID!]
-  authorId_not_in: [ID!]
-  authorId_lt: ID
-  authorId_lte: ID
-  authorId_gt: ID
-  authorId_gte: ID
-  authorId_contains: ID
-  authorId_not_contains: ID
-  authorId_starts_with: ID
-  authorId_not_starts_with: ID
-  authorId_ends_with: ID
-  authorId_not_ends_with: ID
   content: String
   content_not: String
   content_in: [String!]
@@ -166,22 +126,16 @@ input CommentSubscriptionWhereInput {
 }
 
 input CommentUpdateInput {
-  postId: ID
-  authorId: ID
   content: String
   author: UserUpdateOneRequiredInput
   post: PostUpdateOneWithoutCommentsInput
 }
 
 input CommentUpdateManyDataInput {
-  postId: ID
-  authorId: ID
   content: String
 }
 
 input CommentUpdateManyMutationInput {
-  postId: ID
-  authorId: ID
   content: String
 }
 
@@ -203,8 +157,6 @@ input CommentUpdateManyWithWhereNestedInput {
 }
 
 input CommentUpdateWithoutPostDataInput {
-  postId: ID
-  authorId: ID
   content: String
   author: UserUpdateOneRequiredInput
 }
@@ -235,34 +187,6 @@ input CommentWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  postId: ID
-  postId_not: ID
-  postId_in: [ID!]
-  postId_not_in: [ID!]
-  postId_lt: ID
-  postId_lte: ID
-  postId_gt: ID
-  postId_gte: ID
-  postId_contains: ID
-  postId_not_contains: ID
-  postId_starts_with: ID
-  postId_not_starts_with: ID
-  postId_ends_with: ID
-  postId_not_ends_with: ID
-  authorId: ID
-  authorId_not: ID
-  authorId_in: [ID!]
-  authorId_not_in: [ID!]
-  authorId_lt: ID
-  authorId_lte: ID
-  authorId_gt: ID
-  authorId_gte: ID
-  authorId_contains: ID
-  authorId_not_contains: ID
-  authorId_starts_with: ID
-  authorId_not_starts_with: ID
-  authorId_ends_with: ID
-  authorId_not_ends_with: ID
   content: String
   content_not: String
   content_in: [String!]
@@ -606,7 +530,6 @@ type PageInfo {
 
 type Post {
   id: ID!
-  authorId: ID!
   title: String
   content: String
   author: User!
@@ -620,7 +543,6 @@ type PostConnection {
 }
 
 input PostCreateInput {
-  authorId: ID!
   title: String
   content: String
   author: UserCreateOneInput!
@@ -633,7 +555,6 @@ input PostCreateOneWithoutCommentsInput {
 }
 
 input PostCreateWithoutCommentsInput {
-  authorId: ID!
   title: String
   content: String
   author: UserCreateOneInput!
@@ -647,8 +568,6 @@ type PostEdge {
 enum PostOrderByInput {
   id_ASC
   id_DESC
-  authorId_ASC
-  authorId_DESC
   title_ASC
   title_DESC
   content_ASC
@@ -661,7 +580,6 @@ enum PostOrderByInput {
 
 type PostPreviousValues {
   id: ID!
-  authorId: ID!
   title: String
   content: String
 }
@@ -685,7 +603,6 @@ input PostSubscriptionWhereInput {
 }
 
 input PostUpdateInput {
-  authorId: ID
   title: String
   content: String
   author: UserUpdateOneRequiredInput
@@ -693,7 +610,6 @@ input PostUpdateInput {
 }
 
 input PostUpdateManyMutationInput {
-  authorId: ID
   title: String
   content: String
 }
@@ -708,7 +624,6 @@ input PostUpdateOneWithoutCommentsInput {
 }
 
 input PostUpdateWithoutCommentsDataInput {
-  authorId: ID
   title: String
   content: String
   author: UserUpdateOneRequiredInput
@@ -734,20 +649,6 @@ input PostWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
-  authorId: ID
-  authorId_not: ID
-  authorId_in: [ID!]
-  authorId_not_in: [ID!]
-  authorId_lt: ID
-  authorId_lte: ID
-  authorId_gt: ID
-  authorId_gte: ID
-  authorId_contains: ID
-  authorId_not_contains: ID
-  authorId_starts_with: ID
-  authorId_not_starts_with: ID
-  authorId_ends_with: ID
-  authorId_not_ends_with: ID
   title: String
   title_not: String
   title_in: [String!]
