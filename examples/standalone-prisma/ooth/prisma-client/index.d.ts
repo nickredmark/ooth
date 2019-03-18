@@ -240,6 +240,8 @@ export type OothMetaOrderByInput =
   | "dataString_DESC"
   | "value_ASC"
   | "value_DESC"
+  | "date_ASC"
+  | "date_DESC"
   | "createdAt_ASC"
   | "createdAt_DESC"
   | "updatedAt_ASC"
@@ -277,22 +279,8 @@ export type UserOrderByInput =
 
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
-export interface OothMetaUpdateManyWithoutUserInput {
-  create?: OothMetaCreateWithoutUserInput[] | OothMetaCreateWithoutUserInput;
-  delete?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
-  connect?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
-  set?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
-  disconnect?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
-  update?:
-    | OothMetaUpdateWithWhereUniqueWithoutUserInput[]
-    | OothMetaUpdateWithWhereUniqueWithoutUserInput;
-  upsert?:
-    | OothMetaUpsertWithWhereUniqueWithoutUserInput[]
-    | OothMetaUpsertWithWhereUniqueWithoutUserInput;
-  deleteMany?: OothMetaScalarWhereInput[] | OothMetaScalarWhereInput;
-  updateMany?:
-    | OothMetaUpdateManyWithWhereNestedInput[]
-    | OothMetaUpdateManyWithWhereNestedInput;
+export interface UserUpdateDataInput {
+  oothMeta?: OothMetaUpdateManyWithoutUserInput;
 }
 
 export type CommentWhereUniqueInput = AtLeastOne<{
@@ -328,11 +316,20 @@ export interface UserWhereInput {
   NOT?: UserWhereInput[] | UserWhereInput;
 }
 
+export interface OothMetaUpdateManyMutationInput {
+  key?: String;
+  data?: Json;
+  dataString?: String;
+  value?: String;
+  date?: DateTimeInput;
+}
+
 export interface OothMetaCreateInput {
   key: String;
   data?: Json;
   dataString?: String;
   value?: String;
+  date?: DateTimeInput;
   user?: UserCreateOneWithoutOothMetaInput;
 }
 
@@ -393,9 +390,28 @@ export interface OothMetaScalarWhereInput {
   value_not_starts_with?: String;
   value_ends_with?: String;
   value_not_ends_with?: String;
+  date?: DateTimeInput;
+  date_not?: DateTimeInput;
+  date_in?: DateTimeInput[] | DateTimeInput;
+  date_not_in?: DateTimeInput[] | DateTimeInput;
+  date_lt?: DateTimeInput;
+  date_lte?: DateTimeInput;
+  date_gt?: DateTimeInput;
+  date_gte?: DateTimeInput;
   AND?: OothMetaScalarWhereInput[] | OothMetaScalarWhereInput;
   OR?: OothMetaScalarWhereInput[] | OothMetaScalarWhereInput;
   NOT?: OothMetaScalarWhereInput[] | OothMetaScalarWhereInput;
+}
+
+export interface PostSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: PostWhereInput;
+  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput;
+  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput;
+  NOT?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput;
 }
 
 export interface CommentCreateInput {
@@ -404,7 +420,7 @@ export interface CommentCreateInput {
   post?: PostCreateOneWithoutCommentsInput;
 }
 
-export interface CommentWhereInput {
+export interface PostWhereInput {
   id?: ID_Input;
   id_not?: ID_Input;
   id_in?: ID_Input[] | ID_Input;
@@ -419,6 +435,20 @@ export interface CommentWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
+  title?: String;
+  title_not?: String;
+  title_in?: String[] | String;
+  title_not_in?: String[] | String;
+  title_lt?: String;
+  title_lte?: String;
+  title_gt?: String;
+  title_gte?: String;
+  title_contains?: String;
+  title_not_contains?: String;
+  title_starts_with?: String;
+  title_not_starts_with?: String;
+  title_ends_with?: String;
+  title_not_ends_with?: String;
   content?: String;
   content_not?: String;
   content_in?: String[] | String;
@@ -434,15 +464,160 @@ export interface CommentWhereInput {
   content_ends_with?: String;
   content_not_ends_with?: String;
   author?: UserWhereInput;
-  post?: PostWhereInput;
-  AND?: CommentWhereInput[] | CommentWhereInput;
-  OR?: CommentWhereInput[] | CommentWhereInput;
-  NOT?: CommentWhereInput[] | CommentWhereInput;
+  comments_every?: CommentWhereInput;
+  comments_some?: CommentWhereInput;
+  comments_none?: CommentWhereInput;
+  AND?: PostWhereInput[] | PostWhereInput;
+  OR?: PostWhereInput[] | PostWhereInput;
+  NOT?: PostWhereInput[] | PostWhereInput;
 }
 
 export interface UserCreateOneInput {
   create?: UserCreateInput;
   connect?: UserWhereUniqueInput;
+}
+
+export interface OothMetaSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: OothMetaWhereInput;
+  AND?: OothMetaSubscriptionWhereInput[] | OothMetaSubscriptionWhereInput;
+  OR?: OothMetaSubscriptionWhereInput[] | OothMetaSubscriptionWhereInput;
+  NOT?: OothMetaSubscriptionWhereInput[] | OothMetaSubscriptionWhereInput;
+}
+
+export interface UserCreateInput {
+  oothMeta?: OothMetaCreateManyWithoutUserInput;
+}
+
+export interface UserUpdateInput {
+  oothMeta?: OothMetaUpdateManyWithoutUserInput;
+}
+
+export interface OothMetaCreateManyWithoutUserInput {
+  create?: OothMetaCreateWithoutUserInput[] | OothMetaCreateWithoutUserInput;
+  connect?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
+}
+
+export interface CommentUpdateManyDataInput {
+  content?: String;
+}
+
+export interface OothMetaCreateWithoutUserInput {
+  key: String;
+  data?: Json;
+  dataString?: String;
+  value?: String;
+  date?: DateTimeInput;
+}
+
+export interface CommentUpdateManyWithWhereNestedInput {
+  where: CommentScalarWhereInput;
+  data: CommentUpdateManyDataInput;
+}
+
+export interface PostCreateOneWithoutCommentsInput {
+  create?: PostCreateWithoutCommentsInput;
+  connect?: PostWhereUniqueInput;
+}
+
+export interface CommentUpsertWithWhereUniqueWithoutPostInput {
+  where: CommentWhereUniqueInput;
+  update: CommentUpdateWithoutPostDataInput;
+  create: CommentCreateWithoutPostInput;
+}
+
+export interface PostCreateWithoutCommentsInput {
+  title?: String;
+  content?: String;
+  author: UserCreateOneInput;
+}
+
+export interface CommentUpdateWithoutPostDataInput {
+  content?: String;
+  author?: UserUpdateOneRequiredInput;
+}
+
+export interface CommentUpdateInput {
+  content?: String;
+  author?: UserUpdateOneRequiredInput;
+  post?: PostUpdateOneWithoutCommentsInput;
+}
+
+export interface CommentUpdateManyWithoutPostInput {
+  create?: CommentCreateWithoutPostInput[] | CommentCreateWithoutPostInput;
+  delete?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
+  connect?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
+  set?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
+  disconnect?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
+  update?:
+    | CommentUpdateWithWhereUniqueWithoutPostInput[]
+    | CommentUpdateWithWhereUniqueWithoutPostInput;
+  upsert?:
+    | CommentUpsertWithWhereUniqueWithoutPostInput[]
+    | CommentUpsertWithWhereUniqueWithoutPostInput;
+  deleteMany?: CommentScalarWhereInput[] | CommentScalarWhereInput;
+  updateMany?:
+    | CommentUpdateManyWithWhereNestedInput[]
+    | CommentUpdateManyWithWhereNestedInput;
+}
+
+export interface UserUpdateOneRequiredInput {
+  create?: UserCreateInput;
+  update?: UserUpdateDataInput;
+  upsert?: UserUpsertNestedInput;
+  connect?: UserWhereUniqueInput;
+}
+
+export type UserWhereUniqueInput = AtLeastOne<{
+  id: ID_Input;
+}>;
+
+export interface UserUpdateOneWithoutOothMetaInput {
+  delete?: Boolean;
+  disconnect?: Boolean;
+  connect?: UserWhereUniqueInput;
+}
+
+export interface CommentCreateManyWithoutPostInput {
+  create?: CommentCreateWithoutPostInput[] | CommentCreateWithoutPostInput;
+  connect?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
+}
+
+export interface OothMetaUpdateManyWithoutUserInput {
+  create?: OothMetaCreateWithoutUserInput[] | OothMetaCreateWithoutUserInput;
+  delete?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
+  connect?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
+  set?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
+  disconnect?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
+  update?:
+    | OothMetaUpdateWithWhereUniqueWithoutUserInput[]
+    | OothMetaUpdateWithWhereUniqueWithoutUserInput;
+  upsert?:
+    | OothMetaUpsertWithWhereUniqueWithoutUserInput[]
+    | OothMetaUpsertWithWhereUniqueWithoutUserInput;
+  deleteMany?: OothMetaScalarWhereInput[] | OothMetaScalarWhereInput;
+  updateMany?:
+    | OothMetaUpdateManyWithWhereNestedInput[]
+    | OothMetaUpdateManyWithWhereNestedInput;
+}
+
+export interface UserSubscriptionWhereInput {
+  mutation_in?: MutationType[] | MutationType;
+  updatedFields_contains?: String;
+  updatedFields_contains_every?: String[] | String;
+  updatedFields_contains_some?: String[] | String;
+  node?: UserWhereInput;
+  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
+  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
+  NOT?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
+}
+
+export interface OothMetaUpdateWithWhereUniqueWithoutUserInput {
+  where: OothMetaWhereUniqueInput;
+  data: OothMetaUpdateWithoutUserDataInput;
 }
 
 export interface OothMetaWhereInput {
@@ -502,140 +677,18 @@ export interface OothMetaWhereInput {
   value_not_starts_with?: String;
   value_ends_with?: String;
   value_not_ends_with?: String;
+  date?: DateTimeInput;
+  date_not?: DateTimeInput;
+  date_in?: DateTimeInput[] | DateTimeInput;
+  date_not_in?: DateTimeInput[] | DateTimeInput;
+  date_lt?: DateTimeInput;
+  date_lte?: DateTimeInput;
+  date_gt?: DateTimeInput;
+  date_gte?: DateTimeInput;
   user?: UserWhereInput;
   AND?: OothMetaWhereInput[] | OothMetaWhereInput;
   OR?: OothMetaWhereInput[] | OothMetaWhereInput;
   NOT?: OothMetaWhereInput[] | OothMetaWhereInput;
-}
-
-export interface UserCreateInput {
-  oothMeta?: OothMetaCreateManyWithoutUserInput;
-}
-
-export interface OothMetaSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: OothMetaWhereInput;
-  AND?: OothMetaSubscriptionWhereInput[] | OothMetaSubscriptionWhereInput;
-  OR?: OothMetaSubscriptionWhereInput[] | OothMetaSubscriptionWhereInput;
-  NOT?: OothMetaSubscriptionWhereInput[] | OothMetaSubscriptionWhereInput;
-}
-
-export interface OothMetaCreateManyWithoutUserInput {
-  create?: OothMetaCreateWithoutUserInput[] | OothMetaCreateWithoutUserInput;
-  connect?: OothMetaWhereUniqueInput[] | OothMetaWhereUniqueInput;
-}
-
-export interface UserUpdateInput {
-  oothMeta?: OothMetaUpdateManyWithoutUserInput;
-}
-
-export interface OothMetaCreateWithoutUserInput {
-  key: String;
-  data?: Json;
-  dataString?: String;
-  value?: String;
-}
-
-export type OothMetaWhereUniqueInput = AtLeastOne<{
-  id: ID_Input;
-}>;
-
-export interface PostCreateOneWithoutCommentsInput {
-  create?: PostCreateWithoutCommentsInput;
-  connect?: PostWhereUniqueInput;
-}
-
-export interface CommentUpdateManyWithWhereNestedInput {
-  where: CommentScalarWhereInput;
-  data: CommentUpdateManyDataInput;
-}
-
-export interface PostCreateWithoutCommentsInput {
-  title?: String;
-  content?: String;
-  author: UserCreateOneInput;
-}
-
-export type PostWhereUniqueInput = AtLeastOne<{
-  id: ID_Input;
-}>;
-
-export interface CommentUpdateInput {
-  content?: String;
-  author?: UserUpdateOneRequiredInput;
-  post?: PostUpdateOneWithoutCommentsInput;
-}
-
-export interface CommentUpdateWithoutPostDataInput {
-  content?: String;
-  author?: UserUpdateOneRequiredInput;
-}
-
-export interface UserUpdateOneRequiredInput {
-  create?: UserCreateInput;
-  update?: UserUpdateDataInput;
-  upsert?: UserUpsertNestedInput;
-  connect?: UserWhereUniqueInput;
-}
-
-export interface CommentUpdateManyWithoutPostInput {
-  create?: CommentCreateWithoutPostInput[] | CommentCreateWithoutPostInput;
-  delete?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
-  connect?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
-  set?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
-  disconnect?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
-  update?:
-    | CommentUpdateWithWhereUniqueWithoutPostInput[]
-    | CommentUpdateWithWhereUniqueWithoutPostInput;
-  upsert?:
-    | CommentUpsertWithWhereUniqueWithoutPostInput[]
-    | CommentUpsertWithWhereUniqueWithoutPostInput;
-  deleteMany?: CommentScalarWhereInput[] | CommentScalarWhereInput;
-  updateMany?:
-    | CommentUpdateManyWithWhereNestedInput[]
-    | CommentUpdateManyWithWhereNestedInput;
-}
-
-export interface UserUpdateDataInput {
-  oothMeta?: OothMetaUpdateManyWithoutUserInput;
-}
-
-export interface PostUpdateInput {
-  title?: String;
-  content?: String;
-  author?: UserUpdateOneRequiredInput;
-  comments?: CommentUpdateManyWithoutPostInput;
-}
-
-export interface OothMetaUpdateManyMutationInput {
-  key?: String;
-  data?: Json;
-  dataString?: String;
-  value?: String;
-}
-
-export interface CommentCreateManyWithoutPostInput {
-  create?: CommentCreateWithoutPostInput[] | CommentCreateWithoutPostInput;
-  connect?: CommentWhereUniqueInput[] | CommentWhereUniqueInput;
-}
-
-export interface OothMetaUpdateWithWhereUniqueWithoutUserInput {
-  where: OothMetaWhereUniqueInput;
-  data: OothMetaUpdateWithoutUserDataInput;
-}
-
-export interface UserSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: UserWhereInput;
-  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
-  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
-  NOT?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput;
 }
 
 export interface OothMetaUpdateWithoutUserDataInput {
@@ -643,23 +696,7 @@ export interface OothMetaUpdateWithoutUserDataInput {
   data?: Json;
   dataString?: String;
   value?: String;
-}
-
-export interface PostSubscriptionWhereInput {
-  mutation_in?: MutationType[] | MutationType;
-  updatedFields_contains?: String;
-  updatedFields_contains_every?: String[] | String;
-  updatedFields_contains_some?: String[] | String;
-  node?: PostWhereInput;
-  AND?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput;
-  OR?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput;
-  NOT?: PostSubscriptionWhereInput[] | PostSubscriptionWhereInput;
-}
-
-export interface UserUpdateOneWithoutOothMetaInput {
-  delete?: Boolean;
-  disconnect?: Boolean;
-  connect?: UserWhereUniqueInput;
+  date?: DateTimeInput;
 }
 
 export interface PostUpdateManyMutationInput {
@@ -672,6 +709,7 @@ export interface OothMetaUpdateInput {
   data?: Json;
   dataString?: String;
   value?: String;
+  date?: DateTimeInput;
   user?: UserUpdateOneWithoutOothMetaInput;
 }
 
@@ -709,9 +747,8 @@ export interface CommentScalarWhereInput {
   NOT?: CommentScalarWhereInput[] | CommentScalarWhereInput;
 }
 
-export interface OothMetaUpdateManyWithWhereNestedInput {
-  where: OothMetaScalarWhereInput;
-  data: OothMetaUpdateManyDataInput;
+export interface UserCreateOneWithoutOothMetaInput {
+  connect?: UserWhereUniqueInput;
 }
 
 export interface CommentUpdateWithWhereUniqueWithoutPostInput {
@@ -719,11 +756,9 @@ export interface CommentUpdateWithWhereUniqueWithoutPostInput {
   data: CommentUpdateWithoutPostDataInput;
 }
 
-export interface OothMetaUpdateManyDataInput {
-  key?: String;
-  data?: Json;
-  dataString?: String;
-  value?: String;
+export interface OothMetaUpdateManyWithWhereNestedInput {
+  where: OothMetaScalarWhereInput;
+  data: OothMetaUpdateManyDataInput;
 }
 
 export interface CommentCreateWithoutPostInput {
@@ -731,12 +766,15 @@ export interface CommentCreateWithoutPostInput {
   author: UserCreateOneInput;
 }
 
-export interface UserUpsertNestedInput {
-  update: UserUpdateDataInput;
-  create: UserCreateInput;
+export interface OothMetaUpdateManyDataInput {
+  key?: String;
+  data?: Json;
+  dataString?: String;
+  value?: String;
+  date?: DateTimeInput;
 }
 
-export interface PostWhereInput {
+export interface CommentWhereInput {
   id?: ID_Input;
   id_not?: ID_Input;
   id_in?: ID_Input[] | ID_Input;
@@ -751,20 +789,6 @@ export interface PostWhereInput {
   id_not_starts_with?: ID_Input;
   id_ends_with?: ID_Input;
   id_not_ends_with?: ID_Input;
-  title?: String;
-  title_not?: String;
-  title_in?: String[] | String;
-  title_not_in?: String[] | String;
-  title_lt?: String;
-  title_lte?: String;
-  title_gt?: String;
-  title_gte?: String;
-  title_contains?: String;
-  title_not_contains?: String;
-  title_starts_with?: String;
-  title_not_starts_with?: String;
-  title_ends_with?: String;
-  title_not_ends_with?: String;
   content?: String;
   content_not?: String;
   content_in?: String[] | String;
@@ -780,30 +804,20 @@ export interface PostWhereInput {
   content_ends_with?: String;
   content_not_ends_with?: String;
   author?: UserWhereInput;
-  comments_every?: CommentWhereInput;
-  comments_some?: CommentWhereInput;
-  comments_none?: CommentWhereInput;
-  AND?: PostWhereInput[] | PostWhereInput;
-  OR?: PostWhereInput[] | PostWhereInput;
-  NOT?: PostWhereInput[] | PostWhereInput;
+  post?: PostWhereInput;
+  AND?: CommentWhereInput[] | CommentWhereInput;
+  OR?: CommentWhereInput[] | CommentWhereInput;
+  NOT?: CommentWhereInput[] | CommentWhereInput;
 }
 
-export interface PostUpdateOneWithoutCommentsInput {
-  create?: PostCreateWithoutCommentsInput;
-  update?: PostUpdateWithoutCommentsDataInput;
-  upsert?: PostUpsertWithoutCommentsInput;
-  delete?: Boolean;
-  disconnect?: Boolean;
-  connect?: PostWhereUniqueInput;
+export interface UserUpsertNestedInput {
+  update: UserUpdateDataInput;
+  create: UserCreateInput;
 }
 
-export interface CommentUpdateManyDataInput {
-  content?: String;
-}
-
-export interface UserCreateOneWithoutOothMetaInput {
-  connect?: UserWhereUniqueInput;
-}
+export type OothMetaWhereUniqueInput = AtLeastOne<{
+  id: ID_Input;
+}>;
 
 export interface CommentUpdateManyMutationInput {
   content?: String;
@@ -820,11 +834,18 @@ export interface PostUpdateWithoutCommentsDataInput {
   author?: UserUpdateOneRequiredInput;
 }
 
-export interface CommentUpsertWithWhereUniqueWithoutPostInput {
-  where: CommentWhereUniqueInput;
-  update: CommentUpdateWithoutPostDataInput;
-  create: CommentCreateWithoutPostInput;
+export interface PostUpdateOneWithoutCommentsInput {
+  create?: PostCreateWithoutCommentsInput;
+  update?: PostUpdateWithoutCommentsDataInput;
+  upsert?: PostUpsertWithoutCommentsInput;
+  delete?: Boolean;
+  disconnect?: Boolean;
+  connect?: PostWhereUniqueInput;
 }
+
+export type PostWhereUniqueInput = AtLeastOne<{
+  id: ID_Input;
+}>;
 
 export interface CommentSubscriptionWhereInput {
   mutation_in?: MutationType[] | MutationType;
@@ -844,9 +865,12 @@ export interface PostCreateInput {
   comments?: CommentCreateManyWithoutPostInput;
 }
 
-export type UserWhereUniqueInput = AtLeastOne<{
-  id: ID_Input;
-}>;
+export interface PostUpdateInput {
+  title?: String;
+  content?: String;
+  author?: UserUpdateOneRequiredInput;
+  comments?: CommentUpdateManyWithoutPostInput;
+}
 
 export interface NodeNode {
   id: ID_Output;
@@ -866,6 +890,88 @@ export interface UserPreviousValuesSubscription
   extends Promise<AsyncIterator<UserPreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
+}
+
+export interface AggregateOothMeta {
+  count: Int;
+}
+
+export interface AggregateOothMetaPromise
+  extends Promise<AggregateOothMeta>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateOothMetaSubscription
+  extends Promise<AsyncIterator<AggregateOothMeta>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface OothMetaPreviousValues {
+  id: ID_Output;
+  key: String;
+  data?: Json;
+  dataString?: String;
+  value?: String;
+  date?: DateTimeOutput;
+}
+
+export interface OothMetaPreviousValuesPromise
+  extends Promise<OothMetaPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  key: () => Promise<String>;
+  data: () => Promise<Json>;
+  dataString: () => Promise<String>;
+  value: () => Promise<String>;
+  date: () => Promise<DateTimeOutput>;
+}
+
+export interface OothMetaPreviousValuesSubscription
+  extends Promise<AsyncIterator<OothMetaPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  key: () => Promise<AsyncIterator<String>>;
+  data: () => Promise<AsyncIterator<Json>>;
+  dataString: () => Promise<AsyncIterator<String>>;
+  value: () => Promise<AsyncIterator<String>>;
+  date: () => Promise<AsyncIterator<DateTimeOutput>>;
+}
+
+export interface OothMetaEdge {
+  node: OothMeta;
+  cursor: String;
+}
+
+export interface OothMetaEdgePromise
+  extends Promise<OothMetaEdge>,
+    Fragmentable {
+  node: <T = OothMetaPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface OothMetaEdgeSubscription
+  extends Promise<AsyncIterator<OothMetaEdge>>,
+    Fragmentable {
+  node: <T = OothMetaSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateComment {
+  count: Int;
+}
+
+export interface AggregateCommentPromise
+  extends Promise<AggregateComment>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateCommentSubscription
+  extends Promise<AsyncIterator<AggregateComment>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface OothMetaConnection {
@@ -889,72 +995,29 @@ export interface OothMetaConnectionSubscription
   aggregate: <T = AggregateOothMetaSubscription>() => T;
 }
 
-export interface OothMeta {
-  id: ID_Output;
-  key: String;
-  data?: Json;
-  dataString?: String;
-  value?: String;
+export interface UserSubscriptionPayload {
+  mutation: MutationType;
+  node: User;
+  updatedFields: String[];
+  previousValues: UserPreviousValues;
 }
 
-export interface OothMetaPromise extends Promise<OothMeta>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  key: () => Promise<String>;
-  data: () => Promise<Json>;
-  dataString: () => Promise<String>;
-  value: () => Promise<String>;
-  user: <T = UserPromise>() => T;
-}
-
-export interface OothMetaSubscription
-  extends Promise<AsyncIterator<OothMeta>>,
+export interface UserSubscriptionPayloadPromise
+  extends Promise<UserSubscriptionPayload>,
     Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  key: () => Promise<AsyncIterator<String>>;
-  data: () => Promise<AsyncIterator<Json>>;
-  dataString: () => Promise<AsyncIterator<String>>;
-  value: () => Promise<AsyncIterator<String>>;
-  user: <T = UserSubscription>() => T;
+  mutation: () => Promise<MutationType>;
+  node: <T = UserPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = UserPreviousValuesPromise>() => T;
 }
 
-export interface OothMetaEdge {
-  node: OothMeta;
-  cursor: String;
-}
-
-export interface OothMetaEdgePromise
-  extends Promise<OothMetaEdge>,
+export interface UserSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<UserSubscriptionPayload>>,
     Fragmentable {
-  node: <T = OothMetaPromise>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface OothMetaEdgeSubscription
-  extends Promise<AsyncIterator<OothMetaEdge>>,
-    Fragmentable {
-  node: <T = OothMetaSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface CommentConnection {
-  pageInfo: PageInfo;
-  edges: CommentEdge[];
-}
-
-export interface CommentConnectionPromise
-  extends Promise<CommentConnection>,
-    Fragmentable {
-  pageInfo: <T = PageInfoPromise>() => T;
-  edges: <T = FragmentableArray<CommentEdge>>() => T;
-  aggregate: <T = AggregateCommentPromise>() => T;
-}
-
-export interface CommentConnectionSubscription
-  extends Promise<AsyncIterator<CommentConnection>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<CommentEdgeSubscription>>>() => T;
-  aggregate: <T = AggregateCommentSubscription>() => T;
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = UserSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = UserPreviousValuesSubscription>() => T;
 }
 
 export interface BatchPayload {
@@ -971,44 +1034,6 @@ export interface BatchPayloadSubscription
   extends Promise<AsyncIterator<BatchPayload>>,
     Fragmentable {
   count: () => Promise<AsyncIterator<Long>>;
-}
-
-export interface AggregateComment {
-  count: Int;
-}
-
-export interface AggregateCommentPromise
-  extends Promise<AggregateComment>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateCommentSubscription
-  extends Promise<AsyncIterator<AggregateComment>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface PostPreviousValues {
-  id: ID_Output;
-  title?: String;
-  content?: String;
-}
-
-export interface PostPreviousValuesPromise
-  extends Promise<PostPreviousValues>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  title: () => Promise<String>;
-  content: () => Promise<String>;
-}
-
-export interface PostPreviousValuesSubscription
-  extends Promise<AsyncIterator<PostPreviousValues>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  title: () => Promise<AsyncIterator<String>>;
-  content: () => Promise<AsyncIterator<String>>;
 }
 
 export interface AggregateUser {
@@ -1065,242 +1090,6 @@ export interface UserConnectionSubscription
   aggregate: <T = AggregateUserSubscription>() => T;
 }
 
-export interface PostSubscriptionPayload {
-  mutation: MutationType;
-  node: Post;
-  updatedFields: String[];
-  previousValues: PostPreviousValues;
-}
-
-export interface PostSubscriptionPayloadPromise
-  extends Promise<PostSubscriptionPayload>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = PostPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PostPreviousValuesPromise>() => T;
-}
-
-export interface PostSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PostSubscriptionPayload>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PostSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PostPreviousValuesSubscription>() => T;
-}
-
-export interface AggregatePost {
-  count: Int;
-}
-
-export interface AggregatePostPromise
-  extends Promise<AggregatePost>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregatePostSubscription
-  extends Promise<AsyncIterator<AggregatePost>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface Comment {
-  id: ID_Output;
-  content?: String;
-}
-
-export interface CommentPromise extends Promise<Comment>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  content: () => Promise<String>;
-  author: <T = UserPromise>() => T;
-  post: <T = PostPromise>() => T;
-}
-
-export interface CommentSubscription
-  extends Promise<AsyncIterator<Comment>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  content: () => Promise<AsyncIterator<String>>;
-  author: <T = UserSubscription>() => T;
-  post: <T = PostSubscription>() => T;
-}
-
-export interface PostConnection {
-  pageInfo: PageInfo;
-  edges: PostEdge[];
-}
-
-export interface PostConnectionPromise
-  extends Promise<PostConnection>,
-    Fragmentable {
-  pageInfo: <T = PageInfoPromise>() => T;
-  edges: <T = FragmentableArray<PostEdge>>() => T;
-  aggregate: <T = AggregatePostPromise>() => T;
-}
-
-export interface PostConnectionSubscription
-  extends Promise<AsyncIterator<PostConnection>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<PostEdgeSubscription>>>() => T;
-  aggregate: <T = AggregatePostSubscription>() => T;
-}
-
-export interface CommentSubscriptionPayload {
-  mutation: MutationType;
-  node: Comment;
-  updatedFields: String[];
-  previousValues: CommentPreviousValues;
-}
-
-export interface CommentSubscriptionPayloadPromise
-  extends Promise<CommentSubscriptionPayload>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = CommentPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = CommentPreviousValuesPromise>() => T;
-}
-
-export interface CommentSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<CommentSubscriptionPayload>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = CommentSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = CommentPreviousValuesSubscription>() => T;
-}
-
-export interface AggregateOothMeta {
-  count: Int;
-}
-
-export interface AggregateOothMetaPromise
-  extends Promise<AggregateOothMeta>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateOothMetaSubscription
-  extends Promise<AsyncIterator<AggregateOothMeta>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface UserEdge {
-  node: User;
-  cursor: String;
-}
-
-export interface UserEdgePromise extends Promise<UserEdge>, Fragmentable {
-  node: <T = UserPromise>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface UserEdgeSubscription
-  extends Promise<AsyncIterator<UserEdge>>,
-    Fragmentable {
-  node: <T = UserSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface OothMetaPreviousValues {
-  id: ID_Output;
-  key: String;
-  data?: Json;
-  dataString?: String;
-  value?: String;
-}
-
-export interface OothMetaPreviousValuesPromise
-  extends Promise<OothMetaPreviousValues>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  key: () => Promise<String>;
-  data: () => Promise<Json>;
-  dataString: () => Promise<String>;
-  value: () => Promise<String>;
-}
-
-export interface OothMetaPreviousValuesSubscription
-  extends Promise<AsyncIterator<OothMetaPreviousValues>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  key: () => Promise<AsyncIterator<String>>;
-  data: () => Promise<AsyncIterator<Json>>;
-  dataString: () => Promise<AsyncIterator<String>>;
-  value: () => Promise<AsyncIterator<String>>;
-}
-
-export interface OothMetaSubscriptionPayload {
-  mutation: MutationType;
-  node: OothMeta;
-  updatedFields: String[];
-  previousValues: OothMetaPreviousValues;
-}
-
-export interface OothMetaSubscriptionPayloadPromise
-  extends Promise<OothMetaSubscriptionPayload>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = OothMetaPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = OothMetaPreviousValuesPromise>() => T;
-}
-
-export interface OothMetaSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<OothMetaSubscriptionPayload>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = OothMetaSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = OothMetaPreviousValuesSubscription>() => T;
-}
-
-export interface PageInfo {
-  hasNextPage: Boolean;
-  hasPreviousPage: Boolean;
-  startCursor?: String;
-  endCursor?: String;
-}
-
-export interface PageInfoPromise extends Promise<PageInfo>, Fragmentable {
-  hasNextPage: () => Promise<Boolean>;
-  hasPreviousPage: () => Promise<Boolean>;
-  startCursor: () => Promise<String>;
-  endCursor: () => Promise<String>;
-}
-
-export interface PageInfoSubscription
-  extends Promise<AsyncIterator<PageInfo>>,
-    Fragmentable {
-  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
-  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
-  startCursor: () => Promise<AsyncIterator<String>>;
-  endCursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface CommentPreviousValues {
-  id: ID_Output;
-  content?: String;
-}
-
-export interface CommentPreviousValuesPromise
-  extends Promise<CommentPreviousValues>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  content: () => Promise<String>;
-}
-
-export interface CommentPreviousValuesSubscription
-  extends Promise<AsyncIterator<CommentPreviousValues>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  content: () => Promise<AsyncIterator<String>>;
-}
-
 export interface Post {
   id: ID_Output;
   title?: String;
@@ -1345,29 +1134,270 @@ export interface PostSubscription
   ) => T;
 }
 
-export interface UserSubscriptionPayload {
-  mutation: MutationType;
-  node: User;
-  updatedFields: String[];
-  previousValues: UserPreviousValues;
+export interface AggregatePost {
+  count: Int;
 }
 
-export interface UserSubscriptionPayloadPromise
-  extends Promise<UserSubscriptionPayload>,
+export interface AggregatePostPromise
+  extends Promise<AggregatePost>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePostSubscription
+  extends Promise<AsyncIterator<AggregatePost>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PageInfo {
+  hasNextPage: Boolean;
+  hasPreviousPage: Boolean;
+  startCursor?: String;
+  endCursor?: String;
+}
+
+export interface PageInfoPromise extends Promise<PageInfo>, Fragmentable {
+  hasNextPage: () => Promise<Boolean>;
+  hasPreviousPage: () => Promise<Boolean>;
+  startCursor: () => Promise<String>;
+  endCursor: () => Promise<String>;
+}
+
+export interface PageInfoSubscription
+  extends Promise<AsyncIterator<PageInfo>>,
+    Fragmentable {
+  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
+  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
+  startCursor: () => Promise<AsyncIterator<String>>;
+  endCursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PostConnection {
+  pageInfo: PageInfo;
+  edges: PostEdge[];
+}
+
+export interface PostConnectionPromise
+  extends Promise<PostConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<PostEdge>>() => T;
+  aggregate: <T = AggregatePostPromise>() => T;
+}
+
+export interface PostConnectionSubscription
+  extends Promise<AsyncIterator<PostConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<PostEdgeSubscription>>>() => T;
+  aggregate: <T = AggregatePostSubscription>() => T;
+}
+
+export interface Comment {
+  id: ID_Output;
+  content?: String;
+}
+
+export interface CommentPromise extends Promise<Comment>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  content: () => Promise<String>;
+  author: <T = UserPromise>() => T;
+  post: <T = PostPromise>() => T;
+}
+
+export interface CommentSubscription
+  extends Promise<AsyncIterator<Comment>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  content: () => Promise<AsyncIterator<String>>;
+  author: <T = UserSubscription>() => T;
+  post: <T = PostSubscription>() => T;
+}
+
+export interface OothMeta {
+  id: ID_Output;
+  key: String;
+  data?: Json;
+  dataString?: String;
+  value?: String;
+  date?: DateTimeOutput;
+}
+
+export interface OothMetaPromise extends Promise<OothMeta>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  key: () => Promise<String>;
+  data: () => Promise<Json>;
+  dataString: () => Promise<String>;
+  value: () => Promise<String>;
+  date: () => Promise<DateTimeOutput>;
+  user: <T = UserPromise>() => T;
+}
+
+export interface OothMetaSubscription
+  extends Promise<AsyncIterator<OothMeta>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  key: () => Promise<AsyncIterator<String>>;
+  data: () => Promise<AsyncIterator<Json>>;
+  dataString: () => Promise<AsyncIterator<String>>;
+  value: () => Promise<AsyncIterator<String>>;
+  date: () => Promise<AsyncIterator<DateTimeOutput>>;
+  user: <T = UserSubscription>() => T;
+}
+
+export interface UserEdge {
+  node: User;
+  cursor: String;
+}
+
+export interface UserEdgePromise extends Promise<UserEdge>, Fragmentable {
+  node: <T = UserPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface UserEdgeSubscription
+  extends Promise<AsyncIterator<UserEdge>>,
+    Fragmentable {
+  node: <T = UserSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface OothMetaSubscriptionPayload {
+  mutation: MutationType;
+  node: OothMeta;
+  updatedFields: String[];
+  previousValues: OothMetaPreviousValues;
+}
+
+export interface OothMetaSubscriptionPayloadPromise
+  extends Promise<OothMetaSubscriptionPayload>,
     Fragmentable {
   mutation: () => Promise<MutationType>;
-  node: <T = UserPromise>() => T;
+  node: <T = OothMetaPromise>() => T;
   updatedFields: () => Promise<String[]>;
-  previousValues: <T = UserPreviousValuesPromise>() => T;
+  previousValues: <T = OothMetaPreviousValuesPromise>() => T;
 }
 
-export interface UserSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<UserSubscriptionPayload>>,
+export interface OothMetaSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<OothMetaSubscriptionPayload>>,
     Fragmentable {
   mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = UserSubscription>() => T;
+  node: <T = OothMetaSubscription>() => T;
   updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = UserPreviousValuesSubscription>() => T;
+  previousValues: <T = OothMetaPreviousValuesSubscription>() => T;
+}
+
+export interface CommentConnection {
+  pageInfo: PageInfo;
+  edges: CommentEdge[];
+}
+
+export interface CommentConnectionPromise
+  extends Promise<CommentConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<CommentEdge>>() => T;
+  aggregate: <T = AggregateCommentPromise>() => T;
+}
+
+export interface CommentConnectionSubscription
+  extends Promise<AsyncIterator<CommentConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<CommentEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateCommentSubscription>() => T;
+}
+
+export interface CommentPreviousValues {
+  id: ID_Output;
+  content?: String;
+}
+
+export interface CommentPreviousValuesPromise
+  extends Promise<CommentPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  content: () => Promise<String>;
+}
+
+export interface CommentPreviousValuesSubscription
+  extends Promise<AsyncIterator<CommentPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  content: () => Promise<AsyncIterator<String>>;
+}
+
+export interface CommentSubscriptionPayload {
+  mutation: MutationType;
+  node: Comment;
+  updatedFields: String[];
+  previousValues: CommentPreviousValues;
+}
+
+export interface CommentSubscriptionPayloadPromise
+  extends Promise<CommentSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = CommentPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = CommentPreviousValuesPromise>() => T;
+}
+
+export interface CommentSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<CommentSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = CommentSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = CommentPreviousValuesSubscription>() => T;
+}
+
+export interface PostSubscriptionPayload {
+  mutation: MutationType;
+  node: Post;
+  updatedFields: String[];
+  previousValues: PostPreviousValues;
+}
+
+export interface PostSubscriptionPayloadPromise
+  extends Promise<PostSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = PostPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PostPreviousValuesPromise>() => T;
+}
+
+export interface PostSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PostSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PostSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PostPreviousValuesSubscription>() => T;
+}
+
+export interface PostPreviousValues {
+  id: ID_Output;
+  title?: String;
+  content?: String;
+}
+
+export interface PostPreviousValuesPromise
+  extends Promise<PostPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  title: () => Promise<String>;
+  content: () => Promise<String>;
+}
+
+export interface PostPreviousValuesSubscription
+  extends Promise<AsyncIterator<PostPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  title: () => Promise<AsyncIterator<String>>;
+  content: () => Promise<AsyncIterator<String>>;
 }
 
 export interface User {
@@ -1423,7 +1453,22 @@ export interface PostEdgeSubscription
   cursor: () => Promise<AsyncIterator<String>>;
 }
 
+/*
+The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
+*/
+export type Int = number;
+
 export type Long = string;
+
+/*
+DateTime scalar input type, allowing Date
+*/
+export type DateTimeInput = Date | string;
+
+/*
+DateTime scalar output type, which is always a string
+*/
+export type DateTimeOutput = string;
 
 export type Json = any;
 
@@ -1437,11 +1482,6 @@ export type ID_Output = string;
 The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
 */
 export type String = string;
-
-/*
-The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
-*/
-export type Int = number;
 
 /*
 The `Boolean` scalar type represents `true` or `false`.

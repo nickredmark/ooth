@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const { Ooth } = require("ooth");
 const { OothMongo } = require("ooth-mongo");
@@ -31,7 +31,7 @@ async function start() {
       app,
       backend: oothMongo,
       sessionSecret: process.env.SESSION_SECRET,
-      standalone: true,
+      standalone: true
     });
 
     oothGuest({ ooth });
@@ -44,12 +44,16 @@ async function start() {
         url: process.env.MAIL_URL,
         sendMail: mail({
           apiKey: process.env.MAILGUN_API_KEY,
-          domain: process.env.MAILGUN_DOMAIN,
+          domain: process.env.MAILGUN_DOMAIN
         })
-      })
-    } 
+      });
+    }
     oothUser({ ooth });
-    oothJwt({ ooth, sharedSecret: process.env.SHARED_SECRET, tokenLocation: 'header' });
+    oothJwt({
+      ooth,
+      sharedSecret: process.env.SHARED_SECRET,
+      tokenLocation: "header"
+    });
     oothWs({ ooth });
 
     app.listen(process.env.PORT, function() {

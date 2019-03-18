@@ -12,6 +12,7 @@ Object {
   "foo3": Object {
     "bar3": "baz3",
   },
+  "id": "cjtdeiprl03zi0744yj2e4gup",
 }
 `;
 
@@ -24,6 +25,7 @@ Object {
   "foo2": Object {
     "bar2": "baz2",
   },
+  "id": "cjtdeipns03z30744cln45ikl",
 }
 `;
 
@@ -33,6 +35,11 @@ Object {
   "foo": Object {
     "baz": "bar",
   },
+  "foo2": Object {
+    "baz2": "bar2",
+    "baz3": "bar3",
+  },
+  "id": "cjtdgdty205qf0744aj93qs1r",
 }
 `;
 
@@ -49,5 +56,6 @@ Object {
   "foo3": Object {
     "baz": "bar3",
   },
+  "id": "cjtdfnuu104zl0744tm5paryy",
 }
 `;

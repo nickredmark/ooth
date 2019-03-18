@@ -13,6 +13,7 @@ fragment UserWithMeta on User {
     data
     dataString
     value
+    date
   }
 }
 `;
@@ -28,7 +29,7 @@ export class OothPrisma {
   }
 
   public getUserById = async (id: string) => {
-    console.log('getUserById: ', id);        
+    console.log('getUserById: ', id);
     try {
       const user = await this.prisma.user({ id }).$fragment(prismaUserFragment);
       return helpers.prepare(user);

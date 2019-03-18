@@ -1,5 +1,9 @@
 version: '3'
 services:
+  # db:
+  #   image: mongo
+  #   ports:
+  #     - 27017:27017 # Do not use in production!
   ooth:
     build: ./ooth
     ports:
@@ -9,6 +13,7 @@ services:
       - ./ooth:/ooth
     depends_on:
       - prisma
+      # - db
   api:
     build: ./api
     ports:

@@ -63,6 +63,7 @@ function setupAuthEndpoints(app) {
     console.log("/login hit");
     res.send({
       user: {
+        _id: req.user,
         id: req.user
       },
       message: "Logged in successfully."
@@ -127,7 +128,7 @@ const start = async () => {
             return null;
           }
           return {
-            _id: userId
+            id: userId
           };
         },
         post: async (root, { id }) => {

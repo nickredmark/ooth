@@ -212,6 +212,8 @@ input CommentWhereUniqueInput {
   id: ID
 }
 
+scalar DateTime
+
 scalar Json
 
 scalar Long
@@ -258,6 +260,7 @@ type OothMeta {
   data: Json
   dataString: String
   value: String
+  date: DateTime
   user: User
 }
 
@@ -272,6 +275,7 @@ input OothMetaCreateInput {
   data: Json
   dataString: String
   value: String
+  date: DateTime
   user: UserCreateOneWithoutOothMetaInput
 }
 
@@ -285,6 +289,7 @@ input OothMetaCreateWithoutUserInput {
   data: Json
   dataString: String
   value: String
+  date: DateTime
 }
 
 type OothMetaEdge {
@@ -303,6 +308,8 @@ enum OothMetaOrderByInput {
   dataString_DESC
   value_ASC
   value_DESC
+  date_ASC
+  date_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
@@ -315,6 +322,7 @@ type OothMetaPreviousValues {
   data: Json
   dataString: String
   value: String
+  date: DateTime
 }
 
 input OothMetaScalarWhereInput {
@@ -374,6 +382,14 @@ input OothMetaScalarWhereInput {
   value_not_starts_with: String
   value_ends_with: String
   value_not_ends_with: String
+  date: DateTime
+  date_not: DateTime
+  date_in: [DateTime!]
+  date_not_in: [DateTime!]
+  date_lt: DateTime
+  date_lte: DateTime
+  date_gt: DateTime
+  date_gte: DateTime
   AND: [OothMetaScalarWhereInput!]
   OR: [OothMetaScalarWhereInput!]
   NOT: [OothMetaScalarWhereInput!]
@@ -402,6 +418,7 @@ input OothMetaUpdateInput {
   data: Json
   dataString: String
   value: String
+  date: DateTime
   user: UserUpdateOneWithoutOothMetaInput
 }
 
@@ -410,6 +427,7 @@ input OothMetaUpdateManyDataInput {
   data: Json
   dataString: String
   value: String
+  date: DateTime
 }
 
 input OothMetaUpdateManyMutationInput {
@@ -417,6 +435,7 @@ input OothMetaUpdateManyMutationInput {
   data: Json
   dataString: String
   value: String
+  date: DateTime
 }
 
 input OothMetaUpdateManyWithoutUserInput {
@@ -441,6 +460,7 @@ input OothMetaUpdateWithoutUserDataInput {
   data: Json
   dataString: String
   value: String
+  date: DateTime
 }
 
 input OothMetaUpdateWithWhereUniqueWithoutUserInput {
@@ -511,6 +531,14 @@ input OothMetaWhereInput {
   value_not_starts_with: String
   value_ends_with: String
   value_not_ends_with: String
+  date: DateTime
+  date_not: DateTime
+  date_in: [DateTime!]
+  date_not_in: [DateTime!]
+  date_lt: DateTime
+  date_lte: DateTime
+  date_gt: DateTime
+  date_gte: DateTime
   user: UserWhereInput
   AND: [OothMetaWhereInput!]
   OR: [OothMetaWhereInput!]

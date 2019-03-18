@@ -11,6 +11,7 @@ type OothMeta {
   data: Json
   dataString: String  # for querying - JSON filtering is not available (https://github.com/prisma/prisma/issues/148)
   value: String
+  date: DateTime
   user: User @relation(name: "OothMetasForUser")
 }
 

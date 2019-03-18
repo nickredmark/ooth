@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 type StrategyValues = {
   [key: string]: any;
 };
@@ -9,20 +11,30 @@ type User = {
 
 function oothMetaToObject(oothMeta: any) {
   let f = {};
+
   for (var i = 0, len = oothMeta.length; i < len; i++) {
     let key = oothMeta[i].key;
     // console.log(key);
     if (oothMeta[i].data) {
       // check the data parameter for json
-      // console.log(oothMeta[i].data);
-      (<any>f)[key] = oothMeta[i].data;
-    } else {
+      // console.log('data',oothMeta[i].data);
+      _.set(f, key, oothMeta[i].data);
+      // (<any>f)[key] = oothMeta[i].data;
+    } else if (oothMeta[i].date) {
+      // check the date parameter for a date
+      // console.log('date', oothMeta[i].date);
+      _.set(f, key, oothMeta[i].date);
+      // (<any>f)[key] = oothMeta[i].date;
+    } else if (oothMeta[i].value) {
       // check the value parameter for a string
-      // console.log(oothMeta[i].value);
-      (<any>f)[key] = oothMeta[i].value;
+      // console.log('value', oothMeta[i].value);
+      _.set(f, key, oothMeta[i].value);
+      // (<any>f)[key] = oothMeta[i].value;
+    } else {
+      _.set(f, key, []);
     }
   }
-  // console.log({f});
+  console.log({f});
   return f;
 }
 
@@ -158,12 +170,20 @@ function dataForUpdateUser(oothMeta: any, fields: any) {
     for (var i = 0, len = oothMeta.length; i < len; i++) {
       // if this field key matches the key in the child loop
       if (key == oothMeta[i].key) {
+
+        console.log(fields[key], ' is a : ', typeof fields[key]);
+
         // let's update oothMeta[i].value or oothMeta[i].data
-        if(typeof(fields[key]) == 'string') {
+        if (typeof fields[key] == 'string') {
           delete oothMeta[i].data;
           delete oothMeta[i].dataString;
           oothMeta[i].value = fields[key];
+        } else if (fields[key] instanceof Date) {
+          console.log('date');
+          oothMeta[i].date =fields[key];
         } else {
+          // TODO - do we need another condition here?
+
           delete oothMeta[i].value;
           oothMeta[i].data = fields[key];
           oothMeta[i].dataString = JSON.stringify(fields[key]);
@@ -178,10 +198,17 @@ function dataForUpdateUser(oothMeta: any, fields: any) {
     // if this field key hasn't matched any key in the child loop
     if(!matched) {
       // let's create oothMeta[i].value or oothMeta[i].data
+
+      console.log( fields[key], ' is a : ', typeof fields[key]);
+
+
       if (typeof fields[key] == 'string') {
         oothMeta.push({ key, value: fields[key] });
       } else if (typeof fields[key] == 'object' && Object.keys(fields[key]).length ) {
         oothMeta.push({ key, data: fields[key], dataString: JSON.stringify(fields[key]) });
+      } else if (fields[key] instanceof Date) {
+        console.log('date'); 
+        oothMeta.push({ key, date: fields[key] });
       } else {
         oothMeta.push({ key });
       }
@@ -198,12 +225,15 @@ function dataForInsertUser(fields: any) {
     // console.log(key);
     // console.log(fields[key]);
     let createPart: any;
-    if ( typeof(fields[key]) == 'string' ) {
+    console.log( fields[key], ' is a : ', typeof fields[key]);
+    if (typeof fields[key] == 'string') {
       // is a string
       createPart = { key, value: fields[key] };
-    } else if ( typeof fields[key] == 'object' && Object.keys(fields[key]).length ) {
-      // is object 
-      createPart = { key, data: fields[key], dataString: JSON.stringify(fields[key]) };  
+    } else if (typeof fields[key] == 'object' && Object.keys(fields[key]).length) {
+      // is object
+      createPart = { key, data: fields[key], dataString: JSON.stringify(fields[key]) };
+    } else if (fields[key] instanceof Date) {
+      createPart = { key, date: fields[key] };
     } else {
       createPart = { key };
     }
@@ -215,6 +245,7 @@ function dataForInsertUser(fields: any) {
 
 
 function prepare(o: any): User {
+  console.log('prepare', o);  
   if (o && o.oothMeta.length > 0) {
     Object.assign(o, oothMetaToObject(o.oothMeta));
   }
@@ -223,7 +254,6 @@ function prepare(o: any): User {
   }
   if (o && o.id) {
     o._id = o.id
-    delete o.id;
   }
   console.log('prepare', o);
   return o;
