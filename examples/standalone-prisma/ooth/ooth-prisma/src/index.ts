@@ -81,7 +81,7 @@ export class OothPrisma {
 
   public updateUser = async (id: string, fields: { [key: string]: any }) => {
     // console.log('id: ', id);
-    console.log('updateUser fields: ', fields);
+    console.log('updateUser fields: ', fields); 
     try {
       const user = await this.prisma.user({ id }).$fragment(prismaUserFragment);
       const processed = await helpers.dataForUpdateUser(user.oothMeta, fields);
@@ -91,7 +91,7 @@ export class OothPrisma {
           data: processed.data,
           where: {
             id,
-          },
+          }, 
         })
         .$fragment(prismaUserFragment);
       // Tidy up - remove overwritten metas
@@ -107,7 +107,7 @@ export class OothPrisma {
 
   public insertUser = async (fields: { [key: string]: StrategyValues }) => {
     console.log('insertUser fields: ', fields);
-    const data = await helpers.dataForInsertUser(fields);
+    const data = await helpers.dataForInsertUser(fields); 
     // console.log('data:', data);    
     try {
       const { id } = await this.prisma.createUser(data); 

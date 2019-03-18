@@ -14,28 +14,49 @@ function oothMetaToObject(oothMeta: any) {
 
   for (var i = 0, len = oothMeta.length; i < len; i++) {
     let key = oothMeta[i].key;
-    // console.log(key);
+
     if (oothMeta[i].data) {
-      // check the data parameter for json
-      // console.log('data',oothMeta[i].data);
+      for (var key2 in oothMeta[i].data) {
+        if( key2 == 'refreshTokenExpiresAt' ) {
+          oothMeta[i].data[key2] = new Date(oothMeta[i].data[key2]);
+        }
+      }
       _.set(f, key, oothMeta[i].data);
-      // (<any>f)[key] = oothMeta[i].data;
     } else if (oothMeta[i].date) {
-      // check the date parameter for a date
-      // console.log('date', oothMeta[i].date);
-      _.set(f, key, oothMeta[i].date);
-      // (<any>f)[key] = oothMeta[i].date;
+      _.set(f, key, new Date(oothMeta[i].date));
     } else if (oothMeta[i].value) {
-      // check the value parameter for a string
-      // console.log('value', oothMeta[i].value);
       _.set(f, key, oothMeta[i].value);
-      // (<any>f)[key] = oothMeta[i].value;
     } else {
-      _.set(f, key, []);
+      _.set(f, key, {});
     }
   }
-  console.log({f});
+  // console.log({f});
   return f;
+}
+
+function makePrismaCreateArray(fields: any) {
+  let createArray: any[] = [];
+  for (var key in fields) {
+    // console.log('key', key);
+    // console.log('fields[key]', setFields[key]);
+    let createPart: any;
+    // console.log(setFields[key], ' is a : ', typeof setFields[key]);
+    if (typeof fields[key] == 'string') {
+      // is a string
+      createPart = { key, value: fields[key] };
+    } else if (typeof fields[key] == 'object' && Object.keys(fields[key]).length) {
+      // is object
+      createPart = { key, data: fields[key], dataString: JSON.stringify(fields[key]) };
+    } else if (fields[key] instanceof Date) {
+      createPart = { key, date: fields[key] };
+    } else if (typeof fields[key] == 'object') {
+      createPart = { key, data: fields[key] };
+    } else {
+      createPart = { key };
+    }
+    createArray.push(createPart);
+  }
+  return createArray;
 }
 
 function whereForGetUser(fields: any) {
@@ -157,89 +178,36 @@ function filterForGetUserByValue(users: any, fields: any, value: string) {
 }
 
 function dataForUpdateUser(oothMeta: any, fields: any) {
-  // console.log('oothMeta: ', oothMeta);
-  // console.log('fields: ', fields);
-  let oothMetaIds: any[] = [];
-  // first work out what the data should look like.
-  // it is user.oothMeta with fields applied to it
-  let matched = false;
-  // loop through the new fields
-  for (var key in fields) {
-    matched = false;
-    // loop through existing oothMeta keys
-    for (var i = 0, len = oothMeta.length; i < len; i++) {
-      // if this field key matches the key in the child loop
-      if (key == oothMeta[i].key) {
 
-        console.log(fields[key], ' is a : ', typeof fields[key]);
-
-        // let's update oothMeta[i].value or oothMeta[i].data
-        if (typeof fields[key] == 'string') {
-          delete oothMeta[i].data;
-          delete oothMeta[i].dataString;
-          oothMeta[i].value = fields[key];
-        } else if (fields[key] instanceof Date) {
-          console.log('date');
-          oothMeta[i].date =fields[key];
-        } else {
-          // TODO - do we need another condition here?
-
-          delete oothMeta[i].value;
-          oothMeta[i].data = fields[key];
-          oothMeta[i].dataString = JSON.stringify(fields[key]);
-        }
-        // push this metaId to an array
-        // and delete from the object
-        matched = true;
-      }
-      oothMetaIds.push(oothMeta[i].id);
-      delete oothMeta[i].id;
-    }
-    // if this field key hasn't matched any key in the child loop
-    if(!matched) {
-      // let's create oothMeta[i].value or oothMeta[i].data
-
-      console.log( fields[key], ' is a : ', typeof fields[key]);
-
-
-      if (typeof fields[key] == 'string') {
-        oothMeta.push({ key, value: fields[key] });
-      } else if (typeof fields[key] == 'object' && Object.keys(fields[key]).length ) {
-        oothMeta.push({ key, data: fields[key], dataString: JSON.stringify(fields[key]) });
-      } else if (fields[key] instanceof Date) {
-        console.log('date'); 
-        oothMeta.push({ key, date: fields[key] });
-      } else {
-        oothMeta.push({ key });
-      }
-    }
+  let oothMetaDeleteIds:any[] = [];
+  for (var i = 0, len = oothMeta.length; i < len; i++) {
+    oothMetaDeleteIds.push(oothMeta[i].id);
   }
 
-  let data: { oothMeta: { create: any[] } } = { oothMeta: { create: oothMeta } };
-  return { data, oothMetaIds };
+  // oothMeta to JSON
+  let setFields: any = oothMetaToObject(oothMeta);
+
+  for (var key in fields) {
+    _.set(setFields, key, fields[key]); 
+  } 
+
+  let data: { oothMeta: { create: any[] } } = { oothMeta: { create: makePrismaCreateArray(setFields) } };
+
+  return { data, oothMetaDeleteIds };
 } 
 
 function dataForInsertUser(fields: any) {
-  let data: { oothMeta: { create: any[] } } = { oothMeta: { create: [] } };
+  // console.log('dataForInsertUser'); 
+  
+  let setFields:any = {};
+  
   for (var key in fields) {
-    // console.log(key);
-    // console.log(fields[key]);
-    let createPart: any;
-    console.log( fields[key], ' is a : ', typeof fields[key]);
-    if (typeof fields[key] == 'string') {
-      // is a string
-      createPart = { key, value: fields[key] };
-    } else if (typeof fields[key] == 'object' && Object.keys(fields[key]).length) {
-      // is object
-      createPart = { key, data: fields[key], dataString: JSON.stringify(fields[key]) };
-    } else if (fields[key] instanceof Date) {
-      createPart = { key, date: fields[key] };
-    } else {
-      createPart = { key };
-    }
-    data.oothMeta.create.push(createPart);
+    _.set(setFields, key, fields[key]);
   }
-  // console.log(JSON.stringify(data));
+
+  let data: { oothMeta: { create: any[] } } = { oothMeta: { create: makePrismaCreateArray(setFields) } };
+
+  // console.log(JSON.stringify(data)); 
   return data;
 }
 

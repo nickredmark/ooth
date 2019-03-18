@@ -36,38 +36,60 @@ describe('ooth-prisma', () => {
   });
 
   test('can insert user and get it', async () => {
-    const id = await oothPrisma.insertUser({ 
+    var date = new Date(2018, 11, 24, 10, 33, 30, 0);
+    // var timestamp = date.getTime();
+    const id = await oothPrisma.insertUser({
       foo: {
         baz: 'bar',
       },
       'foo2.baz2': 'bar2',
       'foo2.baz3': 'bar3',
+      'foo3.baz': date,
+      foo4: {
+        baz: date,
+      },
+      foo5: 'bar',
+      foo6: date,
+      foo7: {},
     });
     expect(typeof id).toBe('string');
     const user = await oothPrisma.getUserById(id);
-    expect(obfuscate(user, '_id')).toMatchSnapshot();
+    expect(obfuscate(obfuscate(user, 'id'), '_id')).toMatchSnapshot();
   });
 
-  test.skip('can update user', async () => {
+  test('can update user', async () => { 
+    var date = new Date(2018, 11, 24, 10, 33, 30, 0);    
     const id = await oothPrisma.insertUser({
       foo: {
         baz: 'bar',
       },
       foo2: {
         baz: 'bar2',
+        baz2: 'bar2',
       },
+      'foo3.baz': date,
+      foo4: 'string',
+      foo10: {
+        baz10: 'unchanged'
+      },
+      'foo11.baz11': 'bar3',
     });
     await oothPrisma.updateUser(id, {
       foo: {
-        baz: 'bar',
-        baz2: 'bar2',
+        baz: 'bar2',
       },
-      foo3: {
-        baz: 'bar3',
+      'foo2.baz': 'bar3',
+      'foo2.baz3': 'bar3',
+      'foo3.baz': date,
+      foo4: {
+        baz: date,
       },
+      foo5: 'bar',
+      foo6: date,
+      foo7: {},
     });
     const user = await oothPrisma.getUserById(id);
-    expect(obfuscate(user, '_id')).toMatchSnapshot();
+    expect(obfuscate(obfuscate(user, 'id'), '_id')).toMatchSnapshot();
   }); 
 
   test.skip('can get user by value', async () => {
@@ -80,7 +102,7 @@ describe('ooth-prisma', () => {
       },
     });
     const user = await oothPrisma.getUserByValue(['foo.bar', 'foo2.bar2'], 'baz2');
-    expect(obfuscate(user, '_id')).toMatchSnapshot();
+    expect(obfuscate(obfuscate(user, 'id'), '_id')).toMatchSnapshot();
   });
 
   test.skip('can get user by fields', async () => {
@@ -100,7 +122,8 @@ describe('ooth-prisma', () => {
       'foo2.bar2': 'baz2',
       'foo3.bar3': 'baz3',
     });
-    expect(obfuscate(user, '_id')).toMatchSnapshot();
+    expect(obfuscate(obfuscate(user, 'id'), '_id')).toMatchSnapshot();
   });
 
 });
+ 
