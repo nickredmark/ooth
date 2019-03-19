@@ -836,10 +836,7 @@ export default (props) => (
     footerMessage={
       <p>
         Brought to you with ❤ by <a href="/about">Nick Redmark</a>. Find the code on{' '}
-        <a href="https://github.com/nmaro/staart">Github</a>. Support and discuss the development of this library on{' '}
-        <a href="https://www.patreon.com/nmaro" target="_blank">
-          Patreon
-        </a>
+        <a href="https://github.com/nmaro/staart">Github</a>.
       </p>
     }
     {...props}
@@ -1019,4 +1016,3 @@ Useful links:
 - [The Staart Boilerplate](https://github.com/nmaro/staart/tree/master/examples/staart)
 - [The Ooth Docs](https://nmaro.github.io/ooth/)
 - [The Slack Channel](https://join.slack.com/t/ooth/shared_invite/enQtMjQ3MDE2ODA2NjE0LTE1NGNmN2YzZTdiMWNjODExZmNjYzg3ZGJjZmVmZmI2YjVhOWYzZDQ1NWI4Y2JiNzNlMmI2Y2U5ZWFhODIzMWQ)
-- [Patreon Support Page](https://www.patreon.com/nmaro)
