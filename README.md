@@ -33,7 +33,3 @@ npm run build
 Start an [issue](https://github.com/nmaro/ooth/issues).
 
 See the [project timeline](https://github.com/nmaro/ooth/projects/2).
-
-## Support
-
-Support the development of this project on [Patreon](https://www.patreon.com/nmaro).
