@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ooth-prisma can insert user and get it 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "baz": "bar",
+  },
+  "foo2": Object {
+    "baz2": "bar2",
+    "baz3": "bar3",
+  },
+  "foo3": Object {
+    "baz": "2018-12-24T10:33:30.000Z",
+  },
+  "foo4": Object {
+    "baz": "2018-12-24T10:33:30.000Z",
+  },
+  "foo5": "bar",
+  "foo6": 2018-12-24T10:33:30.000Z,
+  "foo7": Object {},
+  "id": "<obfuscated>",
+}
+`;
+
+exports[`ooth-prisma can update user 1`] = `
+Object {
+  "_id": "<obfuscated>",
+  "foo": Object {
+    "baz": "bar2",
+  },
+  "foo10": Object {
+    "baz10": "unchanged",
+  },
+  "foo11": Object {
+    "baz11": "bar3",
+  },
+  "foo2": Object {
+    "baz": "bar3",
+    "baz2": "bar2",
+    "baz3": "bar3",
+  },
+  "foo3": Object {
+    "baz": "2018-12-24T10:33:30.000Z",
+  },
+  "foo4": Object {
+    "baz": "2018-12-24T10:33:30.000Z",
+  },
+  "foo5": "bar",
+  "foo6": 2018-12-24T10:33:30.000Z,
+  "foo7": Object {},
+  "id": "<obfuscated>",
+}
+`;

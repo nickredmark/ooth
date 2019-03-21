@@ -1,0 +1,29 @@
+{
+  "name": "ooth-create-react-app",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "react-scripts": "1.0.17"
+  },
+  "dependencies": {
+    "apollo-cache-inmemory": "^1.1.0",
+    "apollo-client": "^2.0.2",
+    "apollo-link-http": "^1.1.0",
+    "graphql": "^0.11.7",
+    "graphql-tag": "^2.5.0",
+    "ooth-client": "^2.0.0",
+    "ooth-client-react": "^2.0.0",
+    "prop-types": "^15.6.0",
+    "react": "^16.1.1",
+    "react-apollo": "^2.0.1",
+    "react-dom": "^16.1.1",
+    "recompose": "^0.26.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "watch": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

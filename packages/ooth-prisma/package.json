@@ -1,0 +1,38 @@
+{
+  "name": "ooth-priama",
+  "version": "0.1.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "clean": "del-cli ./lib ./coverage",
+    "build": "npm run clean && tsc -p ./config/tsconfig.build.json",
+    "watch": "npm run clean && tsc -p ./config/tsconfig.base.json --watch",
+    "lint": "tslint -c ./tslint.json -p ./config/tsconfig.build.json",
+    "test": "npm run lint && npm run clean && jest -c ./jest.json",
+    "test:watch": "npm run clean && jest -c ./jest.json --watch"
+  },
+  "author": "Nicola Marcacci Rossi <nicolamr@gmail.com> (http://nmr.io)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=8"
+  },
+  "repository": "nmaro/ooth",
+  "devDependencies": {
+    "@smartive/tslint-config": "^4.0.0",
+    "@types/jest": "^23.3.1",
+    "@types/lodash": "^4.14.116",
+    "@types/mongodb": "^3.1.4",
+    "del-cli": "^1.1.0",
+    "jest": "^23.5.0",
+    "lodash": "^4.17.10",
+    "mongodb-memory-server": "^2.0.1",
+    "ts-jest": "^23.1.4",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
+    "tsutils": "^3.0.0",
+    "typescript": "^3.0.1"
+  },
+  "dependencies": {
+    "mongodb": "^3.1.3"
+  }
+}

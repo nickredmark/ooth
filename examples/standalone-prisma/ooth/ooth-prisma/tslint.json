@@ -1,0 +1,8 @@
+{
+  "extends": ["@smartive/tslint-config", "tslint-config-prettier"],
+  "rules": {
+    "arrow-parens": true,
+    "ter-arrow-parens": "as-needed",
+    "ordered-imports": false
+  }
+}
