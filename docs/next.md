@@ -298,7 +298,7 @@ ENTRYPOINT [ "npm", "run"]
 CMD [ "start" ]
 ```
 
-Note: To avoid noise, from now on I'll avoid mentioning `.dockerignore` and `package.json` files and other small details. Also, tutorials get out of date quickly, so if things have changed, refer to the [reference implementation](github.com/nmaro/staart/example/staart)).
+Note: To avoid noise, from now on I'll avoid mentioning `.dockerignore` and `package.json` files and other small details. Also, tutorials get out of date quickly, so if things have changed, refer to the [reference implementation](https://github.com/nmaro/staart/tree/master/examples/staart)).
 
 ## Authentication Microservice (Ooth)
 
@@ -374,7 +374,7 @@ oothLocal({ ooth }); // That was quick, wasn't it?
 Note: I'll not go into it here, but if you want to
 send emails you'll need to add another package
 called `ooth-local-emailer`. It requires you
-to provide a `sendMail` function. Again, I'd like to refer to the [reference implementation](github.com/nmaro/staart/example/staart).
+to provide a `sendMail` function. Again, I'd like to refer to the [reference implementation](https://github.com/nmaro/staart/tree/master/examples/staart).
 
 We also want users to be able to log in with Facebook and Google, this is how we do it:
 
@@ -863,7 +863,7 @@ And finally we get to see pages of our application (in the `pages` folder):
 └── verify-email.js
 ```
 
-Let's look at a couple of them (remember, here's the [reference implementation](https://github.com/nmaro/staart)).
+Let's look at a couple of them (remember, here's the [reference implementation](https://github.com/nmaro/staart/tree/master/examples/staart)).
 
 This is how an `index.js` file could look like:
 
